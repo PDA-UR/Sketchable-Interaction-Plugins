@@ -4,8 +4,8 @@ Item
 {
     function updateData(data)
     {
-        cursorImage.width = data.width;
-        cursorImage.height = data.height;
+        texture.width = data.width;
+        texture.height = data.height;
     }
 
     id: container

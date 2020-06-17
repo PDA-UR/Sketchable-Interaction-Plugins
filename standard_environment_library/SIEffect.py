@@ -120,11 +120,11 @@ class SIEffect(PySI.Effect):
             self.texture_height = 75
 
             # apply data in QML
-            self.__add_data__("img_width", self.texture_width, PySI.DataType.INT)
-            self.__add_data__("img_height", self.texture_height, PySI.DataType.INT)
-            self.__add_data__("img_path", self.texture_path, PySI.DataType.STRING)
-            self.__add_data__("widget_width", self.width, PySI.DataType.FLOAT)
-            self.__add_data__("widget_height", self.height, PySI.DataType.FLOAT)
+            self.add_QML_data("img_width", self.texture_width, PySI.DataType.INT)
+            self.add_QML_data("img_height", self.texture_height, PySI.DataType.INT)
+            self.add_QML_data("img_path", self.texture_path, PySI.DataType.STRING)
+            self.add_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
+            self.add_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
 
         ## member attribute variable storing keys to functions which are called when collision events occur for emitting data to receiving regions
         #
@@ -400,8 +400,8 @@ class SIEffect(PySI.Effect):
     # @param datatype the data type of the value (PySI.INT, PySI.FLOAT, ...) (int)
     #
     # Calls the function __add_data__ (c++-bindings)
-    def add_QML_data(self, key, value, datatype):
-        self.__add_data__(key, value, datatype)
+    def add_QML_data(self, key, value, datatype, data_kwargs={}):
+        self.__add_data__(key, value, datatype, data_kwargs)
 
     ## member function for adding a point to a region drawing based on a cursor id.
     #
