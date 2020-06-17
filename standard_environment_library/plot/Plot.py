@@ -1,18 +1,16 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 
-from PIL import Image
 import matplotlib
-matplotlib.use('Agg')
+matplotlib.use('Agg')  # required
 import matplotlib.pyplot as plt
 import numpy as np
-np.seterr(divide='ignore', invalid='ignore')
+np.seterr(divide='ignore', invalid='ignore')  # optional for quenching annoying warnings
 
 class Plot(SIEffect):
 	regiontype = PySI.EffectType.SI_CUSTOM
 	regionname = "__PLOT__"
 	region_display_name = "Plot"
-	region_selector_color = PySI.Color(0, 80, 80, 255)
 
 	def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
 		super(Plot, self).__init__(shape, uuid, "res/dot-plot.png", Plot.regiontype, Plot.regionname, kwargs)
