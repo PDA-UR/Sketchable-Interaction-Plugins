@@ -13,7 +13,7 @@ class Directory(Entry.Entry):
         super(Directory, self).__init__(shape, uuid, Directory.regiontype, Directory.regionname, kwargs)
         self.name = PySI.EffectName.SI_STD_NAME_DIRECTORY
         self.region_type = PySI.EffectType.SI_DIRECTORY
-        self.qml_path = "plugins/standard_environment_library/filesystem/Directory.qml"
+        self.qml_path = self.set_QML_path("Directory.qml")
         self.preview_width = 400
         self.preview_height = 600
         self.width = Directory.region_width
@@ -37,14 +37,14 @@ class Directory(Entry.Entry):
 
         self.btn_presses = 0
 
-        self.add_QML_data("container_width", self.width, PySI.DataType.INT)
-        self.add_QML_data("container_height", self.height, PySI.DataType.INT)
-        self.add_QML_data("img_path", "res/dir.png", PySI.DataType.STRING)
-        self.add_QML_data("fullname", self.path, PySI.DataType.STRING)
-        self.add_QML_data("is_visible", self.is_visible, PySI.DataType.BOOL)
-        self.add_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
-        self.add_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
-        self.add_QML_data("page_name", "1 / " + str(len(self.browse_pages)), PySI.DataType.STRING)
+        self.set_QML_data("container_width", self.width, PySI.DataType.INT)
+        self.set_QML_data("container_height", self.height, PySI.DataType.INT)
+        self.set_QML_data("img_path", "res/dir.png", PySI.DataType.STRING)
+        self.set_QML_data("fullname", self.path, PySI.DataType.STRING)
+        self.set_QML_data("is_visible", self.is_visible, PySI.DataType.BOOL)
+        self.set_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
+        self.set_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
+        self.set_QML_data("page_name", "1 / " + str(len(self.browse_pages)), PySI.DataType.STRING)
 
         self.enable_effect(PySI.CollisionCapability.PARENT, self.EMISSION, self.on_parent_enter_emit, None, self.on_parent_leave_emit)
         self.enable_effect(PySI.CollisionCapability.BTN, self.RECEPTION, self.on_btn_enter_recv, self.on_btn_continuous_recv, self.on_btn_leave_recv)
@@ -75,7 +75,7 @@ class Directory(Entry.Entry):
         for child in self.children:
             child.delete()
 
-        self.add_QML_data("page_name", str(self.current_page + 1) + "/" + str(len(self.browse_pages)), PySI.DataType.STRING)
+        self.set_QML_data("page_name", str(self.current_page + 1) + "/" + str(len(self.browse_pages)), PySI.DataType.STRING)
 
         self.show_current_folder_contents_page()
 
@@ -106,10 +106,10 @@ class Directory(Entry.Entry):
             self.is_opened_visible = True
 
             self.color = PySI.Color(10, 0, 0, 255)
-            self.add_QML_data("container_width", self.width, PySI.DataType.INT)
-            self.add_QML_data("container_height", self.height, PySI.DataType.INT)
-            self.add_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
-            self.add_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
+            self.set_QML_data("container_width", self.width, PySI.DataType.INT)
+            self.set_QML_data("container_height", self.height, PySI.DataType.INT)
+            self.set_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
+            self.set_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
 
             self.show_current_folder_contents_page()
 
@@ -128,10 +128,10 @@ class Directory(Entry.Entry):
             self.is_icon_visible = True
             self.is_opened_visible = False
             self.color = PySI.Color(25, 0, 0, 0)
-            self.add_QML_data("container_width", self.width, PySI.DataType.INT)
-            self.add_QML_data("container_height", self.height, PySI.DataType.INT)
-            self.add_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
-            self.add_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
+            self.set_QML_data("container_width", self.width, PySI.DataType.INT)
+            self.set_QML_data("container_height", self.height, PySI.DataType.INT)
+            self.set_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
+            self.set_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
             self.is_open_entry_capability_blocked = False
 
             for child in self.children:

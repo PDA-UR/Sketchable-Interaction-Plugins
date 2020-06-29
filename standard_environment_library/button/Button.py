@@ -10,7 +10,8 @@ class Button(SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Button, self).__init__(shape, uuid, "res/next.png", Button.regiontype, Button.regionname, kwargs)
-        self.qml_path = "plugins/standard_environment_library/button/Button.qml"
+
+        self.qml_path = self.set_QML_path("Button.qml")
         self.color = PySI.Color(192, 192, 192, 0)
 
         self.disable_effect(PySI.CollisionCapability.MOVE, False)
@@ -26,8 +27,8 @@ class Button(SIEffect):
         self.width = Button.region_width
         self.height = Button.region_height
 
-        self.add_QML_data("icon_width", self.icon_width, PySI.DataType.INT)
-        self.add_QML_data("icon_height", self.icon_height, PySI.DataType.INT)
+        self.set_QML_data("icon_width", self.icon_width, PySI.DataType.INT)
+        self.set_QML_data("icon_height", self.icon_height, PySI.DataType.INT)
 
         self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
 

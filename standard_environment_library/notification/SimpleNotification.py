@@ -14,20 +14,20 @@ class SimpleNotification(SIEffect.SIEffect):
         self.name = PySI.EffectName.SI_STD_NAME_SIMPLE_NOTIFICATION
         self.region_type = PySI.EffectType.SI_NOTIFICATION
         self.source = "libstdSI"
-        self.qml_path = "plugins/standard_environment_library/notification/SimpleNotification.qml"
+        self.qml_path = self.set_QML_path("SimpleNotification.qml")
         self.color = PySI.Color(255, 255, 255, 255)
         self.message = "Hello World"
 
         self.width = SimpleNotification.region_width
         self.height = SimpleNotification.region_height
 
-        self.add_QML_data("containerwidth", self.width, PySI.DataType.INT)
-        self.add_QML_data("containerheight", self.height, PySI.DataType.INT)
-        self.add_QML_data("text", self.message, PySI.DataType.STRING)
+        self.set_QML_data("containerwidth", self.width, PySI.DataType.INT)
+        self.set_QML_data("containerheight", self.height, PySI.DataType.INT)
+        self.set_QML_data("text", self.message, PySI.DataType.STRING)
 
         self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
         self.disable_effect(PySI.CollisionCapability.MOVE, self.RECEPTION)
 
     def update_message(self, message):
         self.message = message
-        self.add_QML_data("message", self.message, PySI.DataType.STRING)
+        self.set_QML_data("message", self.message, PySI.DataType.STRING)

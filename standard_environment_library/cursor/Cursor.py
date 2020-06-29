@@ -11,7 +11,7 @@ class Cursor(SIEffect.SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Cursor, self).__init__(shape, uuid, "", Cursor.regiontype, Cursor.regionname, kwargs)
         self.source = "libstdSI"
-        self.qml_path = "plugins/standard_environment_library/cursor/Cursor.qml"
+        self.qml_path = self.set_QML_path("Cursor.qml")
         self.color = PySI.Color(0, 0, 0, 0)
         self.assigned_effect = ""
 
@@ -20,8 +20,8 @@ class Cursor(SIEffect.SIEffect):
 
         self.clicks = 0
 
-        self.add_QML_data("width", self.width, PySI.DataType.INT)
-        self.add_QML_data("height", self.height, PySI.DataType.INT)
+        self.set_QML_data("width", self.width, PySI.DataType.INT)
+        self.set_QML_data("height", self.height, PySI.DataType.INT)
 
         self.parent_canvas = None
         self.move_target = None

@@ -10,7 +10,7 @@ class Selector(SIEffect.SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Selector, self).__init__(shape, uuid, "", Selector.regiontype, Selector.regionname, kwargs)
         self.source = "libStdSI"
-        self.qml_path = "plugins/standard_environment_library/palette/Selector.qml"
+        self.qml_path = self.set_QML_path("Selector.qml")
 
         self.color = kwargs["target_color"]
         self.target_display_name = kwargs["target_display_name"]

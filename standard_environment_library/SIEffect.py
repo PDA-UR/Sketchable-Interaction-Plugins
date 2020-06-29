@@ -1,4 +1,7 @@
 from libPySI import PySI
+from pathlib import Path
+import inspect
+import os
 
 ## @package SIEffect
 # Documentation for this module / class
@@ -120,11 +123,11 @@ class SIEffect(PySI.Effect):
             self.texture_height = 75
 
             # apply data in QML
-            self.add_QML_data("img_width", self.texture_width, PySI.DataType.INT)
-            self.add_QML_data("img_height", self.texture_height, PySI.DataType.INT)
-            self.add_QML_data("img_path", self.texture_path, PySI.DataType.STRING)
-            self.add_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
-            self.add_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
+            self.set_QML_data("img_width", self.texture_width, PySI.DataType.INT)
+            self.set_QML_data("img_height", self.texture_height, PySI.DataType.INT)
+            self.set_QML_data("img_path", self.texture_path, PySI.DataType.STRING)
+            self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
+            self.set_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
 
         ## member attribute variable storing keys to functions which are called when collision events occur for emitting data to receiving regions
         #
@@ -399,9 +402,18 @@ class SIEffect(PySI.Effect):
     # @param value the value to set in the variable in the qml file (variant)
     # @param datatype the data type of the value (PySI.INT, PySI.FLOAT, ...) (int)
     #
-    # Calls the function __add_data__ (c++-bindings)
-    def add_QML_data(self, key, value, datatype, data_kwargs={}):
-        self.__add_data__(key, value, datatype, data_kwargs)
+    # Calls the function __set_data__ (c++-bindings)
+    def set_QML_data(self, key, value, datatype, data_kwargs={}):
+        self.__set_data__(key, value, datatype, data_kwargs)
+
+    ## member function for setting the path to an plugin's associated qml file
+    #
+    # @param self the object pointer
+    # @param filename the file name of the target qml file
+    #
+    # @return the absolute path to the qml file
+    def set_QML_path(self, filename):
+        return os.path.dirname(os.path.abspath((inspect.stack()[1])[1])) + "/" + filename
 
     ## member function for adding a point to a region drawing based on a cursor id.
     #

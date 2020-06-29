@@ -13,7 +13,6 @@ Item {
             plot_texture.anchors.topMargin = data.widget_height / 2 - plot_texture.height / 2;
 	    }
 
-
         idle_texture.width = data.icon_width;
         idle_texture.height = data.icon_height;
         idle_texture.source = data.img_path;

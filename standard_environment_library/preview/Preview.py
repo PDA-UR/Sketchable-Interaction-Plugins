@@ -13,7 +13,7 @@ class Preview(SIEffect.SIEffect):
         self.name = PySI.EffectName.SI_STD_NAME_PREVIEW
         self.region_type = PySI.EffectType.SI_PREVIEW
         self.source = "libStdSI"
-        self.qml_path = "plugins/standard_environment_library/preview/Preview.qml"
+        self.qml_path = self.set_QML_path("Preview.qml")
         self.color = PySI.Color(0, 80, 80, 255)
 
         self.enable_effect(PySI.CollisionCapability.PREVIEW, self.EMISSION, self.on_preview_enter_emit, self.on_preview_continuous_emit, self.on_preview_continuous_emit)

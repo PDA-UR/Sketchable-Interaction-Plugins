@@ -8,7 +8,7 @@ class Tag(SIEffect):
 
 	def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
 		super(Tag, self).__init__(shape, uuid, "res/tag.png", Tag.regiontype, Tag.regionname, kwargs)
-		self.qml_path = "plugins/standard_environment_library/tag/Tag.qml"
+		self.qml_path = self.set_QML_path("Tag.qml")
 		self.color = PySI.Color(255, 0, 0, 255)  # change to your color
 
 		self.enable_effect("tagging", SIEffect.EMISSION, self.on_tag_enter_emit, None, None)

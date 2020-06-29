@@ -32,11 +32,11 @@ class Entry(SIEffect.SIEffect):
 
         self.is_container_visible = True
 
-        self.add_QML_data("text_height", self.text_height, PySI.DataType.INT)
-        self.add_QML_data("icon_width", self.icon_width, PySI.DataType.INT)
-        self.add_QML_data("icon_height", self.icon_height, PySI.DataType.INT)
-        self.add_QML_data("color", self.text_color, PySI.DataType.STRING)
-        self.add_QML_data("name", self.filename, PySI.DataType.STRING)
+        self.set_QML_data("text_height", self.text_height, PySI.DataType.INT)
+        self.set_QML_data("icon_width", self.icon_width, PySI.DataType.INT)
+        self.set_QML_data("icon_height", self.icon_height, PySI.DataType.INT)
+        self.set_QML_data("color", self.text_color, PySI.DataType.STRING)
+        self.set_QML_data("name", self.filename, PySI.DataType.STRING)
 
         self.enable_effect(PySI.CollisionCapability.OPEN_ENTRY, self.RECEPTION, self.on_open_entry_enter_recv, self.on_open_entry_continuous_recv, self.on_open_entry_leave_recv)
         self.enable_effect(PySI.CollisionCapability.PARENT, self.RECEPTION, self.on_parent_enter_recv, None, self.on_parent_leave_recv)

@@ -14,7 +14,7 @@ class Plot(SIEffect):
 
 	def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
 		super(Plot, self).__init__(shape, uuid, "res/dot-plot.png", Plot.regiontype, Plot.regionname, kwargs)
-		self.qml_path = "plugins/standard_environment_library/plot/Plot.qml"
+		self.qml_path = self.set_QML_path("Plot.qml")
 		self.color = PySI.Color(63, 136, 143, 255)
 
 		# rework this into a linking action reception function or collision event reception function
@@ -37,14 +37,14 @@ class Plot(SIEffect):
 
 		self.shape = PySI.PointVector([[x, y], [x, y + self.height], [x + self.width, y + self.height], [x + self.width, y]])
 
-		self.add_QML_data("image", np_fig.tobytes(), PySI.DataType.BYTES, {"width": self.width, "height": self.height})
-		self.add_QML_data("img_width", self.width, PySI.DataType.INT)
-		self.add_QML_data("img_height", self.height, PySI.DataType.INT)
-		self.add_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
-		self.add_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
+		self.set_QML_data("image", np_fig.tobytes(), PySI.DataType.BYTES, {"width": self.width, "height": self.height})
+		self.set_QML_data("img_width", self.width, PySI.DataType.INT)
+		self.set_QML_data("img_height", self.height, PySI.DataType.INT)
+		self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
+		self.set_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
 
 	def hide(self):
-		self.add_QML_data("image", None, PySI.DataType.STRING, {"width": self.width, "height": self.height})
+		self.set_QML_data("image", None, PySI.DataType.STRING, {"width": self.width, "height": self.height})
 
 		x = self.relative_x_pos()
 		y = self.relative_y_pos()
@@ -53,8 +53,8 @@ class Plot(SIEffect):
 
 		self.shape = PySI.PointVector([[x, y], [x, y + self.height], [x + self.width, y + self.height], [x + self.width, y]])
 
-		self.add_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
-		self.add_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
+		self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
+		self.set_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
 
 	def fig_2_ndarray(self, fig, mode="rgba"):
 		fig.canvas.draw()

@@ -11,7 +11,7 @@ class ImageFile(Entry.Entry):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(ImageFile, self).__init__(shape, uuid, ImageFile.regiontype, ImageFile.regionname, kwargs)
-        self.qml_path = "plugins/standard_environment_library/filesystem/ImageFile.qml"
+        self.qml_path = self.set_QML_path("ImageFile.qml")
         self.is_in_preview = False
         self.color = PySI.Color(10, 0, 0, 0)
         self.img_width, self.img_height = 0, 0
@@ -19,9 +19,9 @@ class ImageFile(Entry.Entry):
         if(self.path != ""):
             self.img_width, self.img_height = Image.open(self.path).size
 
-        self.add_QML_data("img_path", self.path, PySI.DataType.STRING)
-        self.add_QML_data("is_visible", self.is_visible, PySI.DataType.BOOL)
-        self.add_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
+        self.set_QML_data("img_path", self.path, PySI.DataType.STRING)
+        self.set_QML_data("is_visible", self.is_visible, PySI.DataType.BOOL)
+        self.set_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
 
         self.enable_effect(PySI.CollisionCapability.PREVIEW, self.RECEPTION, self.on_preview_enter_recv, self.on_preview_continuous_recv, self.on_preview_leave_recv)
 
@@ -39,12 +39,12 @@ class ImageFile(Entry.Entry):
 
             self.shape = PySI.PointVector([[x, y], [x, y + self.height], [x + self.width, y + self.height], [x + self.width, y]])
 
-            self.add_QML_data("img_path", self.path, PySI.DataType.STRING)
-            self.add_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
-            self.add_QML_data("container_width", self.width, PySI.DataType.INT)
-            self.add_QML_data("container_height", self.height, PySI.DataType.INT)
-            self.add_QML_data("icon_width", self.width, PySI.DataType.INT)
-            self.add_QML_data("icon_height", self.height, PySI.DataType.INT)
+            self.set_QML_data("img_path", self.path, PySI.DataType.STRING)
+            self.set_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
+            self.set_QML_data("container_width", self.width, PySI.DataType.INT)
+            self.set_QML_data("container_height", self.height, PySI.DataType.INT)
+            self.set_QML_data("icon_width", self.width, PySI.DataType.INT)
+            self.set_QML_data("icon_height", self.height, PySI.DataType.INT)
 
             self.snap_to_mouse()
 
@@ -65,12 +65,12 @@ class ImageFile(Entry.Entry):
 
             self.shape = PySI.PointVector([[x, y], [x, y + self.height], [x + self.width, y + self.height], [x + self.width, y]])
 
-            self.add_QML_data("img_path", self.path, PySI.DataType.STRING)
-            self.add_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
-            self.add_QML_data("container_width", self.width, PySI.DataType.INT)
-            self.add_QML_data("container_height", self.height, PySI.DataType.INT)
-            self.add_QML_data("icon_width", self.icon_width, PySI.DataType.INT)
-            self.add_QML_data("icon_height", self.icon_height, PySI.DataType.INT)
+            self.set_QML_data("img_path", self.path, PySI.DataType.STRING)
+            self.set_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
+            self.set_QML_data("container_width", self.width, PySI.DataType.INT)
+            self.set_QML_data("container_height", self.height, PySI.DataType.INT)
+            self.set_QML_data("icon_width", self.icon_width, PySI.DataType.INT)
+            self.set_QML_data("icon_height", self.icon_height, PySI.DataType.INT)
 
             if self.is_under_user_control:
                 self.snap_to_mouse()
