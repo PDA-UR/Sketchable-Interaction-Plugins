@@ -43,6 +43,8 @@ class SIEffect(PySI.Effect):
     # @param kwargs keyworded arguments which may necessary for more specific implementations of region effects (dict)
     # @param __source__ the source of the plugin e.g. standard environment library (str)
     def __init__(self, shape, uuid, texture_path, regiontype, regionname, kwargs, __source__="custom"):
+        texture_path = os.path.dirname(os.path.abspath((inspect.stack()[1])[1])) + "/" + texture_path
+
         super(SIEffect, self).__init__(shape, uuid, texture_path, kwargs)
 
         ## member attribute variable containing the shape (contour) of a drawn region as a PySI.PointVector

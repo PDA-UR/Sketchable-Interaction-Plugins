@@ -33,6 +33,7 @@ class Cursor(SIEffect.SIEffect):
         self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
 
         self.enable_effect(PySI.CollisionCapability.ASSIGN, self.RECEPTION, None, self.on_assign_continuous_recv, None)
+        self.enable_effect(PySI.CollisionCapability.HOVER, self.EMISSION, self.on_hover_enter_emit, None, self.on_hover_leave_emit)
 
         self.enable_link_emission(PySI.LinkingCapability.POSITION, self.position)
         self.enable_link_reception(PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION, self.set_position_from_position)
@@ -129,3 +130,9 @@ class Cursor(SIEffect.SIEffect):
             if self.assigned_effect != effect_to_assign:
                 self.assigned_effect = effect_to_assign
                 self.assign_effect(self.assigned_effect, effect_display_name, kwargs)
+
+    def on_hover_enter_emit(self, other):
+        pass
+
+    def on_hover_leave_emit(self, other):
+        pass

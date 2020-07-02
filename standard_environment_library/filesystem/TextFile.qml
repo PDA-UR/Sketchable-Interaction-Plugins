@@ -45,7 +45,7 @@ Item
         anchors.topMargin: -10
         anchors.leftMargin: -width * 0.25
 
-        wrapMode: TextEdit.Wrap
+        wrapMode: Text.Wrap
     }
 
     Rectangle {

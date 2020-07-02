@@ -20,10 +20,29 @@ class Selector(SIEffect.SIEffect):
         self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
         self.disable_effect(PySI.CollisionCapability.MOVE, self.RECEPTION)
         self.enable_effect(PySI.CollisionCapability.ASSIGN, self.EMISSION, None, self.on_assign_continuous_emit, None)
+        self.enable_effect(PySI.CollisionCapability.HOVER, self.RECEPTION, self.on_hover_enter_recv, None, self.on_hover_leave_recv)
 
         self.parent = kwargs["parent"]
+
+        self.img_width = 40
+        self.img_height = 40
+
+        self.set_QML_data("img_path", self.target_texture_path, PySI.DataType.STRING)
+        self.set_QML_data("visible", False, PySI.DataType.BOOL)
+        self.set_QML_data("text", "", PySI.DataType.STRING)
+        self.set_QML_data("img_width", self.img_width, PySI.DataType.INT)
+        self.set_QML_data("img_height", self.img_height, PySI.DataType.INT)
+        self.set_QML_data("text", self.target_display_name, PySI.DataType.STRING)
+        self.set_QML_data("width", self.width, PySI.DataType.INT)
+        self.set_QML_data("height", self.height, PySI.DataType.INT)
 
         self.create_link(self.parent, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
     def on_assign_continuous_emit(self, other):
         return self.target_name, self.target_display_name, {}
+
+    def on_hover_enter_recv(self):
+        self.set_QML_data("visible", True, PySI.DataType.BOOL)
+
+    def on_hover_leave_recv(self):
+        self.set_QML_data("visible", False, PySI.DataType.BOOL)
