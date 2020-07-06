@@ -13,10 +13,10 @@ class Selector(SIEffect.SIEffect):
         self.qml_path = self.set_QML_path("Selector.qml")
 
         self.color = kwargs["target_color"]
-        self.target_display_name = kwargs["target_display_name"]
         self.target_name = kwargs["target_name"]
+        self.target_display_name = kwargs["target_display_name"]
         self.target_texture_path = kwargs["target_texture"]
-
+        self.name = "Selector for " + self.target_display_name
         self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
         self.disable_effect(PySI.CollisionCapability.MOVE, self.RECEPTION)
         self.enable_effect(PySI.CollisionCapability.ASSIGN, self.EMISSION, None, self.on_assign_continuous_emit, None)
