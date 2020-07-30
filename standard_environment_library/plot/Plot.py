@@ -37,14 +37,14 @@ class Plot(SIEffect):
 
 		self.shape = PySI.PointVector([[x, y], [x, y + self.height], [x + self.width, y + self.height], [x + self.width, y]])
 
-		self.set_QML_data("image", np_fig.tobytes(), PySI.DataType.BYTES, {"width": self.width, "height": self.height})
+		self.set_QML_data("image", np_fig.tobytes(), PySI.DataType.IMAGE_AS_BYTES, {"width": self.width, "height": self.height})
 		self.set_QML_data("img_width", self.width, PySI.DataType.INT)
 		self.set_QML_data("img_height", self.height, PySI.DataType.INT)
 		self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
 		self.set_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
 
 	def hide(self):
-		self.set_QML_data("image", None, PySI.DataType.STRING, {"width": self.width, "height": self.height})
+		self.set_QML_data("image", None, PySI.DataType.IMAGE_AS_BYTES, {"width": self.width, "height": self.height})
 
 		x = self.relative_x_pos()
 		y = self.relative_y_pos()

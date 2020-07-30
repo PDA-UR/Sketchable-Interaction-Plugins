@@ -1,7 +1,6 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 
-
 class Button(SIEffect):
     regiontype = PySI.EffectType.SI_BUTTON
     regionname = PySI.EffectName.SI_STD_NAME_BUTTON
@@ -9,7 +8,10 @@ class Button(SIEffect):
     region_height = 100
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        super(Button, self).__init__(shape, uuid, "res/next.png", Button.regiontype, Button.regionname, kwargs)
+        if kwargs["value"]:
+            super(Button, self).__init__(shape, uuid, "res/next2.png", Button.regiontype, Button.regionname, kwargs)
+        else:
+            super(Button, self).__init__(shape, uuid, "res/next.png", Button.regiontype, Button.regionname, kwargs)
 
         self.qml_path = self.set_QML_path("Button.qml")
         self.color = PySI.Color(192, 192, 192, 0)

@@ -46,7 +46,6 @@ class Cursor(SIEffect.SIEffect):
         self.last_y = self.y
 
         self.move(abs_x, abs_y)
-        # return abs_x, abs_y
 
     def self_on_sketch_enter_emit(self, other):
         self.parent_canvas = other
