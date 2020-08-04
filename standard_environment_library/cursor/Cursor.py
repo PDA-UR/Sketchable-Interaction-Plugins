@@ -14,7 +14,7 @@ class Cursor(SIEffect.SIEffect):
         self.qml_path = self.set_QML_path("Cursor.qml")
         self.color = PySI.Color(0, 0, 0, 0)
         self.assigned_effect = ""
-
+        self.is_drawing_blocked = False
         self.width = Cursor.region_width
         self.height = Cursor.region_height
 
@@ -26,13 +26,18 @@ class Cursor(SIEffect.SIEffect):
         self.parent_canvas = None
         self.move_target = None
         self.btn_target = None
+        self.image_editor_tool = []
+        self.image_editor_tooltype = None
 
         self.left_mouse_active = False
         self.right_mouse_active = False
 
         self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
 
+        self.enable_effect("HIDE_TOOL", self.RECEPTION, None, None, self.on_hide_tool_leave_recv)
+        self.enable_effect("ToolActivation", self.EMISSION, None, self.on_tool_activation_continuous_emit, None)
         self.enable_effect(PySI.CollisionCapability.ASSIGN, self.RECEPTION, None, self.on_assign_continuous_recv, None)
+        self.enable_effect("ImageEditorAssign", self.RECEPTION, None, self.on_image_editor_assign_continuous_recv, None)
         self.enable_effect(PySI.CollisionCapability.HOVER, self.EMISSION, self.on_hover_enter_emit, None, self.on_hover_leave_emit)
 
         self.enable_link_emission(PySI.LinkingCapability.POSITION, self.position)
@@ -83,12 +88,16 @@ class Cursor(SIEffect.SIEffect):
         if self.btn_target is None:
             self.btn_target = other
 
+        return self._uuid
+
     def on_btn_press_continuous_emit(self, other):
-        pass
+        return self._uuid
 
     def on_btn_press_leave_emit(self, other):
         if self.btn_target is other:
             self.btn_target = None
+
+        return self._uuid
 
     def on_left_mouse_click(self, is_active):
         self.left_mouse_active = is_active
@@ -98,7 +107,7 @@ class Cursor(SIEffect.SIEffect):
                 self.enable_effect(PySI.CollisionCapability.CLICK, True, self.on_btn_press_enter_emit, self.on_btn_press_continuous_emit, self.on_btn_press_leave_emit)
 
             if self.assigned_effect != "":
-                if PySI.CollisionCapability.SKETCH not in self.cap_emit.keys():
+                if not self.is_drawing_blocked and PySI.CollisionCapability.SKETCH not in self.cap_emit.keys():
                     self.enable_effect(PySI.CollisionCapability.SKETCH, True, self.self_on_sketch_enter_emit, self.on_sketch_continuous_emit, self.on_sketch_leave_emit)
         else:
             if PySI.CollisionCapability.SKETCH in self.cap_emit.keys():
@@ -111,7 +120,7 @@ class Cursor(SIEffect.SIEffect):
             if PySI.CollisionCapability.CLICK in self.cap_emit.keys():
                 self.disable_effect(PySI.CollisionCapability.CLICK, True)
                 if self.btn_target is not None:
-                    self.btn_target.on_click_leave_recv()
+                    self.btn_target.on_click_leave_recv(self._uuid)
 
     def on_right_mouse_click(self, is_active):
         self.right_mouse_active = is_active
@@ -130,8 +139,26 @@ class Cursor(SIEffect.SIEffect):
                 self.assigned_effect = effect_to_assign
                 self.assign_effect(self.assigned_effect, effect_display_name, kwargs)
 
+    # def on_image_editor_assign_continuous_recv(self, tool_to_assign, tooltype):
+    def on_image_editor_assign_continuous_recv(self):
+        pass
+
     def on_hover_enter_emit(self, other):
         pass
 
     def on_hover_leave_emit(self, other):
         pass
+
+    def on_tool_activation_continuous_emit(self, other):
+        if self.left_mouse_active:
+            self.disable_effect(PySI.CollisionCapability.SKETCH, True)
+            self.is_drawing_blocked = True
+            return True
+        else:
+            self.is_drawing_blocked = False
+
+        return False
+
+    def on_hide_tool_leave_recv(self):
+        for tool in self.image_editor_tool:
+            tool.delete()

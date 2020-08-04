@@ -53,19 +53,15 @@ class Button(SIEffect):
     def on_btn_leave_emit(self, other):
         return "", ""
 
-    def on_click_enter_recv(self):
+    def on_click_enter_recv(self, cursor_id):
         self.is_triggered = False
         self.is_triggered_reported = False
 
-        return 0
-
-    def on_click_continuous_recv(self):
+    def on_click_continuous_recv(self, cursor_id):
         self.is_triggered = True
-        return 0
 
-    def on_click_leave_recv(self):
+    def on_click_leave_recv(self, cursor_id):
         self.is_triggered = False
-        return 0
 
     def on_parent_enter_recv(self, parent_id):
         if self.parent == "":

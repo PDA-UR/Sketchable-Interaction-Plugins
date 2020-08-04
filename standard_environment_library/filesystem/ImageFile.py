@@ -24,6 +24,7 @@ class ImageFile(Entry.Entry):
         self.set_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
 
         self.enable_effect(PySI.CollisionCapability.PREVIEW, self.RECEPTION, self.on_preview_enter_recv, self.on_preview_continuous_recv, self.on_preview_leave_recv)
+        self.enable_effect("GRAB_IMAGE", self.RECEPTION, None, self.on_grab_image_continuous_recv, self.on_grab_image_leave_recv)
 
     def on_preview_enter_recv(self):
         if not self.is_in_preview and self.parent == "":
@@ -74,3 +75,9 @@ class ImageFile(Entry.Entry):
 
             if self.is_under_user_control:
                 self.snap_to_mouse()
+
+    def on_grab_image_continuous_recv(self):
+        pass
+
+    def on_grab_image_leave_recv(self):
+        self.set_QML_data("img_path", self.path, PySI.DataType.STRING)

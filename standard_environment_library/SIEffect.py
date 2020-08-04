@@ -256,8 +256,8 @@ class SIEffect(PySI.Effect):
     # @param cursor_id the cursor which is intended to move the region (str)
     # @param link_attribute the linking attribute defining how the cursor and the region are intended to be linked (str)
     def on_move_enter_recv(self, cursor_id, link_attrib):
-        if not cursor_id is "" and not link_attrib is "":
-            self.link_relations.append([cursor_id, link_attrib, self._uuid, link_attrib])
+        if cursor_id is not "" and link_attrib is not "":
+            self.create_link(cursor_id, link_attrib, self._uuid, link_attrib)
             self.is_under_user_control = True
 
     ## member function for the PySI.MOVE capability for the PySI.ON_CONTINUOUS collision event
@@ -396,6 +396,9 @@ class SIEffect(PySI.Effect):
 
             if lr in self.link_relations:
                 del self.link_relations[self.link_relations.index(lr)]
+
+    def emit_linking_action(self, sender, capability, args):
+        self.__emit_linking_action__(sender, capability, args)
 
     ## member function for setting data in the associated qml file of a region effect
     #
