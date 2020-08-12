@@ -24,8 +24,15 @@ class Entry(SIEffect.SIEffect):
         self.is_visible = True
         self.is_under_user_control = False
         self.is_open_entry_capability_blocked = False
+        self.transportation_starttime = 0
+        self.prev_point_idx = 0
+        self.cb_transportation_active = False
+        self.transporter = ""
+        self.is_transport_done = False
+        self.actual_transportation_length = 0
 
         self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
+        self.enable_effect("TRANSPORT", self.RECEPTION, None, self.on_transport_continuous_recv, self.on_transport_leave_recv)
 
         if self.path is not "":
             self.filename = self.path[self.path.rfind("/") + 1:]
@@ -68,3 +75,25 @@ class Entry(SIEffect.SIEffect):
             if self.parent == _uuid:
                 self.parent = ""
                 self.remove_link(_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
+
+    def on_transport_continuous_recv(self, x, y, previous_point_index, t, transporter, is_transport_done, transportation_length):
+        if not self.is_under_user_control:
+            if x is not None and y is not None:
+                self.is_transport_done = is_transport_done
+                self.prev_point_idx = previous_point_index
+
+                if not self.cb_transportation_active and self.transporter == "":
+                    self.actual_transportation_length = transportation_length
+                    self.transportation_starttime = t
+                    self.cb_transportation_active = True
+                    self.transporter = transporter
+
+                self.move(x - self.relative_x_pos() - self.width / 2, y - self.relative_y_pos() - self.height / 2)
+
+    def on_transport_leave_recv(self):
+        self.transportation_starttime = 0
+        self.cb_transportation_active = False
+        self.transporter = ""
+        self.prev_point_idx = 0
+        self.is_transport_done = False
+        self.actual_transportation_length = 0
