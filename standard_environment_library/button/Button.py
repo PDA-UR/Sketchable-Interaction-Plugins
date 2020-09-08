@@ -9,9 +9,11 @@ class Button(SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         if kwargs["value"]:
-            super(Button, self).__init__(shape, uuid, "res/next2.png", Button.regiontype, Button.regionname, kwargs)
+            super(Button, self).__init__(shape, uuid, "res/backward.png", Button.regiontype, Button.regionname, kwargs)
         else:
-            super(Button, self).__init__(shape, uuid, "res/next.png", Button.regiontype, Button.regionname, kwargs)
+            super(Button, self).__init__(shape, uuid, "res/forward.png", Button.regiontype, Button.regionname, kwargs)
+
+        self.with_border = False
 
         self.qml_path = self.set_QML_path("Button.qml")
         self.color = PySI.Color(192, 192, 192, 0)

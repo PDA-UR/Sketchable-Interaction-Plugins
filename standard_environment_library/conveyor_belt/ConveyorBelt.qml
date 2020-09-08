@@ -11,7 +11,7 @@ Item {
 	}
 
 	id: container
-		visible: true
+	visible: true
 
 	Image {
 		id: texture

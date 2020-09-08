@@ -17,6 +17,7 @@ class Cursor(SIEffect.SIEffect):
         self.is_drawing_blocked = False
         self.width = Cursor.region_width
         self.height = Cursor.region_height
+        self.with_border = False
 
         self.clicks = 0
 

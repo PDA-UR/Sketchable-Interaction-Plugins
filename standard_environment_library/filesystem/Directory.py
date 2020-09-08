@@ -40,7 +40,7 @@ class Directory(Entry.Entry):
         self.set_QML_data("container_width", self.width, PySI.DataType.INT)
         self.set_QML_data("container_height", self.height, PySI.DataType.INT)
         self.set_QML_data("img_path", "res/dir.png", PySI.DataType.STRING)
-        self.set_QML_data("fullname", self.path, PySI.DataType.STRING)
+        self.set_QML_data("fullname", self.filename, PySI.DataType.STRING)
         self.set_QML_data("is_visible", self.is_visible, PySI.DataType.BOOL)
         self.set_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
         self.set_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
@@ -57,7 +57,7 @@ class Directory(Entry.Entry):
         self.btn_presses = self.btn_presses - 1 if value else self.btn_presses + 1
         self.current_page = self.btn_presses % len(self.browse_pages)
 
-        if self.btn_presses % len(self.browse_pages) is 0:
+        if self.btn_presses % len(self.browse_pages) == 0:
             self.btn_presses = 0
 
     def position(self):
@@ -83,7 +83,7 @@ class Directory(Entry.Entry):
         pass
 
     def on_btn_continuous_recv(self, cursor_id, value):
-        if cursor_id is not "" and value is not "":
+        if cursor_id != "" and value != "":
             self.on_btn_trigger(cursor_id, value)
 
     def on_btn_leave_recv(self, cursor_id, link_attrib):
@@ -104,8 +104,10 @@ class Directory(Entry.Entry):
 
             self.is_icon_visible = False
             self.is_opened_visible = True
+            self.with_border = True
 
-            self.color = PySI.Color(10, 0, 0, 255)
+
+            self.color = PySI.Color(250, 250, 250, 255)
             self.set_QML_data("container_width", self.width, PySI.DataType.INT)
             self.set_QML_data("container_height", self.height, PySI.DataType.INT)
             self.set_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
@@ -128,6 +130,7 @@ class Directory(Entry.Entry):
             self.is_icon_visible = True
             self.is_opened_visible = False
             self.color = PySI.Color(25, 0, 0, 0)
+            self.with_border = False
             self.set_QML_data("container_width", self.width, PySI.DataType.INT)
             self.set_QML_data("container_height", self.height, PySI.DataType.INT)
             self.set_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
@@ -181,7 +184,7 @@ class Directory(Entry.Entry):
         dir_height = self.icon_height + self.text_height
         x_offset = self.preview_width / 10
         y_offset = self.preview_height / 6
-        y_offset2 = dir_height / 8
+        y_offset2 = dir_height / 12
 
         i = 0
         y = -1
@@ -209,13 +212,16 @@ class Directory(Entry.Entry):
             self.create_region_via_id(entry_shape, entry[1], kwargs)
 
     def add_child_buttons(self, dir_x, dir_y):
+        horizontal_margin = 10
+        vertical_margin = 10
+
         btn_width = Button.Button.region_width
         btn_height = Button.Button.region_height
 
-        shape_btn1 = [[dir_x + self.preview_width - btn_width, dir_y + self.preview_height - btn_height],
-                      [dir_x + self.preview_width - btn_width, dir_y + self.preview_height],
-                      [dir_x + self.preview_width, dir_y + self.preview_height],
-                      [dir_x + self.preview_width, dir_y + self.preview_height - btn_height]]
+        shape_btn1 = [[dir_x + self.preview_width - btn_width - horizontal_margin, dir_y + self.preview_height - btn_height - vertical_margin],
+                      [dir_x + self.preview_width - btn_width - horizontal_margin, dir_y + self.preview_height - vertical_margin],
+                      [dir_x + self.preview_width - horizontal_margin, dir_y + self.preview_height - vertical_margin],
+                      [dir_x + self.preview_width - horizontal_margin, dir_y + self.preview_height - btn_height - vertical_margin]]
 
         kwargs_btn1 = {}
         kwargs_btn1["parent"] = self._uuid
@@ -223,10 +229,10 @@ class Directory(Entry.Entry):
 
         self.create_region_via_id(shape_btn1, PySI.EffectType.SI_BUTTON, kwargs_btn1)
 
-        shape_btn2 = [[dir_x, dir_y + self.preview_height - btn_height],
-                      [dir_x, dir_y + self.preview_height],
-                      [dir_x + btn_width, dir_y + self.preview_height],
-                      [dir_x + btn_width, dir_y + self.preview_height - btn_height]]
+        shape_btn2 = [[dir_x + horizontal_margin, dir_y + self.preview_height - btn_height - vertical_margin],
+                      [dir_x + horizontal_margin, dir_y + self.preview_height - vertical_margin],
+                      [dir_x + btn_width + horizontal_margin, dir_y + self.preview_height - vertical_margin],
+                      [dir_x + btn_width + horizontal_margin, dir_y + self.preview_height - btn_height - vertical_margin]]
 
         kwargs_btn2 = {}
         kwargs_btn2["parent"] = self._uuid

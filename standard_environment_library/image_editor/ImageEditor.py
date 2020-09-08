@@ -19,7 +19,7 @@ class ImageEditor(SIEffect):
         self.source = "libStdSI"
         self.qml_path = self.set_QML_path("ImageEditor.qml")
 
-        self.color = PySI.Color(225, 225, 225, 255)
+        self.color = PySI.Color(255, 229, 204, 255)
 
         self.text_height = 50
 
@@ -71,7 +71,7 @@ class ImageEditor(SIEffect):
             self.pixels = list(self.img.getdata())
             self.children = [None] * len(self.pixels)
 
-            self.color = PySI.Color(35, 35, 35, 255)
+            self.color = PySI.Color(255, 229, 204, 255)
 
             x = self.relative_x_pos()
             y = self.relative_y_pos()

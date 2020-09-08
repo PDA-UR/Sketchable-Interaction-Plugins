@@ -48,14 +48,14 @@ Item
 
             fontSizeMode: Text.Fit
             minimumPixelSize: 16
-            font.pixelSize: 72
-            color: "white"
+            color: "black"
+            anchors.verticalCenter: texture.verticalCenter
 
             width: texture.width * 2
             anchors.top: texture.bottom
             anchors.left: texture.left
-            anchors.topMargin: -10
-            anchors.leftMargin: -width * 0.25
+            anchors.topMargin: 0
+            anchors.leftMargin: 0
 
             wrapMode: TextEdit.Wrap
         }
@@ -73,8 +73,8 @@ Item
             width: 400
             fontSizeMode: Text.Fit
             minimumPixelSize: 16
-            font.pixelSize: 72
-            color: "white"
+            font.pixelSize: 48
+            color: "black"
             anchors.top: parent.top
             anchors.left: parent.left
 
@@ -88,7 +88,7 @@ Item
             fontSizeMode: Text.Fit
             minimumPixelSize: 16
             font.pixelSize: 48
-            color: "white"
+            color: "black"
             width: 150
             anchors.top: openenddirectoryname.top
             anchors.left: openenddirectoryname.left

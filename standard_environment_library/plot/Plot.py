@@ -13,9 +13,9 @@ class Plot(SIEffect):
 	region_display_name = "Plot"
 
 	def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-		super(Plot, self).__init__(shape, uuid, "res/dot-plot.png", Plot.regiontype, Plot.regionname, kwargs)
+		super(Plot, self).__init__(shape, uuid, "res/plot.png", Plot.regiontype, Plot.regionname, kwargs)
 		self.qml_path = self.set_QML_path("Plot.qml")
-		self.color = PySI.Color(63, 136, 143, 255)
+		self.color = PySI.Color(229, 204, 255, 255)
 
 		# rework this into a linking action reception function or collision event reception function
 		figure = plt.figure()

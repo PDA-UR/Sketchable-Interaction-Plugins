@@ -6,7 +6,7 @@ from plugins.standard_environment_library import SIEffect
 class SimpleNotification(SIEffect.SIEffect):
     regiontype = PySI.EffectType.SI_NOTIFICATION
     regionname = PySI.EffectName.SI_STD_NAME_SIMPLE_NOTIFICATION
-    region_width = 800
+    region_width = 1000
     region_height = 75
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):

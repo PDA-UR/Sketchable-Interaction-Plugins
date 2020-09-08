@@ -11,7 +11,7 @@ class Deletion(SIEffect.SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Deletion, self).__init__(shape, uuid, "res/deletion.png", Deletion.regiontype, Deletion.regionname, kwargs)
         self.qml_path = self.set_QML_path("Deletion.qml")
-        self.color = PySI.Color(255, 255, 0, 255)
+        self.color = PySI.Color(255, 255, 204, 255)
         self.is_under_user_control = False
 
         self.enable_effect(PySI.CollisionCapability.DELETION, True, self.on_deletion_enter_emit, self.on_deletion_continuous_emit, self.on_deletion_enter_emit)

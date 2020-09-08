@@ -1,19 +1,18 @@
 from libPySI import PySI
-from pathlib import Path
 import inspect
 import os
+from functools import wraps
+#from method_decorator import method_decorator
 
 ## @package SIEffect
 # Documentation for this module / class
 #
 # Used as central entry point for all SIGRun plugins
 
-
 ## Super Class from which all subsequent plugins are derived
 #
 # This Class itself is derived from PySI written in C++ which is documented separately within SIGRun
 class SIEffect(PySI.Effect):
-
     ## member constant to mark an effect or link emittable
     EMISSION = True
 
@@ -43,9 +42,11 @@ class SIEffect(PySI.Effect):
     # @param kwargs keyworded arguments which may necessary for more specific implementations of region effects (dict)
     # @param __source__ the source of the plugin e.g. standard environment library (str)
     def __init__(self, shape, uuid, texture_path, regiontype, regionname, kwargs, __source__="custom"):
-        texture_path = os.path.dirname(os.path.abspath((inspect.stack()[1])[1])) + "/" + texture_path
-
         super(SIEffect, self).__init__(shape, uuid, texture_path, kwargs)
+
+        self.with_border = True
+
+        texture_path = os.path.dirname(os.path.abspath((inspect.stack()[1])[1])) + "/" + texture_path
 
         ## member attribute variable containing the shape (contour) of a drawn region as a PySI.PointVector
         self.shape = shape
@@ -59,6 +60,7 @@ class SIEffect(PySI.Effect):
         ## member variable containing the maximum width of the region
         #
         # computed via aabb
+
         self.width = int(self.get_region_width())
 
         ## member variable containing the maximum height of the region
@@ -256,7 +258,7 @@ class SIEffect(PySI.Effect):
     # @param cursor_id the cursor which is intended to move the region (str)
     # @param link_attribute the linking attribute defining how the cursor and the region are intended to be linked (str)
     def on_move_enter_recv(self, cursor_id, link_attrib):
-        if cursor_id is not "" and link_attrib is not "":
+        if cursor_id != "" and link_attrib != "":
             self.create_link(cursor_id, link_attrib, self._uuid, link_attrib)
             self.is_under_user_control = True
 
@@ -272,7 +274,7 @@ class SIEffect(PySI.Effect):
     # @param cursor_id the cursor which is intended to move the region (str)
     # @param link_attribute the linking attribute defining how the cursor and the region are intended to be linked (str)
     def on_move_leave_recv(self, cursor_id, link_attrib):
-        if not cursor_id is "" and not link_attrib is "":
+        if not cursor_id == "" and not link_attrib == "":
 
             lr = PySI.LinkRelation(cursor_id, link_attrib, self._uuid, link_attrib)
 
@@ -364,7 +366,7 @@ class SIEffect(PySI.Effect):
     # If reception_capability is specified and present in self.cap_link_recv, the specified relation is deleted from emission_capability.
     # @see self.cap_link_recv
     def disable_link_reception(self, emission_capability, reception_capability=""):
-        if reception_capability is "":
+        if reception_capability == "":
             if emission_capability in self.cap_link_recv:
                 del self.cap_link_recv[emission_capability]
         else:
@@ -380,7 +382,7 @@ class SIEffect(PySI.Effect):
     # @param receiver_uuid the uuid of the receiving region (str)
     # @param receiver_attribute the attribute to be linked by the receiving region (str)
     def create_link(self, sender_uuid, sender_attribute, receiver_uuid, receiver_attribute):
-        if sender_uuid is not "" and sender_attribute is not "" and receiver_uuid is not "" and receiver_attribute is not "":
+        if sender_uuid != "" and sender_attribute != "" and receiver_uuid != "" and receiver_attribute != "":
             self.link_relations.append([sender_uuid, sender_attribute, receiver_uuid, receiver_attribute])
 
     ## member function for removing a specified link between two regions according to given attributes
@@ -391,7 +393,7 @@ class SIEffect(PySI.Effect):
     # @param receiver_uuid the uuid of the receiving region (str)
     # @param receiver_attribute the attribute to be linked by the receiving region (str)
     def remove_link(self, sender_uuid, sender_attribute, receiver_uuid, receiver_attribute):
-        if sender_uuid is not "" and sender_attribute is not "" and receiver_uuid is not "" and receiver_attribute is not "":
+        if sender_uuid != "" and sender_attribute != "" and receiver_uuid != "" and receiver_attribute != "":
             lr = PySI.LinkRelation(sender_uuid, sender_attribute, receiver_uuid, receiver_attribute)
 
             if lr in self.link_relations:
@@ -410,6 +412,14 @@ class SIEffect(PySI.Effect):
     # Calls the function __set_data__ (c++-bindings)
     def set_QML_data(self, key, value, datatype, data_kwargs={}):
         self.__set_data__(key, value, datatype, data_kwargs)
+
+    ## member function for getting data set from an associated qml file of a region effect
+    #
+    # @param self the object pointer
+    # @param key the key specified in QML to address the required data
+    # @param datatype the data type of the requested value (PySI.DataType.INT, PySI.DataType.FLOAT, ...) (int)
+    def get_QML_data(self, key, datatype):
+        return self.__data__(key, datatype)
 
     ## member function for setting the path to an plugin's associated qml file
     #

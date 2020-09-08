@@ -1,7 +1,6 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 
-import numpy as np
 import math
 import time
 
@@ -15,7 +14,7 @@ class ConveyorBelt(SIEffect):
         super(ConveyorBelt, self).__init__(shape, uuid, "res/factory.png", ConveyorBelt.regiontype, ConveyorBelt.regionname, kwargs)
         self.source = "libStdSI"
         self.qml_path = self.set_QML_path("ConveyorBelt.qml")
-        self.color = PySI.Color(120, 255, 120, 255)
+        self.color = PySI.Color(204, 255, 204, 255)
 
         self.conveyor_point_step = 1
         self.conveyor_width = 75

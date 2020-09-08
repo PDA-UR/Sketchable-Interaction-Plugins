@@ -17,7 +17,7 @@ class Entry(SIEffect.SIEffect):
         self.icon_height = 75
         self.text_height = 50
         self.color = PySI.Color(255, 10, 0, 0)
-        self.text_color = "#FFFFFFFF"
+        self.text_color = "#FF000000"
         self.path = str(kwargs["cwd"]) if len(kwargs.keys()) else ""
         self.parent = str(kwargs["parent"]) if len(kwargs.keys()) else ""
         self.filename = ""
@@ -30,6 +30,7 @@ class Entry(SIEffect.SIEffect):
         self.transporter = ""
         self.is_transport_done = False
         self.actual_transportation_length = 0
+        self.with_border = False
 
         self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
         self.enable_effect("TRANSPORT", self.RECEPTION, None, self.on_transport_continuous_recv, self.on_transport_leave_recv)

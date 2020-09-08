@@ -20,4 +20,20 @@ Item {
 
 		visible: true
 	}
+
+	TextEdit {
+        id: te
+        width: 240
+        horizontalAlignment: TextEdit.AlignHCenter
+        verticalAlignment: TextEdit.AlignVCenter
+        text: "Hello World"
+        font.family: "Helvetica"
+        font.pointSize: 20
+        color: "black"
+        focus: true
+        anchors.bottom: texture.top
+        anchors.left: texture.left
+        anchors.leftMargin: - width / 2
+        onTextChanged: REGION.set_data({text: te.text});
+    }
 }

@@ -22,5 +22,7 @@ Item
         anchors.left: parent.left
         anchors.top: parent.top
         visible: true
+        cache: true
+        asynchronous: true
     }
 }

@@ -35,15 +35,14 @@ Item
         visible: true
 
         fontSizeMode: Text.Fit
-        minimumPixelSize: 16
-        font.pixelSize: 72
-        color: "white"
+        minimumPixelSize: 12
+        font.pixelSize: 18
+        color: "black"
+        anchors.verticalCenter: texture.verticalCenter
 
         width: texture.width * 2
         anchors.top: texture.bottom
         anchors.left: texture.left
-        anchors.topMargin: -10
-        anchors.leftMargin: -width * 0.25
 
         wrapMode: Text.Wrap
     }

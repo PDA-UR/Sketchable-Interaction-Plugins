@@ -40,7 +40,7 @@ Item
 
         fontSizeMode: Text.Wrap
         font.pixelSize: 18
-        color: "white"
+        color: "black"
         horizontalAlignment: Text.AlignHCenter
         anchors.top: parent.top
 

@@ -11,6 +11,7 @@ class Palette(SIEffect.SIEffect):
         self.source = "libStdSI"
         self.qml_path = ""
         available_plugins = self.available_plugins()
+        self.color = PySI.Color(255, 255, 255, 255)
 
         self.enable_link_emission(PySI.LinkingCapability.POSITION, self.position)
 
@@ -26,8 +27,11 @@ class Palette(SIEffect.SIEffect):
         self.x_offset = 5
         self.y_offset = 5
 
-        self.selector_width = self.get_region_width() / self.num_selectors_per_row - self.x_offset * self.num_selectors_per_row
-        self.selector_height = self.get_region_height() / self.num_rows - self.y_offset * self.num_rows
+        # self.selector_width = self.get_region_width() / self.num_selectors_per_row - self.x_offset * self.num_selectors_per_row
+        # self.selector_height = self.get_region_height() / self.num_rows - self.y_offset * self.num_rows
+
+        self.selector_width = 60
+        self.selector_height = 120
 
         y = -1
         x = 1
@@ -45,6 +49,13 @@ class Palette(SIEffect.SIEffect):
                      [((self.x_offset + self.selector_width) * x) + (self.relative_x_pos() + self.x_offset + self.selector_width), ((self.y_offset + self.selector_height) * y) + (self.relative_y_pos() + self.y_offset)]]
 
             self.create_region_via_name(shape, available_plugins[i], self.as_selector, {"parent": self._uuid})
+
+        self.shape = PySI.PointVector([[self.relative_x_pos(), self.relative_y_pos()],
+                                       [self.relative_x_pos(), self.relative_y_pos() + ((y + 1) * self.selector_height + 4 * self.y_offset)],
+                                       [self.relative_x_pos() + (self.num_selectors_per_row * self.selector_width + 4 * self.x_offset), self.relative_y_pos() + ((y + 1) * self.selector_height + 4 * self.y_offset)],
+                                       [self.relative_x_pos() + (self.num_selectors_per_row * self.selector_width + 4 * self.x_offset), self.relative_y_pos()]])
+
+
 
     def position(self):
         x = self.x - self.last_x

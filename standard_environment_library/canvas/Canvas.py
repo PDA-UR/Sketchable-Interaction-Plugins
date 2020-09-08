@@ -10,8 +10,9 @@ class Canvas(SIEffect.SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Canvas, self).__init__(shape, uuid, "", Canvas.regiontype, Canvas.regionname, kwargs)
         self.source = "libstdSI"
-        self.color = PySI.Color(0, 0, 255, 0)
+        self.color = PySI.Color(247, 249, 239, 255)
 
+        self.enable_effect("TERMINAL", SIEffect.SIEffect.EMISSION, self.on_terminal_enter_emit, self.on_terminal_enter_emit, self.on_terminal_enter_emit)
         self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
         self.enable_effect(PySI.CollisionCapability.SKETCH, self.RECEPTION, self.on_sketch_enter_recv, self.on_sketch_continuous_recv, self.on_sketch_leave_recv)
         self.disable_link_reception(PySI.LinkingCapability.POSITION)
@@ -24,3 +25,6 @@ class Canvas(SIEffect.SIEffect):
 
     def on_sketch_leave_recv(self, x, y, cursor_id):
         self.register_region_from_drawing(cursor_id)
+
+    def on_terminal_enter_emit(self, other):
+        pass
