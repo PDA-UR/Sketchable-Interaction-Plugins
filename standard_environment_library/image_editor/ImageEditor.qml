@@ -26,7 +26,7 @@ Item {
         width: 400
         fontSizeMode: Text.Fit
         minimumPixelSize: 16
-        font.pixelSize: 72
+        font.pixelSize: 48
         color: "white"
         anchors.top: parent.top
         anchors.left: parent.left

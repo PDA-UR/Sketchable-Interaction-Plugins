@@ -146,10 +146,8 @@ class ConveyorBelt(SIEffect):
 
     def on_transport_leave_emit(self, other):
         if other.cb_transportation_active:
-            # print("post transport")
             pass
         else:
-            # print("no transport")
             pass
 
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):

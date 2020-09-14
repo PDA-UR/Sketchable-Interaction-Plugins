@@ -80,7 +80,7 @@ class ImageEditor(SIEffect):
             tool_height = 50
 
             self.width = (self.pixel_size + self.offset) * self.img_width + self.border * 3 + tool_width
-            self.height = (self.pixel_size + self.offset) * self.img_height + self.border * 2 + self.text_height
+            self.height = (self.pixel_size + self.offset) * self.img_height + self.border * 4 + self.text_height
             self.shape = PySI.PointVector([[x, y], [x, y + self.height], [x + self.width, y + self.height], [x + self.width, y]])
     
             tool_kwargs = {}
@@ -123,7 +123,7 @@ class ImageEditor(SIEffect):
                 current_y = start_y
 
             self.set_QML_data("img_path", "", PySI.DataType.STRING)
-            self.set_QML_data("name", other.path, PySI.DataType.STRING)
+            self.set_QML_data("name", other.filename, PySI.DataType.STRING)
             self.set_QML_data("container_width", self.width, PySI.DataType.INT)
             self.set_QML_data("container_height", self.height, PySI.DataType.INT)
 
