@@ -1,0 +1,75 @@
+<?xml version="1.0"?>
+
+<environment>
+    <!-- Global environment constants -->
+
+    <!-- Tag related constants -->
+    <value id="tag_texture" type="str">res/tag.png</value>
+    <value id="tag_qml_file_name" type="str">Tag.qml</value>
+    <value id="tag_capability_tagging" type="str">__tagging__</value>
+    <value id="tag_display_name" type="str">Tag</value>
+    <value id="tag_text_from_qml" type="str">text</value>
+
+    <value id="tag_color" type="color">(255, 204, 204, 255)</value>
+
+    <!-- Slider related constants -->
+    <!-- Base -->
+    <value id="slider_base_name" type="str">__ SliderBase __</value>
+    <value id="slider_base_capability_slide" type="str">SLIDE</value>
+
+    <value id="slider_base_color" type="color">(0, 0, 0, 255)</value>
+
+    <value id="slider_base_controller_width" type="int">30</value>
+    <value id="slider_base_controller_height" type="int">60</value>
+
+    <!-- Controller -->
+    <value id="slider_controller_name" type="str">__ SliderController __</value>
+    <value id="slider_controller_capability_parent" type="str">PARENT</value>
+    <value id="slider_controller_color_channel" type="str">color_channel</value>
+    <value id="slider_controller_capability_link_push_color" type="str">__PUSH_COLOR__</value>
+
+    <value id="slider_controller_min_value" type="int">0</value>
+    <value id="slider_controller_max_value" type="int">255</value>
+
+    <value id="slider_controller_color" type="color">(0, 0, 0, 255)</value>
+
+    <!-- Target -->
+    <value id="slider_target_name" type="str">__ SliderTarget __</value>
+    <value id="slider_target_color" type="color">(0, 0, 0, 255)</value>
+
+    <!-- Preview related constants -->
+    <value id="preview_texture" type="str">res/preview.png</value>
+    <value id="preview_qml_file_name" type="str">Preview.qml</value>
+    <value id="preview_capability_previewing" type="str">__preview__</value>
+    <value id="preview_display_name" type="str">Preview File</value>
+
+    <value id="preview_color" type="color">(204, 255, 229, 255)</value>
+
+    <!-- Plot related constants -->
+    <value id="plot_texture" type="str">res/plot.png</value>
+    <value id="plot_qml_file_name" type="str">Plot.qml</value>
+    <value id="plot_display_name" type="str">Plot</value>
+    <value id="plot_name" type="str">__PLOT__</value>
+
+    <value id="plot_color" type="color">(229, 204, 255, 255)</value>
+
+    <!-- Palette related constants -->
+    <value id="palette_color" type="color">(255, 255, 255, 255)</value>
+
+    <value id="palette_selector_width" type="int">60</value>
+    <value id="palette_selector_height" type="int">120</value>
+    <value id="palette_selector_x_offset" type="int">5</value>
+    <value id="palette_selector_y_offset" type="int">5</value>
+
+    <!-- simple notification -->
+    <value id="notification_default_message" type="str">Hello World</value>
+    <value id="notification_qml_file_name" type="str">SimpleNotification.qml</value>
+
+    <value id="notification_color" type="color">(255, 255, 255, 255)</value>
+
+    <value id="notification_region_width" type="int">1000</value>
+    <value id="notification_region_height" type="int">75</value>
+
+
+
+</environment>
