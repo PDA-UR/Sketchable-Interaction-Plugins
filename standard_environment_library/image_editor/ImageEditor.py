@@ -4,7 +4,6 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library.image_editor.pixel.ImageEditorPixel import ImageEditorPixel
 from plugins.standard_environment_library.image_editor.tools.ImageEditorColorTool import ImageEditorColorTool
 from plugins.standard_environment_library.image_editor.tools.ImageEditorBlurToolGetter import ImageEditorBlurToolGetter
-from plugins.standard_environment_library.image_editor.tools.ImageEditorBlurToolSetter import ImageEditorBlurToolSetter
 
 from PIL import Image
 

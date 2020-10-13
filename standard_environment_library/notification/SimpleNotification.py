@@ -1,22 +1,20 @@
 from libPySI import PySI
 
 from plugins.standard_environment_library import SIEffect
+from plugins.E import E
 
 
 class SimpleNotification(SIEffect.SIEffect):
     regiontype = PySI.EffectType.SI_NOTIFICATION
     regionname = PySI.EffectName.SI_STD_NAME_SIMPLE_NOTIFICATION
-    region_width = 1000
-    region_height = 75
+    region_width = E.id.notification_region_width
+    region_height = E.id.notification_region_height
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(SimpleNotification, self).__init__(shape, uuid, "", SimpleNotification.regiontype, SimpleNotification.regionname, kwargs)
-        self.name = PySI.EffectName.SI_STD_NAME_SIMPLE_NOTIFICATION
-        self.region_type = PySI.EffectType.SI_NOTIFICATION
-        self.source = "libstdSI"
-        self.qml_path = self.set_QML_path("SimpleNotification.qml")
-        self.color = PySI.Color(255, 255, 255, 255)
-        self.message = "Hello World"
+        self.qml_path = self.set_QML_path(E.id.notification_qml_file_name)
+        self.color = E.id.notification_color
+        self.message = E.id.notification_default_message
 
         self.width = SimpleNotification.region_width
         self.height = SimpleNotification.region_height

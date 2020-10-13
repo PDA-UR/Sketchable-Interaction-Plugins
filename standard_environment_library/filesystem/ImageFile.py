@@ -1,6 +1,6 @@
 from libPySI import PySI
 from plugins.standard_environment_library.filesystem import Entry
-
+from plugins.E import E
 
 from PIL import Image
 
@@ -23,7 +23,7 @@ class ImageFile(Entry.Entry):
         self.set_QML_data("is_visible", self.is_visible, PySI.DataType.BOOL)
         self.set_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
 
-        self.enable_effect(PySI.CollisionCapability.PREVIEW, self.RECEPTION, self.on_preview_enter_recv, self.on_preview_continuous_recv, self.on_preview_leave_recv)
+        self.enable_effect(E.id.preview_capability_previewing, self.RECEPTION, self.on_preview_enter_recv, self.on_preview_continuous_recv, self.on_preview_leave_recv)
         self.enable_effect("GRAB_IMAGE", self.RECEPTION, None, self.on_grab_image_continuous_recv, self.on_grab_image_leave_recv)
 
     def on_preview_enter_recv(self):

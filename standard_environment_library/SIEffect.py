@@ -1,8 +1,7 @@
 from libPySI import PySI
 import inspect
 import os
-from functools import wraps
-#from method_decorator import method_decorator
+from plugins.E import E
 
 ## @package SIEffect
 # Documentation for this module / class

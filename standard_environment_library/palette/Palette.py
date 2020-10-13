@@ -1,5 +1,6 @@
 from libPySI import PySI
 from plugins.standard_environment_library import SIEffect
+from plugins.E import E
 
 
 class Palette(SIEffect.SIEffect):
@@ -8,10 +9,8 @@ class Palette(SIEffect.SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Palette, self).__init__(shape, uuid, "", Palette.regiontype, Palette.regionname, kwargs)
-        self.source = "libStdSI"
-        self.qml_path = ""
         available_plugins = self.available_plugins()
-        self.color = PySI.Color(255, 255, 255, 255)
+        self.color = E.id.palette_color
 
         self.enable_link_emission(PySI.LinkingCapability.POSITION, self.position)
 
@@ -24,14 +23,11 @@ class Palette(SIEffect.SIEffect):
         else:
             self.num_rows = int(len(available_plugins) / self.num_selectors_per_row) + 1
 
-        self.x_offset = 5
-        self.y_offset = 5
+        self.x_offset = E.id.palette_selector_x_offset
+        self.y_offset = E.id.palette_selector_y_offset
 
-        # self.selector_width = self.get_region_width() / self.num_selectors_per_row - self.x_offset * self.num_selectors_per_row
-        # self.selector_height = self.get_region_height() / self.num_rows - self.y_offset * self.num_rows
-
-        self.selector_width = 60
-        self.selector_height = 120
+        self.selector_width = E.id.palette_selector_width
+        self.selector_height = E.id.palette_selector_height
 
         y = -1
         x = 1

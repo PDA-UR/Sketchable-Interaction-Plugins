@@ -1,5 +1,6 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
+from plugins.E import E
 
 import matplotlib
 matplotlib.use('Agg')  # required
@@ -9,13 +10,13 @@ np.seterr(divide='ignore', invalid='ignore')  # optional for quenching annoying 
 
 class Plot(SIEffect):
 	regiontype = PySI.EffectType.SI_CUSTOM
-	regionname = "__PLOT__"
-	region_display_name = "Plot"
+	regionname = E.id.plot_name
+	region_display_name = E.id.plot_display_name
 
 	def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-		super(Plot, self).__init__(shape, uuid, "res/plot.png", Plot.regiontype, Plot.regionname, kwargs)
-		self.qml_path = self.set_QML_path("Plot.qml")
-		self.color = PySI.Color(229, 204, 255, 255)
+		super(Plot, self).__init__(shape, uuid, E.id.plot_texture, Plot.regiontype, Plot.regionname, kwargs)
+		self.qml_path = self.set_QML_path(E.id.plot_qml_file_name)
+		self.color = E.id.plot_color
 
 		# rework this into a linking action reception function or collision event reception function
 		figure = plt.figure()

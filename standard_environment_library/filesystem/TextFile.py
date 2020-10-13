@@ -1,5 +1,6 @@
 from libPySI import PySI
 from plugins.standard_environment_library.filesystem import Entry
+from plugins.E import E
 
 
 class TextFile(Entry.Entry):
@@ -15,7 +16,7 @@ class TextFile(Entry.Entry):
         self.set_QML_data("text_height", self.text_height, PySI.DataType.INT)
         self.set_QML_data("img_path", "res/file_icon.png", PySI.DataType.STRING)
 
-        self.enable_effect("tagging", self.RECEPTION, self. on_tag_enter_recv, None, None)
+        self.enable_effect(E.id.tag_capability_tagging, self.RECEPTION, self. on_tag_enter_recv, None, None)
 
     def on_tag_enter_recv(self, is_tagged):
         self.set_QML_data("visible", is_tagged, PySI.DataType.BOOL)
