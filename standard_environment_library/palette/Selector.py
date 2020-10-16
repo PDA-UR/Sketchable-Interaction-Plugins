@@ -1,15 +1,16 @@
 from libPySI import PySI
 
-from plugins.standard_environment_library import SIEffect
+from plugins.standard_environment_library.SIEffect import SIEffect
+from plugins.standard_environment_library._standard_behaviour_mixins.PositionLinkable import PositionLinkable
 
 
-class Selector(SIEffect.SIEffect):
+class Selector(PositionLinkable, SIEffect):
     regionname = PySI.EffectName.SI_STD_NAME_SELECTOR
     regiontype = PySI.EffectType.SI_SELECTOR
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        super(Selector, self).__init__(shape, uuid, "", Selector.regiontype, Selector.regionname, kwargs)
-        self.source = "libStdSI"
+        PositionLinkable.__init__(self, shape, uuid, "", Selector.regiontype, Selector.regionname, kwargs)
+        SIEffect.__init__(self, shape, uuid, "", Selector.regiontype, Selector.regionname, kwargs)
         self.qml_path = self.set_QML_path("Selector.qml")
 
         self.color = kwargs["target_color"]
@@ -17,10 +18,6 @@ class Selector(SIEffect.SIEffect):
         self.target_display_name = kwargs["target_display_name"]
         self.target_texture_path = kwargs["target_texture"]
         self.name = "Selector for " + self.target_display_name
-        self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
-        self.disable_effect(PySI.CollisionCapability.MOVE, self.RECEPTION)
-        self.enable_effect(PySI.CollisionCapability.ASSIGN, self.EMISSION, None, self.on_assign_continuous_emit, None)
-        self.enable_effect(PySI.CollisionCapability.HOVER, self.RECEPTION, self.on_hover_enter_recv, None, self.on_hover_leave_recv)
 
         self.parent = kwargs["parent"]
 
@@ -38,11 +35,14 @@ class Selector(SIEffect.SIEffect):
 
         self.create_link(self.parent, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
+    @SIEffect.on_continuous(PySI.CollisionCapability.ASSIGN, SIEffect.EMISSION)
     def on_assign_continuous_emit(self, other):
         return self.target_name, self.target_display_name, {}
 
+    @SIEffect.on_enter(PySI.CollisionCapability.HOVER, SIEffect.RECEPTION)
     def on_hover_enter_recv(self):
         self.set_QML_data("visible", True, PySI.DataType.BOOL)
 
+    @SIEffect.on_leave(PySI.CollisionCapability.HOVER, SIEffect.RECEPTION)
     def on_hover_leave_recv(self):
         self.set_QML_data("visible", False, PySI.DataType.BOOL)

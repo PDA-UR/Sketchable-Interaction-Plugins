@@ -1,6 +1,8 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.E import E
+from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
+from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 
 import matplotlib
 matplotlib.use('Agg')  # required
@@ -8,13 +10,17 @@ import matplotlib.pyplot as plt
 import numpy as np
 np.seterr(divide='ignore', invalid='ignore')  # optional for quenching annoying warnings
 
-class Plot(SIEffect):
+
+class Plot(Deletable, Movable, SIEffect):
 	regiontype = PySI.EffectType.SI_CUSTOM
 	regionname = E.id.plot_name
 	region_display_name = E.id.plot_display_name
 
 	def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-		super(Plot, self).__init__(shape, uuid, E.id.plot_texture, Plot.regiontype, Plot.regionname, kwargs)
+		Deletable.__init__(self, shape, uuid, E.id.plot_texture, Plot.regiontype, Plot.regionname, kwargs)
+		Movable.__init__(self, shape, uuid, E.id.plot_texture, Plot.regiontype, Plot.regionname, kwargs)
+		SIEffect.__init__(self, shape, uuid, E.id.plot_texture, Plot.regiontype, Plot.regionname, kwargs)
+
 		self.qml_path = self.set_QML_path(E.id.plot_qml_file_name)
 		self.color = E.id.plot_color
 

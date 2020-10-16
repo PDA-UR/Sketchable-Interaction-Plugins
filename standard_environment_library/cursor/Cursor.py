@@ -1,8 +1,8 @@
 from libPySI import PySI
-from plugins.standard_environment_library import SIEffect
+from plugins.standard_environment_library.SIEffect import SIEffect
 
 
-class Cursor(SIEffect.SIEffect):
+class Cursor(SIEffect):
     regiontype = PySI.EffectType.SI_MOUSE_CURSOR
     regionname = PySI.EffectName.SI_STD_NAME_MOUSE_CURSOR
     region_width = 18
@@ -10,7 +10,6 @@ class Cursor(SIEffect.SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Cursor, self).__init__(shape, uuid, "", Cursor.regiontype, Cursor.regionname, kwargs)
-        self.source = "libstdSI"
         self.qml_path = self.set_QML_path("Cursor.qml")
         self.color = PySI.Color(0, 0, 0, 0)
         self.assigned_effect = ""
@@ -33,20 +32,11 @@ class Cursor(SIEffect.SIEffect):
         self.left_mouse_active = False
         self.right_mouse_active = False
 
-        self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
-
-        self.enable_effect("HIDE_TOOL", self.RECEPTION, None, None, self.on_hide_tool_leave_recv)
-        self.enable_effect("ToolActivation", self.EMISSION, None, self.on_tool_activation_continuous_emit, None)
-        self.enable_effect(PySI.CollisionCapability.ASSIGN, self.RECEPTION, None, self.on_assign_continuous_recv, None)
-        self.enable_effect("ImageEditorAssign", self.RECEPTION, None, self.on_image_editor_assign_continuous_recv, None)
-        self.enable_effect(PySI.CollisionCapability.HOVER, self.EMISSION, self.on_hover_enter_emit, None, self.on_hover_leave_emit)
-
-        self.enable_link_emission(PySI.LinkingCapability.POSITION, self.position)
-        self.enable_link_reception(PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION, self.set_position_from_position)
-
+    @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
         return self.x - self.last_x, self.y - self.last_y, self.x, self.y
 
+    @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION)
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
         self.last_x = self.x
         self.last_y = self.y
@@ -134,22 +124,26 @@ class Cursor(SIEffect.SIEffect):
             if self.move_target is not None:
                 self.move_target.on_move_leave_recv(*self.on_move_leave_emit(self.move_target))
 
+    @SIEffect.on_continuous(PySI.CollisionCapability.ASSIGN, SIEffect.RECEPTION)
     def on_assign_continuous_recv(self, effect_to_assign, effect_display_name, kwargs):
         if self.left_mouse_active:
             if self.assigned_effect != effect_to_assign:
                 self.assigned_effect = effect_to_assign
                 self.assign_effect(self.assigned_effect, effect_display_name, kwargs)
 
-    # def on_image_editor_assign_continuous_recv(self, tool_to_assign, tooltype):
+    @SIEffect.on_continuous("ImageEditorAssign", SIEffect.RECEPTION)
     def on_image_editor_assign_continuous_recv(self):
         pass
 
+    @SIEffect.on_enter(PySI.CollisionCapability.HOVER, SIEffect.EMISSION)
     def on_hover_enter_emit(self, other):
         pass
 
+    @SIEffect.on_leave(PySI.CollisionCapability.HOVER, SIEffect.EMISSION)
     def on_hover_leave_emit(self, other):
         pass
 
+    @SIEffect.on_continuous("ToolActivation", SIEffect.EMISSION)
     def on_tool_activation_continuous_emit(self, other):
         if self.left_mouse_active:
             self.disable_effect(PySI.CollisionCapability.SKETCH, True)
@@ -160,6 +154,7 @@ class Cursor(SIEffect.SIEffect):
 
         return False
 
+    @SIEffect.on_leave("HIDE_TOOL", SIEffect.RECEPTION)
     def on_hide_tool_leave_recv(self):
         for tool in self.image_editor_tool:
             tool.delete()

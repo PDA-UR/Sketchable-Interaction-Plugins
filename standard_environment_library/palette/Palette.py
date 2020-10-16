@@ -1,20 +1,20 @@
 from libPySI import PySI
-from plugins.standard_environment_library import SIEffect
+from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.E import E
+from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 
 
-class Palette(SIEffect.SIEffect):
+class Palette(Movable, SIEffect):
     regiontype = PySI.EffectType.SI_PALETTE
     regionname = PySI.EffectName.SI_STD_NAME_PALETTE
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        super(Palette, self).__init__(shape, uuid, "", Palette.regiontype, Palette.regionname, kwargs)
+        Movable.__init__(self, shape, uuid, "", Palette.regiontype, Palette.regionname, kwargs)
+        SIEffect.__init__(self, shape, uuid, "", Palette.regiontype, Palette.regionname, kwargs)
+
         available_plugins = self.available_plugins()
         self.color = E.id.palette_color
 
-        self.enable_link_emission(PySI.LinkingCapability.POSITION, self.position)
-
-        self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
         self.as_selector = True
         self.num_selectors_per_row = int(len(available_plugins) / 3) + 1
 
@@ -52,7 +52,7 @@ class Palette(SIEffect.SIEffect):
                                        [self.relative_x_pos() + (self.num_selectors_per_row * self.selector_width + 4 * self.x_offset), self.relative_y_pos()]])
 
 
-
+    @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
         x = self.x - self.last_x
         y = self.y - self.last_y

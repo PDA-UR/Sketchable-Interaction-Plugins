@@ -1,9 +1,10 @@
 from libPySI import PySI
-from plugins.standard_environment_library.filesystem import Entry
+from plugins.standard_environment_library.filesystem.Entry import Entry
 from plugins.standard_environment_library.button import Button
+from plugins.standard_environment_library.SIEffect import SIEffect
 
 
-class Directory(Entry.Entry):
+class Directory(Entry):
     regiontype = PySI.EffectType.SI_DIRECTORY
     regionname = PySI.EffectName.SI_STD_NAME_DIRECTORY
     region_width = 130
@@ -11,8 +12,7 @@ class Directory(Entry.Entry):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Directory, self).__init__(shape, uuid, Directory.regiontype, Directory.regionname, kwargs)
-        self.name = PySI.EffectName.SI_STD_NAME_DIRECTORY
-        self.region_type = PySI.EffectType.SI_DIRECTORY
+
         self.qml_path = self.set_QML_path("Directory.qml")
         self.preview_width = 400
         self.preview_height = 600
@@ -46,11 +46,6 @@ class Directory(Entry.Entry):
         self.set_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
         self.set_QML_data("page_name", "1 / " + str(len(self.browse_pages)), PySI.DataType.STRING)
 
-        self.enable_effect(PySI.CollisionCapability.PARENT, self.EMISSION, self.on_parent_enter_emit, None, self.on_parent_leave_emit)
-        self.enable_effect(PySI.CollisionCapability.BTN, self.RECEPTION, self.on_btn_enter_recv, self.on_btn_continuous_recv, self.on_btn_leave_recv)
-        self.enable_effect(PySI.CollisionCapability.OPEN_ENTRY, self.RECEPTION, self.on_open_entry_enter_recv, self.on_open_entry_continuous_recv, self.on_open_entry_leave_recv)
-
-        self.enable_link_emission(PySI.LinkingCapability.POSITION, self.position)
         self.is_open_entry_capability_blocked = False
 
     def set_folder_contents_page(self, value):
@@ -60,6 +55,7 @@ class Directory(Entry.Entry):
         if self.btn_presses % len(self.browse_pages) == 0:
             self.btn_presses = 0
 
+    @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
         x = self.x - self.last_x
         y = self.y - self.last_y
@@ -79,13 +75,16 @@ class Directory(Entry.Entry):
 
         self.show_current_folder_contents_page()
 
+    @SIEffect.on_enter(PySI.CollisionCapability.BTN, SIEffect.RECEPTION)
     def on_btn_enter_recv(self, cursor_id, link_attrib):
         pass
 
+    @SIEffect.on_continuous(PySI.CollisionCapability.BTN, SIEffect.RECEPTION)
     def on_btn_continuous_recv(self, cursor_id, value):
         if cursor_id != "" and value != "":
             self.on_btn_trigger(cursor_id, value)
 
+    @SIEffect.on_leave(PySI.CollisionCapability.BTN, SIEffect.RECEPTION)
     def on_btn_leave_recv(self, cursor_id, link_attrib):
         pass
 
@@ -142,6 +141,7 @@ class Directory(Entry.Entry):
 
             self.snap_to_mouse()
 
+    @SIEffect.on_enter(PySI.CollisionCapability.PARENT, SIEffect.EMISSION)
     def on_parent_enter_emit(self, other):
         if self.is_open_entry_capability_blocked and self.parent == "" and not other.is_open_entry_capability_blocked:
             if other not in self.children:
@@ -151,6 +151,7 @@ class Directory(Entry.Entry):
 
         return ""
 
+    @SIEffect.on_leave(PySI.CollisionCapability.PARENT, SIEffect.EMISSION)
     def on_parent_leave_emit(self, other):
         if self.is_open_entry_capability_blocked and self.parent == "" and not other.is_open_entry_capability_blocked:
             if other in self.children:
@@ -160,12 +161,14 @@ class Directory(Entry.Entry):
 
         return ""
 
+    # @SIEffect.on_enter(PySI.CollisionCapability.PARENT, SIEffect.RECEPTION)
     def on_parent_enter_recv(self, _uuid):
         if _uuid != "" and not self.is_open_entry_capability_blocked:
             if self.parent == "":
                 self.parent = _uuid
                 self.create_link(_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
+    # @SIEffect.on_leave(PySI.CollisionCapability.PARENT, SIEffect.RECEPTION)
     def on_parent_leave_recv(self, _uuid):
         if _uuid != "" and not self.is_open_entry_capability_blocked:
             if self.parent == _uuid:

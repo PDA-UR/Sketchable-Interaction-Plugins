@@ -2,17 +2,18 @@ from libPySI import PySI
 
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library.image_editor.tools.ImageEditorBlurToolSetter import ImageEditorBlurToolSetter
+from plugins.standard_environment_library._standard_behaviour_mixins.PositionLinkable import PositionLinkable
 
 
-class ImageEditorBlurToolGetter(SIEffect):
+class ImageEditorBlurToolGetter(PositionLinkable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__ ImageEditorBlurToolGetter __"
     region_display_name = "ImageEditorBlurToolGetter"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        super(ImageEditorBlurToolGetter, self).__init__(shape, uuid, "", ImageEditorBlurToolGetter.regiontype, ImageEditorBlurToolGetter.regionname, kwargs)
-        self.source = "libStdSI"
-        self.qml_path = ""
+        PositionLinkable.__init__(self, shape, uuid, "", ImageEditorBlurToolGetter.regiontype, ImageEditorBlurToolGetter.regionname, kwargs)
+        SIEffect.__init__(self, shape, uuid, "", ImageEditorBlurToolGetter.regiontype, ImageEditorBlurToolGetter.regionname, kwargs)
+
         self.parent_uuid = ""
         self.kwargs = kwargs
 
@@ -34,9 +35,6 @@ class ImageEditorBlurToolGetter(SIEffect):
             self.create_link(self.link_partner, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
             self.color = PySI.Color(55, 55, 55, 80)
 
-            self.enable_link_emission("PUSH_CONVOLUTION_OUTPUT", self.push_convolution_output)
-            self.enable_link_emission(PySI.LinkingCapability.POSITION, self.position)
-
             setter_kwargs = {}
             setter_kwargs["pixel_size"] = self.pixel_size
             setter_kwargs["other"] = kwargs["other"]
@@ -45,17 +43,12 @@ class ImageEditorBlurToolGetter(SIEffect):
             tool_shape = PySI.PointVector([[x + self.pixel_size, y + self.pixel_size], [x + self.pixel_size, y + self.pixel_size * 2], [x + self.pixel_size * 2, y + self.pixel_size * 2], [x + self.pixel_size * 2, y + self.pixel_size]])
             self.create_region_via_name(tool_shape, ImageEditorBlurToolSetter.regionname, kwargs=setter_kwargs)
 
-        self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
-
-        self.enable_effect("CONVOLUTION", self.RECEPTION, self.on_convolution_enter_recv, None, self.on_convolution_leave_recv)
-        self.enable_effect("IMAGE_PARENT", self.RECEPTION, self.on_parent_enter_recv, None, None)
-        self.enable_effect("ImageEditorAssign", self.EMISSION, None, self.on_image_editor_tool_assign_continuous_emit, None)
-
         self.assigned_uuid = ""
         self.pixels = {}
 
         self.convoluted_color = (0, 0, 0, 0)
 
+    @SIEffect.on_enter("IMAGE_PARENT", SIEffect.RECEPTION)
     def on_parent_enter_recv(self, parent_uuid, _):
         if self.parent_uuid == "":
             self.parent_uuid = parent_uuid
@@ -63,6 +56,7 @@ class ImageEditorBlurToolGetter(SIEffect):
             self.create_link(parent_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
             self.disable_effect("IMAGE_PARENT", self.RECEPTION)
 
+    @SIEffect.on_continuous("ImageEditorAssign", SIEffect.EMISSION)
     def on_image_editor_tool_assign_continuous_emit(self, other):
         if self.link_partner == "" and other.left_mouse_active:
 
@@ -73,6 +67,7 @@ class ImageEditorBlurToolGetter(SIEffect):
 
             self.create_region_via_name(self.shape, ImageEditorBlurToolGetter.regionname, kwargs=kwargs)
 
+    @SIEffect.on_enter("CONVOLUTION", SIEffect.RECEPTION)
     def on_convolution_enter_recv(self, pixel, color):
         if self.link_partner != "":
             if pixel not in self.pixels.keys():
@@ -103,14 +98,17 @@ class ImageEditorBlurToolGetter(SIEffect):
                 if self.setter != None:
                     self.emit_linking_action(self._uuid, "PUSH_CONVOLUTION_OUTPUT", self.convoluted_color)
 
+    @SIEffect.on_leave("CONVOLUTION", SIEffect.RECEPTION)
     def on_convolution_leave_recv(self, pixel):
         if self.link_partner != "":
             if pixel in self.pixels.keys():
                 del self.pixels[pixel]
 
+    @SIEffect.on_link(SIEffect.EMISSION, "PUSH_CONVOLUTION_OUTPUT")
     def push_convolution_output(self):
         return self.convoluted_color
 
+    @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
         x = self.x - self.last_x
         y = self.y - self.last_y

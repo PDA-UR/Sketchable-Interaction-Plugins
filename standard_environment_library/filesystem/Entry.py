@@ -1,16 +1,17 @@
 from libPySI import PySI
 
-from plugins.standard_environment_library import SIEffect
+from plugins.standard_environment_library.SIEffect import SIEffect
+from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 
 
-class Entry(SIEffect.SIEffect):
+class Entry(Movable, SIEffect):
     regiontype = PySI.EffectType.SI_ENTRY
     regionname = PySI.EffectName.SI_STD_NAME_ENTRY
 
     def __init__(self, shape=PySI.PointVector(), uuid="", regiontype=PySI.EffectType.SI_ENTRY, regionname=PySI.EffectName.SI_STD_NAME_ENTRY, kwargs={}):
-        super(Entry, self).__init__(shape, uuid, self.TEXTURE_PATH_NONE, regiontype, regionname, kwargs)
-        self.source = "libstdSI"
-        self.qml_path = ""
+        Movable.__init__(self, shape, uuid, self.TEXTURE_PATH_NONE, regiontype, regionname, kwargs)
+        SIEffect.__init__(self, shape, uuid, self.TEXTURE_PATH_NONE, regiontype, regionname, kwargs)
+
         self.width = 130
         self.height = 125
         self.icon_width = 65
@@ -32,10 +33,7 @@ class Entry(SIEffect.SIEffect):
         self.actual_transportation_length = 0
         self.with_border = False
 
-        self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
-        self.enable_effect("TRANSPORT", self.RECEPTION, None, self.on_transport_continuous_recv, self.on_transport_leave_recv)
-
-        if self.path is not "":
+        if self.path != "":
             self.filename = self.path[self.path.rfind("/") + 1:]
 
         self.is_container_visible = True
@@ -46,37 +44,40 @@ class Entry(SIEffect.SIEffect):
         self.set_QML_data("color", self.text_color, PySI.DataType.STRING)
         self.set_QML_data("name", self.filename, PySI.DataType.STRING)
 
-        self.enable_effect(PySI.CollisionCapability.OPEN_ENTRY, self.RECEPTION, self.on_open_entry_enter_recv, self.on_open_entry_continuous_recv, self.on_open_entry_leave_recv)
-        self.enable_effect(PySI.CollisionCapability.PARENT, self.RECEPTION, self.on_parent_enter_recv, None, self.on_parent_leave_recv)
-
         if self.parent != "":
             self.create_link(self.parent, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
+    @SIEffect.on_enter(PySI.CollisionCapability.OPEN_ENTRY, SIEffect.RECEPTION)
     def on_open_entry_enter_recv(self, is_other_controlled):
         pass
 
+    @SIEffect.on_continuous(PySI.CollisionCapability.OPEN_ENTRY, SIEffect.RECEPTION)
     def on_open_entry_continuous_recv(self, is_other_controlled):
         if self.parent == "" and not self.is_open_entry_capability_blocked and not self.is_under_user_control and not is_other_controlled:
             self.start_standard_application(self._uuid, self.path)
             self.is_open_entry_capability_blocked = True
 
+    @SIEffect.on_leave(PySI.CollisionCapability.OPEN_ENTRY, SIEffect.RECEPTION)
     def on_open_entry_leave_recv(self, is_other_controlled):
         if self.parent == "" and self.is_open_entry_capability_blocked:
             self.close_standard_application(self._uuid)
             self.is_open_entry_capability_blocked = False
 
+    @SIEffect.on_enter(PySI.CollisionCapability.PARENT, SIEffect.RECEPTION)
     def on_parent_enter_recv(self, _uuid):
         if _uuid != "":
             if self.parent == "":
                 self.parent = _uuid
                 self.create_link(_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
+    @SIEffect.on_leave(PySI.CollisionCapability.PARENT, SIEffect.RECEPTION)
     def on_parent_leave_recv(self, _uuid):
         if _uuid != "":
             if self.parent == _uuid:
                 self.parent = ""
                 self.remove_link(_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
+    @SIEffect.on_continuous("TRANSPORT", SIEffect.RECEPTION)
     def on_transport_continuous_recv(self, x, y, previous_point_index, t, transporter, is_transport_done, transportation_length):
         if not self.is_under_user_control:
             if x is not None and y is not None:
@@ -91,6 +92,7 @@ class Entry(SIEffect.SIEffect):
 
                 self.move(x - self.relative_x_pos() - self.width / 2, y - self.relative_y_pos() - self.height / 2)
 
+    @SIEffect.on_leave("TRANSPORT", SIEffect.RECEPTION)
     def on_transport_leave_recv(self):
         self.transportation_starttime = 0
         self.cb_transportation_active = False

@@ -4,6 +4,7 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library.slider.SliderController import SliderController
 from plugins.E import E
 
+
 class SliderBase(SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = E.id.slider_base_name
@@ -20,7 +21,6 @@ class SliderBase(SIEffect):
         controller_shape = PySI.PointVector([[controller_x, controller_y], [controller_x, controller_y + controller_height], [controller_x + controller_width, controller_y + controller_height], [controller_x + controller_width, controller_y]])
         self.create_region_via_name(controller_shape, SliderController.regionname, False, kwargs)
 
-        self.enable_effect(E.id.slider_base_capability_slide, SIEffect.EMISSION, None, self.on_slide_continuous_emit, None)
-
+    @SIEffect.on_continuous(E.id.slider_base_capability_slide, SIEffect.EMISSION)
     def on_slide_continuous_emit(self, other):
         return self.relative_x_pos(), self.width

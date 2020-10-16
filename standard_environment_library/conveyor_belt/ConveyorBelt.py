@@ -1,18 +1,22 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
+from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
+from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 
 import math
 import time
 
 
-class ConveyorBelt(SIEffect):
+class ConveyorBelt(Deletable, Movable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
     regionname = "__ ConveyorBelt __"
     region_display_name = "ConveyorBelt"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        super(ConveyorBelt, self).__init__(shape, uuid, "res/factory.png", ConveyorBelt.regiontype, ConveyorBelt.regionname, kwargs)
-        self.source = "libStdSI"
+        Deletable.__init__(self, shape, uuid, "res/factory.png", ConveyorBelt.regiontype, ConveyorBelt.regionname, kwargs)
+        Movable.__init__(self, shape, uuid, "res/factory.png", ConveyorBelt.regiontype, ConveyorBelt.regionname, kwargs)
+        SIEffect.__init__(self, shape, uuid, "res/factory.png", ConveyorBelt.regiontype, ConveyorBelt.regionname, kwargs)
+
         self.qml_path = self.set_QML_path("ConveyorBelt.qml")
         self.color = PySI.Color(204, 255, 204, 255)
 
@@ -24,8 +28,6 @@ class ConveyorBelt(SIEffect):
 
         self.transportation_path = []
         self.rebuild_shape()
-
-        self.enable_effect("TRANSPORT", SIEffect.EMISSION, None, self.on_transport_continuous_emit, self.on_transport_leave_emit)
 
     def build_transportation_path(self):
         line = [(p.x, p.y) for p in self.shape]
@@ -141,9 +143,11 @@ class ConveyorBelt(SIEffect):
 
         return None, None, None, None, None, None, None
 
+    @SIEffect.on_continuous("TRANSPORT", SIEffect.EMISSION)
     def on_transport_continuous_emit(self, other):
         return self.transportation_current_condition(other)
 
+    @SIEffect.on_leave("TRANSPORT", SIEffect.EMISSION)
     def on_transport_leave_emit(self, other):
         if other.cb_transportation_active:
             pass

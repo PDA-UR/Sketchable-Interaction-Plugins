@@ -1,11 +1,12 @@
 from libPySI import PySI
-from plugins.standard_environment_library.filesystem import Entry
+from plugins.standard_environment_library.filesystem.Entry import Entry
+from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.E import E
 
 from PIL import Image
 
 
-class ImageFile(Entry.Entry):
+class ImageFile(Entry):
     regiontype = PySI.EffectType.SI_IMAGE_FILE
     regionname = PySI.EffectName.SI_STD_NAME_IMAGEFILE
 
@@ -23,9 +24,7 @@ class ImageFile(Entry.Entry):
         self.set_QML_data("is_visible", self.is_visible, PySI.DataType.BOOL)
         self.set_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
 
-        self.enable_effect(E.id.preview_capability_previewing, self.RECEPTION, self.on_preview_enter_recv, self.on_preview_continuous_recv, self.on_preview_leave_recv)
-        self.enable_effect("GRAB_IMAGE", self.RECEPTION, None, self.on_grab_image_continuous_recv, self.on_grab_image_leave_recv)
-
+    @SIEffect.on_enter(E.id.preview_capability_previewing, SIEffect.RECEPTION)
     def on_preview_enter_recv(self):
         if not self.is_in_preview and self.parent == "":
             self.color = PySI.Color(10, 0, 0, 255)
@@ -49,9 +48,11 @@ class ImageFile(Entry.Entry):
 
             self.snap_to_mouse()
 
+    @SIEffect.on_continuous(E.id.preview_capability_previewing, SIEffect.RECEPTION)
     def on_preview_continuous_recv(self):
         pass
 
+    @SIEffect.on_leave(E.id.preview_capability_previewing, SIEffect.RECEPTION)
     def on_preview_leave_recv(self):
         if self.is_in_preview and self.parent == "":
             self.color = PySI.Color(10, 0, 0, 0)
@@ -76,8 +77,10 @@ class ImageFile(Entry.Entry):
             if self.is_under_user_control:
                 self.snap_to_mouse()
 
+    @SIEffect.on_continuous("GRAB_IMAGE", SIEffect.RECEPTION)
     def on_grab_image_continuous_recv(self):
         pass
 
+    @SIEffect.on_leave("GRAB_IMAGE", SIEffect.RECEPTION)
     def on_grab_image_leave_recv(self):
         self.set_QML_data("img_path", self.path, PySI.DataType.STRING)

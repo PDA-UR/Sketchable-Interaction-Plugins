@@ -1,10 +1,10 @@
 from libPySI import PySI
 
-from plugins.standard_environment_library import SIEffect
+from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.E import E
 
 
-class SimpleNotification(SIEffect.SIEffect):
+class SimpleNotification(SIEffect):
     regiontype = PySI.EffectType.SI_NOTIFICATION
     regionname = PySI.EffectName.SI_STD_NAME_SIMPLE_NOTIFICATION
     region_width = E.id.notification_region_width
@@ -22,9 +22,6 @@ class SimpleNotification(SIEffect.SIEffect):
         self.set_QML_data("containerwidth", self.width, PySI.DataType.INT)
         self.set_QML_data("containerheight", self.height, PySI.DataType.INT)
         self.set_QML_data("text", self.message, PySI.DataType.STRING)
-
-        self.disable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION)
-        self.disable_effect(PySI.CollisionCapability.MOVE, self.RECEPTION)
 
     def update_message(self, message):
         self.message = message

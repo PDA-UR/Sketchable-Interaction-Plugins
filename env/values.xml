@@ -5,6 +5,7 @@
 
     <!-- Tag related constants -->
     <value id="tag_texture" type="str">res/tag.png</value>
+    <value id="tag_name" type="str">__TAG__</value>
     <value id="tag_qml_file_name" type="str">Tag.qml</value>
     <value id="tag_capability_tagging" type="str">__tagging__</value>
     <value id="tag_display_name" type="str">Tag</value>
@@ -70,6 +71,27 @@
     <value id="notification_region_width" type="int">1000</value>
     <value id="notification_region_height" type="int">75</value>
 
+    <!-- Image Editor -->
+    <!-- Editor -->
+    <value id="image_editor_name" type="str">__ ImageEditor __</value>
+    <value id="image_editor_display_name" type="str">Edit Image</value>
+    <value id="image_editor_texture" type="str">res/editor_icon.png</value>
+    <value id="image_editor_qml_file_path" type="str">ImageEditor.qml</value>
+    <value id="image_editor_capability_image_parent" type="str">IMAGE_PARENT</value>
+    <value id="image_editor_capability_grab_image" type="str">GRAB_IMAGE</value>
+    <value id="image_editor_capability_hide_tool" type="str">HIDE_TOOL</value>
 
+    <value id="image_editor_color" type="color">(255, 229, 204, 255)</value>
+    <value id="image_editor_color_red" type="color">(255, 0, 0, 255)</value>
+    <value id="image_editor_color_green" type="color">(0, 255, 0, 255)</value>
+    <value id="image_editor_color_blue" type="color">(0, 0, 255, 255)</value>
+
+    <value id="image_editor_text_height" type="int">50</value>
+    <value id="image_editor_pixel_size" type="int">10</value>
+    <value id="image_editor_offset" type="int">1</value>
+    <value id="image_editor_border" type="int">15</value>
+    <value id="image_editor_max_color_value" type="int">255</value>
+    <value id="image_editor_tool_width" type="int">50</value>
+    <value id="image_editor_tool_height" type="int">50</value>
 
 </environment>

@@ -1,6 +1,9 @@
+import sys
+
 from libPySI import PySI
 import inspect
 import os
+import glob
 from plugins.E import E
 
 ## @package SIEffect
@@ -28,6 +31,38 @@ class SIEffect(PySI.Effect):
     # Use with caution!
     # May lead to unexpected / barely debugable behaviour!
     NO_RESAMPLING = False
+
+    @staticmethod
+    def on_enter(capability, transmission_type):
+        def wrap(f):
+            def wrapped_f(*args):
+                return f(*args)
+            return wrapped_f
+        return wrap
+
+    @staticmethod
+    def on_continuous(capability, transmission_type):
+        def wrap(f):
+            def wrapped_f(*args):
+                return f(*args)
+            return wrapped_f
+        return wrap
+
+    @staticmethod
+    def on_leave(capability, transmission_type):
+        def wrap(f):
+            def wrapped_f(*args):
+                return f(*args)
+            return wrapped_f
+        return wrap
+
+    @staticmethod
+    def on_link(transmission_type, emission_capability, reception_capability=None):
+        def wrap(f):
+            def wrapped_f(*args):
+                return f(*args)
+            return wrapped_f
+        return wrap
 
     ## constructor
     #
@@ -193,10 +228,7 @@ class SIEffect(PySI.Effect):
         ## member attribute variable storing the y position of the mouse cursor
         self.mouse_y = 0
 
-        self.enable_effect(PySI.CollisionCapability.MOVE, self.RECEPTION, self.on_move_enter_recv, self.on_move_continuous_recv, self.on_move_leave_recv)
-        self.enable_effect(PySI.CollisionCapability.DELETION, self.RECEPTION, None, None, None)
-
-        self.enable_link_reception(PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION, self.set_position_from_position)
+        self.__extract_registration__(sys.modules[self.__class__.__module__].__file__)
 
     ## member function for retrieving the maximum width of a region
     def get_region_width(self):
@@ -205,27 +237,6 @@ class SIEffect(PySI.Effect):
     ## member function for retrieving the maximum height of a region
     def get_region_height(self):
         return self.aabb[1].y - self.aabb[0].y
-
-    ## member function for setting the position of a region based on the positional data of another region.
-    #
-    # This function is used as a reception function for linking events where positional data is emitted by another region and applied to the position of a region.
-    #
-    # @param self the object pointer
-    # @param rel_x the relative positional change on the x axis (float)
-    # @param rel_y the relative positional change on the y axis (float)
-    # @param abs_x the absolute position on the x axis (float)
-    # @param abs_y the absolute position on the y axis (float)
-    def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
-        self.move(self.x + rel_x, self.y + rel_y)
-
-        self.delta_x, self.delta_y = rel_x, rel_y
-
-        if self.is_under_user_control:
-            self.mouse_x = abs_x
-            self.mouse_y = abs_y
-        else:
-            self.mouse_x = 0
-            self.mouse_y = 0
 
     ## member function for getting the relative x coordinate of the parent region's top left corner
     #
@@ -250,39 +261,6 @@ class SIEffect(PySI.Effect):
     # @param self the object pointer
     def absolute_y_pos(self):
         return self.y + self.relative_y_pos()
-
-    ## member function for receiving data from the PySI.MOVE capability for the PySI.ON_ENTER collision event
-    #
-    # @param self the object pointer
-    # @param cursor_id the cursor which is intended to move the region (str)
-    # @param link_attribute the linking attribute defining how the cursor and the region are intended to be linked (str)
-    def on_move_enter_recv(self, cursor_id, link_attrib):
-        if cursor_id != "" and link_attrib != "":
-            self.create_link(cursor_id, link_attrib, self._uuid, link_attrib)
-            self.is_under_user_control = True
-
-    ## member function for the PySI.MOVE capability for the PySI.ON_CONTINUOUS collision event
-    #
-    # @param self the object pointer
-    def on_move_continuous_recv(self):
-        pass
-
-    ## member function for receiving data from the PySI.MOVE capability for the PySI.ON_LEAVE collision event
-    #
-    # @param self the object pointer
-    # @param cursor_id the cursor which is intended to move the region (str)
-    # @param link_attribute the linking attribute defining how the cursor and the region are intended to be linked (str)
-    def on_move_leave_recv(self, cursor_id, link_attrib):
-        if not cursor_id == "" and not link_attrib == "":
-
-            lr = PySI.LinkRelation(cursor_id, link_attrib, self._uuid, link_attrib)
-
-            if lr in self.link_relations:
-                del self.link_relations[self.link_relations.index(lr)]
-
-            self.is_under_user_control = False
-
-        return 0
 
     ## member function for enabling the emission or reception of an effect
     #
@@ -346,7 +324,10 @@ class SIEffect(PySI.Effect):
     # @param reception_capability the capability of the linking event of a receiving region (str)
     # @param reception_function the function to be called for receiving data
     def enable_link_reception(self, emission_capability, reception_capability, reception_function):
-        self.cap_link_recv[emission_capability] = {reception_capability: reception_function}
+        if emission_capability in self.cap_link_recv:
+            self.cap_link_recv[emission_capability][reception_capability] = reception_function
+        else:
+            self.cap_link_recv[emission_capability] = {reception_capability: reception_function}
 
     ## member function for disabling the emission of data in the context of a link event
     #
@@ -549,3 +530,74 @@ class SIEffect(PySI.Effect):
     def move(self, x, y):
         self.x = x
         self.y = y
+
+    def __extract_registration__(self, target_filepath):
+        with open(target_filepath, "r") as file:
+            data = file.read().split("\n")
+
+        for i in range(len(data)):
+            item = data[i].strip(" \t\n")
+
+            if len(item) and (item[0] == "#" or item[0] == "\""):
+                continue
+
+            if "class" in item:
+                raw_superclasses = list(item.strip(" \t").partition("(")[-1].partition(")")[0].split(","))
+
+                superclasses = []
+                for elem in raw_superclasses:
+                    if elem != '' and elem != ",":
+                        superclasses.append(elem.strip(" \t"))
+
+                for superclass in superclasses:
+                    superclass = superclass if "." not in superclass else superclass.partition(".")[0]
+
+                    if superclass != "SIEffect":
+                        self.__extract_registration__(os.path.abspath(glob.glob('**/' + superclass + ".py", recursive=True)[0]))
+
+            if "@SIEffect" in item:
+                target_function = data[i + 1].strip(" \t").partition(" ")[-1].partition("(")[0]
+
+                if not "on_link" in item:
+                    definition = item.strip().strip(" \t").partition(".")[-1].partition("(")
+
+                    collision_event_type = definition[0]
+                    try:
+                        collision_event_capability = eval(definition[-1].partition(",")[0].strip(" \t").replace("\"", ""))
+                    except:
+                        collision_event_capability = definition[-1].partition(",")[0].strip(" \t").replace("\"", "")
+                    collision_event_transmission_type = eval(definition[-1].partition(",")[-1].partition(")")[0].strip(" \t"))
+
+                    if collision_event_transmission_type:
+                        if collision_event_capability in self.cap_emit.keys():
+                            self.cap_emit[collision_event_capability][collision_event_type] = eval("self." + target_function)
+                        else:
+                            self.cap_emit[collision_event_capability] = {}
+                            self.cap_emit[collision_event_capability][collision_event_type] = eval("self." + target_function)
+                    else:
+                        if collision_event_capability in self.cap_recv.keys():
+                            self.cap_recv[collision_event_capability][collision_event_type] = eval("self." + target_function)
+                        else:
+                            self.cap_recv[collision_event_capability] = {}
+                            self.cap_recv[collision_event_capability][collision_event_type] = eval("self." + target_function)
+                else:
+                    definition = item.strip().strip(" \t").partition(".")[-1].partition("(")[-1].partition(")")[0].strip(" \t").partition(",")
+
+                    linking_action_transmission_type = eval(definition[0])
+
+                    capabilities = definition[-1].strip(" \t").partition(",")
+
+                    if capabilities[2] == "":
+                        linking_action_reception_capability = None
+                    else:
+                        linking_action_reception_capability = eval(capabilities[-1].strip(" \t"))
+
+                    linking_action_emission_capability = eval(capabilities[0].strip(" \t"))
+
+                    if linking_action_transmission_type:
+                        self.cap_link_emit[linking_action_emission_capability] = eval("self." + target_function)
+                    else:
+                        if linking_action_emission_capability in self.cap_link_recv:
+                            self.cap_link_recv[linking_action_emission_capability][linking_action_reception_capability] = eval("self." + target_function)
+                        else:
+                            self.cap_link_recv[linking_action_emission_capability] = {linking_action_reception_capability: eval("self." + target_function)}
