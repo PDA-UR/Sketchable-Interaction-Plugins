@@ -94,4 +94,38 @@
     <value id="image_editor_tool_width" type="int">50</value>
     <value id="image_editor_tool_height" type="int">50</value>
 
+    <!-- ConveyorBelt -->
+    <value id="cb_name" type="str">__ ConveyorBelt __</value>
+    <value id="cb_display_name" type="str">ConveyorBelt</value>
+    <value id="cb_texture" type="str">res/factory.png</value>
+    <value id="cb_qml_file" type="str">ConveyorBelt.qml</value>
+    <value id="cb_transport_capability" type="str">__CB_TRANSPORT__</value>
+
+    <value id="cb_width" type="int">75</value>
+    <value id="cb_point_step" type="int">1</value>
+    <value id="cb_speed" type="int">350</value>
+
+    <value id="cb_color" type="color">(204, 255, 204, 255)</value>
+
+
+    <!-- Splitter -->
+    <value id="cb_splitter_name" type="str">__CONVEYOR_BELT_SPLITTER__</value>
+    <value id="cb_splitter_display_name" type="str">ConveyorBeltSplitter</value>
+    <value id="cb_splitter_texture" type="str">res/splitter.png</value>
+    <value id="cb_splitter_qml_file_path" type="str">ConveyorBeltSplitter.qml</value>
+    <value id="cb_splitter_evaluate_capability" type="str">__EVALUATE_SPLIT__</value>
+    <value id="cb_splitter_text_from_qml" type="str">text</value>
+
+    <value id="cb_splitter_io_width_multiplier" type="float">1.5</value>
+
+    <value id="cb_splitter_color" type="color">(232, 189, 37, 255)</value>
+
+    <!-- Merger -->
+    <value id="cb_merger_name" type="str">__CONVEYOR_BELT_MERGER__</value>
+    <value id="cb_merger_texture" type="str">res/merger.png</value>
+    <value id="cb_merger_display_name" type="str">ConveyorBeltMerger</value>
+    <value id="cb_merger_qml_file_path" type="str">ConveyorBeltMerger.qml</value>
+    <value id="cb_merger_evaluate_capability" type="str">__EVALUATE_MERGE__</value>
+    <value id="cb_merger_color" type="color">(132, 189, 37, 255)</value>
+
 </environment>

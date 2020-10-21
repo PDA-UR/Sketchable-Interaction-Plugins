@@ -167,6 +167,8 @@ class SIEffect(PySI.Effect):
             self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
             self.set_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
 
+            self.set_QML_data("uuid", self._uuid, PySI.DataType.STRING)
+
         ## member attribute variable storing keys to functions which are called when collision events occur for emitting data to receiving regions
         #
         # This variable is a PySI.String2_String2FunctionMap_Map (c++-bindings) and uses capabilities (str) as keys to the inner String2FunctionMap.
@@ -232,11 +234,11 @@ class SIEffect(PySI.Effect):
 
     ## member function for retrieving the maximum width of a region
     def get_region_width(self):
-        return self.aabb[3].x - self.aabb[0].x
+        return int(self.aabb[3].x - self.aabb[0].x)
 
     ## member function for retrieving the maximum height of a region
     def get_region_height(self):
-        return self.aabb[1].y - self.aabb[0].y
+        return int(self.aabb[1].y - self.aabb[0].y)
 
     ## member function for getting the relative x coordinate of the parent region's top left corner
     #

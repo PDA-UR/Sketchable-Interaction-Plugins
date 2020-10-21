@@ -16,6 +16,7 @@ class ImageFile(Entry):
         self.is_in_preview = False
         self.color = PySI.Color(10, 0, 0, 0)
         self.img_width, self.img_height = 0, 0
+        self.image = True
 
         if(self.path != ""):
             self.img_width, self.img_height = Image.open(self.path).size

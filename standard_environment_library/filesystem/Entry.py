@@ -2,7 +2,7 @@ from libPySI import PySI
 
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
-
+from plugins.E import E
 
 class Entry(Movable, SIEffect):
     regiontype = PySI.EffectType.SI_ENTRY
@@ -100,3 +100,12 @@ class Entry(Movable, SIEffect):
         self.prev_point_idx = 0
         self.is_transport_done = False
         self.actual_transportation_length = 0
+
+    @SIEffect.on_enter(E.id.cb_splitter_evaluate_capability, SIEffect.RECEPTION)
+    def on_splitter_evaluate_enter_recv(self, splitter_uuid, x, y):
+        if self.cb_transportation_active:
+            self.move(x, y)
+
+    @SIEffect.on_enter(E.id.cb_merger_evaluate_capability, SIEffect.RECEPTION)
+    def on_merger_evaluate_enter_recv(self, merger_uuid, x, y):
+        self.move(x, y)

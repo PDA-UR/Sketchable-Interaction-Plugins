@@ -2,6 +2,7 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
+from plugins.E import E
 
 import math
 import time
@@ -21,7 +22,7 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
         self.color = PySI.Color(204, 255, 204, 255)
 
         self.conveyor_point_step = 1
-        self.conveyor_width = 75
+        self.conveyor_width = E.id.cb_width
 
         self.length = 0
         self.speed = 350
@@ -32,34 +33,38 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
     def build_transportation_path(self):
         line = [(p.x, p.y) for p in self.shape]
 
+        prev_i = 0
         for i in range(1, len(line), self.conveyor_point_step):
-            dx = line[i][0] - line[i - 1][0]
-            dy = line[i][1] - line[i - 1][1]
+            dx = line[i][0] - line[prev_i][0]
+            dy = line[i][1] - line[prev_i][1]
 
-            self.length += math.sqrt(dx * dx + dy * dy)
-            self.transportation_path.append((line[i][0], line[i][1], self.length))
+            if math.sqrt(dx * dx + dy * dy) > 5:
+                self.length += math.sqrt(dx * dx + dy * dy)
+                self.transportation_path.append((line[i][0], line[i][1], self.length))
+                prev_i = i
 
         self.transportation_path = self.transportation_path[2:-2]
 
     def build_shape(self):
         shape, shape_part_one, shape_part_two = [], [], []
 
-        p = self.transportation_path[0]
-        for i in range(1, len(self.transportation_path), self.conveyor_point_step):
-            q = self.transportation_path[i]
+        if len(self.transportation_path) != 0:
+            p = self.transportation_path[0]
+            for i in range(1, len(self.transportation_path), self.conveyor_point_step):
+                q = self.transportation_path[i]
 
-            pq = self.normalized_vector(self.perpendicular_vector((q[0] - p[0], q[1] - p[1])))
+                pq = self.normalized_vector(self.perpendicular_vector((q[0] - p[0], q[1] - p[1])))
 
-            shape_part_one.append([p[0] - pq[0] * (self.conveyor_width / 2), p[1] - pq[1] * (self.conveyor_width / 2)])
-            shape_part_two.append([p[0] + pq[0] * (self.conveyor_width / 2), p[1] + pq[1] * (self.conveyor_width / 2)])
+                shape_part_one.append([p[0] - pq[0] * (self.conveyor_width / 2), p[1] - pq[1] * (self.conveyor_width / 2)])
+                shape_part_two.append([p[0] + pq[0] * (self.conveyor_width / 2), p[1] + pq[1] * (self.conveyor_width / 2)])
 
-            p = q
+                p = q
 
-        for s in shape_part_one:
-            shape.append(s)
+            for s in shape_part_one:
+                shape.append(s)
 
-        for s in reversed(shape_part_two):
-            shape.append(s)
+            for s in reversed(shape_part_two):
+                shape.append(s)
 
         return shape
 
@@ -143,16 +148,17 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
 
         return None, None, None, None, None, None, None
 
+    @SIEffect.on_enter("TRANSPORT", SIEffect.EMISSION)
+    def on_transport_enter_emit(self, other):
+        return self._uuid
+
     @SIEffect.on_continuous("TRANSPORT", SIEffect.EMISSION)
     def on_transport_continuous_emit(self, other):
         return self.transportation_current_condition(other)
 
     @SIEffect.on_leave("TRANSPORT", SIEffect.EMISSION)
     def on_transport_leave_emit(self, other):
-        if other.cb_transportation_active:
-            pass
-        else:
-            pass
+        pass
 
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
         super(ConveyorBelt, self).set_position_from_position(rel_x, rel_y, abs_x, abs_y)
