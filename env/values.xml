@@ -128,4 +128,10 @@
     <value id="cb_merger_evaluate_capability" type="str">__EVALUATE_MERGE__</value>
     <value id="cb_merger_color" type="color">(132, 189, 37, 255)</value>
 
+    <!-- Transportable -->
+    <value id="transportable_name" type="str">__TRANSPORTABLE__</value>
+    <value id="transportable_capability" type="str">__ TRANSPORTABLE __</value>
+    <value id="transportable_clogging_capability" type="str">__ CLOGGING __</value>
+
+
 </environment>

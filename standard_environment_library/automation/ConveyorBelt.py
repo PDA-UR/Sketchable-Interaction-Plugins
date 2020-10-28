@@ -25,8 +25,11 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
         self.conveyor_width = E.id.cb_width
 
         self.length = 0
-        self.speed = 350
+        self.speed = 250
 
+        self.collision_pixel_variance = 7
+
+        # will contain tuples of (item_x, item_y, overall length up to this point, distance_x_to_prev_point, distance_y_to_prev_point
         self.transportation_path = []
         self.rebuild_shape()
 
@@ -40,7 +43,7 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
 
             if math.sqrt(dx * dx + dy * dy) > 5:
                 self.length += math.sqrt(dx * dx + dy * dy)
-                self.transportation_path.append((line[i][0], line[i][1], self.length))
+                self.transportation_path.append((line[i][0], line[i][1], self.length, line[i][0] - line[prev_i][0], line[i][1] - line[prev_i][1]))
                 prev_i = i
 
         self.transportation_path = self.transportation_path[2:-2]
@@ -90,78 +93,149 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
     def vector_dot(self, u, v):
         return sum((a * b) for a, b in zip(u, v))
 
-    def transportation_start_condition(self, item_x, item_y):
-        d = 100000
-        idx = 0
+    def line_intersection(self, line1, line2):
+        xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
+        ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
 
-        for i in range(len(self.transportation_path)):
-            dp = item_x - self.transportation_path[i][0], item_y - self.transportation_path[i][1]
-            dn = self.vector_length(dp)
+        def det(a, b):
+            return a[0] * b[1] - a[1] * b[0]
 
-            if dn < d:
-                d = dn
-                idx = i
+        div = det(xdiff, ydiff)
+        if div == 0:
+            raise Exception('lines do not intersect')
 
-        length = 0
-        for i in range(1, idx):
-            dp = self.transportation_path[i][0] - self.transportation_path[i - 1][0], self.transportation_path[i][1] - self.transportation_path[i - 1][1]
-            length += self.vector_length(dp)
+        d = (det(*line1), det(*line2))
+        x = det(d, xdiff) / div
+        y = det(d, ydiff) / div
 
-        return self.transportation_path[idx][0], self.transportation_path[idx][1], idx, time.time(), self._uuid, False, length
+        return x, y
 
-    def transportation_intermediate_condition(self, item):
-        if item.transporter == self._uuid and not item.is_transport_done:
-            if self.length > 0 and hasattr(item, "actual_transportation_length"):
-                t = time.time() - item.transportation_starttime
+    # def transportation_start_condition(self, item_x, item_y):
+    #     d = 100000
+    #     idx = 0
+    #
+    #     for i in range(len(self.transportation_path)):
+    #         dp = item_x - self.transportation_path[i][0], item_y - self.transportation_path[i][1]
+    #         dn = self.vector_length(dp)
+    #
+    #         if dn < d:
+    #             d = dn
+    #             idx = i
+    #
+    #     length = 0
+    #     for i in range(1, idx):
+    #         dp = self.transportation_path[i][0] - self.transportation_path[i - 1][0], self.transportation_path[i][1] - self.transportation_path[i - 1][1]
+    #         length += self.vector_length(dp)
+    #
+    #     return self.transportation_path[idx][0], self.transportation_path[idx][1], idx, time.time(), self._uuid, False, length
 
-                distance = (t * self.speed) % self.length + item.actual_transportation_length
+    # def transportation_intermediate_condition(self, item):
+    #     if item.transporter == self._uuid and not item.is_transport_done:
+    #         if self.length > 0 and hasattr(item, "actual_transportation_length"):
+    #             t = time.time() - item.transportation_starttime
+    #
+    #             distance = (t * self.speed) % self.length + item.actual_transportation_length
+    #
+    #             for i in range(1, len(self.transportation_path)):
+    #                 if distance < self.transportation_path[i][2]:
+    #                     if item.prev_point_idx - i > len(self.transportation_path) - 15:
+    #                         if not item.is_transport_done:
+    #                             return self.transportation_path[-1][0], self.transportation_path[-1][1], len(self.transportation_path) - 1, 0, self._uuid, True, 0
+    #                     else:
+    #                         item.cb_transportation_active = True
+    #
+    #                         p_from = self.transportation_path[i - 1]
+    #                         p_to = self.transportation_path[i]
+    #                         f = (distance - p_from[2]) / (p_to[2] - p_from[2])
+    #
+    #                         x = p_from[0] + (p_to[0] - p_from[0]) * f
+    #                         y = p_from[1] + (p_to[1] - p_from[1]) * f
+    #
+    #                         return x, y, i, 0, self._uuid, False, 0
+    #
+    #                 if item.prev_point_idx >= len(self.transportation_path) - 3:
+    #                     item.is_transport_done = True
+    #                     break
+    #
+    #     return None, None, None, None, None, None, None
+    #
+    # def transportation_current_condition(self, item):
+    #     if not item.is_under_user_control and hasattr(item, "is_transport_done") and not item.is_transport_done:
+    #         if not item.cb_transportation_active and item.transporter == "":
+    #             return self.transportation_start_condition(item.x, item.y)
+    #
+    #         return self.transportation_intermediate_condition(item)
+    #
+    #     return None, None, None, None, None, None, None
 
-                for i in range(1, len(self.transportation_path)):
-                    if distance < self.transportation_path[i][2]:
-                        if item.prev_point_idx - i > len(self.transportation_path) - 15:
-                            if not item.is_transport_done:
-                                return self.transportation_path[-1][0], self.transportation_path[-1][1], len(self.transportation_path) - 1, 0, self._uuid, True, 0
-                        else:
-                            item.cb_transportation_active = True
-
-                            p_from = self.transportation_path[i - 1]
-                            p_to = self.transportation_path[i]
-                            f = (distance - p_from[2]) / (p_to[2] - p_from[2])
-
-                            x = p_from[0] + (p_to[0] - p_from[0]) * f
-                            y = p_from[1] + (p_to[1] - p_from[1]) * f
-
-                            return x, y, i, 0, self._uuid, False, 0
-
-                    if item.prev_point_idx >= len(self.transportation_path) - 3:
-                        item.is_transport_done = True
-                        break
-
-        return None, None, None, None, None, None, None
-
-    def transportation_current_condition(self, item):
-        if not item.is_under_user_control and hasattr(item, "is_transport_done") and not item.is_transport_done:
-            if not item.cb_transportation_active and item.transporter == "":
-                return self.transportation_start_condition(item.x, item.y)
-
-            return self.transportation_intermediate_condition(item)
-
-        return None, None, None, None, None, None, None
-
-    @SIEffect.on_enter("TRANSPORT", SIEffect.EMISSION)
-    def on_transport_enter_emit(self, other):
-        return self._uuid
-
-    @SIEffect.on_continuous("TRANSPORT", SIEffect.EMISSION)
-    def on_transport_continuous_emit(self, other):
-        return self.transportation_current_condition(other)
-
-    @SIEffect.on_leave("TRANSPORT", SIEffect.EMISSION)
-    def on_transport_leave_emit(self, other):
-        pass
+    # @SIEffect.on_enter("TRANSPORT", SIEffect.EMISSION)
+    # def on_transport_enter_emit(self, other):
+    #     return self._uuid
+    #
+    # @SIEffect.on_continuous("TRANSPORT", SIEffect.EMISSION)
+    # def on_transport_continuous_emit(self, other):
+    #     return self.transportation_current_condition(other)
+    #
+    # @SIEffect.on_leave("TRANSPORT", SIEffect.EMISSION)
+    # def on_transport_leave_emit(self, other):
+    #     pass
 
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
         super(ConveyorBelt, self).set_position_from_position(rel_x, rel_y, abs_x, abs_y)
 
         for i in range(len(self.transportation_path)):
             self.transportation_path[i] = self.transportation_path[i][0] + rel_x, self.transportation_path[i][1] + rel_y, self.transportation_path[i][2]
+
+    def compute_conveyor_belt_item_insertion_position(self, other):
+        target_segment_start_point_index = -1
+        smallest_distance = 99999
+        q = other.x + other.width / 2, other.y + other.height / 2  # use middle points of other
+
+        for i, p in enumerate(self.transportation_path):
+            r = q[0] - p[0], q[1] - p[1]
+
+            distance = self.vector_length(r)
+
+            if distance < smallest_distance:
+                smallest_distance = distance
+                target_segment_start_point_index = i
+
+        return target_segment_start_point_index
+
+    @SIEffect.on_enter(E.id.transportable_capability, SIEffect.EMISSION)
+    def on_transport_enter_emit(self, item):
+        segment_start_index = self.compute_conveyor_belt_item_insertion_position(item)
+        segment_start_index = 1 if segment_start_index == 0 else segment_start_index
+        distance = 0
+        specific_path = []
+
+        if self.transportation_path[segment_start_index] != (item.x, item.y):
+            for i in range(segment_start_index, len(self.transportation_path)):
+                distance += self.vector_length((self.transportation_path[i][0] - self.transportation_path[i - 1][0], self.transportation_path[i][1] - self.transportation_path[i - 1][1]))
+                specific_path.append((self.transportation_path[i][0], self.transportation_path[i][1], distance))
+
+        return self.transportation_path[segment_start_index][0], self.transportation_path[segment_start_index][1], distance, specific_path
+
+    @SIEffect.on_continuous(E.id.transportable_capability, SIEffect.EMISSION)
+    def on_transport_continuous_emit(self, item):
+        t = time.time() - item.transportation_starttime
+
+        distance = (t * self.speed) % item.overall_transportation_length
+
+        for i in range(1, len(item.transportation_path)):
+            if i < len(item.transportation_path) - 1:
+                if distance < item.transportation_path[i][2]:
+                    p_from = item.transportation_path[i - 1]
+                    p_to = item.transportation_path[i]
+                    f = (distance - p_from[2]) / (p_to[2] - p_from[2])
+
+                    x = p_from[0] + (p_to[0] - p_from[0]) * f
+                    y = p_from[1] + (p_to[1] - p_from[1]) * f
+
+                    return x, y, False
+
+        return item.transportation_path[-1][0], item.transportation_path[-1][1], True
+
+    @SIEffect.on_leave(E.id.transportable_capability, SIEffect.EMISSION)
+    def on_transport_leave_emit(self, other):
+        pass
