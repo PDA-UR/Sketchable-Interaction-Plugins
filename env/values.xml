@@ -3,6 +3,11 @@
 <environment>
     <!-- Global environment constants -->
 
+
+    <!-- Canvas related constants -->
+    <value id="canvas_logging_capability" type="str">__LOG_TO_TERMINAL__</value>
+
+
     <!-- Tag related constants -->
     <value id="tag_texture" type="str">res/tag.png</value>
     <value id="tag_name" type="str">__TAG__</value>
@@ -133,5 +138,13 @@
     <value id="transportable_capability" type="str">__ TRANSPORTABLE __</value>
     <value id="transportable_clogging_capability" type="str">__ CLOGGING __</value>
 
+    <!-- Terminal -->
+    <value id="terminal_name" type="str">__TERMINAL__</value>
+    <value id="terminal_display_name" type="str">Terminal</value>
+    <value id="terminal_texture" type="str">res/terminal.png</value>
+    <value id="terminal_qml_file_name" type="str">Terminal.qml</value>
+
+    <value id="terminal_color" type="color">(255, 255, 255, 255)</value>
+    <value id="terminal_letter_color" type="str">00FF00FF</value>
 
 </environment>

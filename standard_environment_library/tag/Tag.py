@@ -17,8 +17,10 @@ class Tag(Deletable, Movable, SIEffect):
 
 		self.qml_path = self.set_QML_path(E.id.tag_qml_file_name)
 		self.color = E.id.tag_color
+		self.text = "Hello World"
 
 	@SIEffect.on_enter(E.id.tag_capability_tagging, SIEffect.EMISSION)
 	def on_tag_enter_emit(self, other):
 		text = self.get_QML_data(E.id.tag_text_from_qml, PySI.DataType.STRING)
+		self.text = text
 		return True
