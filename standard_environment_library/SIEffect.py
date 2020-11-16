@@ -1,5 +1,4 @@
 import sys
-from contextlib import redirect_stdout
 
 from libPySI import PySI
 import inspect
@@ -257,13 +256,13 @@ class SIEffect(PySI.Effect):
     #
     # @param self the object pointer
     def absolute_x_pos(self):
-        return self.x + self.relative_x_pos()
+        return self.x + self.aabb[0].x
 
     ## member function for getting the absolute y coordinate of the parent region's top left corner
     #
     # @param self the object pointer
     def absolute_y_pos(self):
-        return self.y + self.relative_y_pos()
+        return self.y + self.aabb[0].y
 
     ## member function for enabling the emission or reception of an effect
     #

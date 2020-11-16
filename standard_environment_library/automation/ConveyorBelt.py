@@ -36,6 +36,7 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
         # will contain tuples of (item_x, item_y, overall length up to this point, distance_x_to_prev_point, distance_y_to_prev_point
         self.transportation_path = []
         self.rebuild_shape()
+        self.conveyed_items = {}
 
     def build_transportation_path(self):
         line = [(p.x, p.y) for p in self.shape]
@@ -127,7 +128,7 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
     def compute_conveyor_belt_item_insertion_position(self, other):
         target_segment_start_point_index = -1
         smallest_distance = 99999
-        q = other.x + other.width / 2, other.y + other.height / 2  # use middle points of other
+        q = other.x + other.width / 2 + other.aabb[0].x, other.y + other.height / 2 + other.aabb[0].y  # use middle points of other
 
         for i, p in enumerate(self.transportation_path):
             r = q[0] - p[0], q[1] - p[1]
@@ -147,22 +148,30 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
         distance = 0
         specific_path = []
 
+
         if self.transportation_path[segment_start_index] != (item.x, item.y):
             for i in range(segment_start_index, len(self.transportation_path)):
                 distance += self.vector_length((self.transportation_path[i][0] - self.transportation_path[i - 1][0], self.transportation_path[i][1] - self.transportation_path[i - 1][1]))
                 specific_path.append((self.transportation_path[i][0], self.transportation_path[i][1], distance))
 
-        return self.transportation_path[segment_start_index][0], self.transportation_path[segment_start_index][1], distance, specific_path
+            self.conveyed_items[item._uuid] = distance
+
+        if not item.is_under_user_control:
+            return self.transportation_path[segment_start_index][0], self.transportation_path[segment_start_index][1], distance, specific_path
+
+        return item.x, item.y, distance, specific_path
 
     @SIEffect.on_continuous(E.id.transportable_capability, SIEffect.EMISSION)
     def on_transport_continuous_emit(self, item):
+        t = time.time() - item.transportation_starttime
+
         if self.transportation_path_changed:
             self.transportation_path_changed = False
 
             for i in range(len(item.transportation_path)):
                 item.transportation_path[i] = item.transportation_path[i][0] + self.delta_x, item.transportation_path[i][1] + self.delta_y, item.transportation_path[i][2]
 
-        if item.is_under_user_control:
+        if item.is_under_user_control or self.transportation_path is None:
             segment_start_index = self.compute_conveyor_belt_item_insertion_position(item)
             segment_start_index = 1 if segment_start_index == 0 else segment_start_index
             distance = 0
@@ -177,9 +186,7 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
                 item.overall_transportation_length = distance
                 item.transportation_starttime = time.time()
 
-            return item.x, item.y, False
-
-        t = time.time() - item.transportation_starttime
+            return item.x, item.y, False, False
 
         distance = (t * self.speed) % item.overall_transportation_length
 
@@ -193,10 +200,19 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
                     x = p_from[0] + (p_to[0] - p_from[0]) * f
                     y = p_from[1] + (p_to[1] - p_from[1]) * f
 
-                    return x, y, False
+                    closest_to_end = min(self.conveyed_items.items(), key=lambda x: x[1])
 
-        return item.transportation_path[-1][0], item.transportation_path[-1][1], True
+                    remaining_distance = 0
+                    for k in range(i + 1, len(item.transportation_path)):
+                        q = item.transportation_path[k]
+                        p = item.transportation_path[i]
+                        remaining_distance += self.vector_length((q[0] - p[0], q[1] - p[1]))
+                    self.conveyed_items[item._uuid] = remaining_distance
+
+                    return x, y, False, closest_to_end[0] == item._uuid
+
+        return item.transportation_path[-1][0], item.transportation_path[-1][1], True, False
 
     @SIEffect.on_leave(E.id.transportable_capability, SIEffect.EMISSION)
     def on_transport_leave_emit(self, other):
-        pass
+        del self.conveyed_items[other._uuid]

@@ -50,6 +50,10 @@ class ConveyorBeltMerger(Deletable, Movable, SIEffect):
     def on_cb_merger_evaluate_enter_emit(self, other):
         return self._uuid, self.output_point[0] - other.width / 2 - other.relative_x_pos(), self.output_point[1] - other.height / 4 - other.relative_y_pos()
 
+    @SIEffect.on_leave(E.id.cb_merger_evaluate_capability, SIEffect.EMISSION)
+    def on_cb_merger_evaluate_leave_emit(self, other):
+        return self._uuid
+
     # overrides Movable class implementation
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
         Movable.set_position_from_position(self, rel_x, rel_y, abs_x, abs_y)

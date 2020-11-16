@@ -10,11 +10,17 @@ class PositionLinkable(SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", r="", t="", s="", kwargs={}):
         super(PositionLinkable, self).__init__(shape, uuid, r, t, s, kwargs)
 
+        self.transform_x = 0
+        self.transform_y = 0
+
     @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION)
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
         self.move(self.x + rel_x, self.y + rel_y)
 
         self.delta_x, self.delta_y = rel_x, rel_y
+        self.transform_x += int(self.delta_x)
+        self.transform_y += int(self.delta_y)
+
 
         if self.is_under_user_control:
             self.mouse_x = abs_x
