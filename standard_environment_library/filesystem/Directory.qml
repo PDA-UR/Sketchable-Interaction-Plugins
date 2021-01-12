@@ -6,7 +6,8 @@ Item
     function updateData(data)
     {
         container.visible = data.is_visible;
-
+        container.width = data.container_width
+        container.height = data.container_height
         texture.width = data.icon_width;
         texture.height = data.icon_height;
         texture.anchors.leftMargin = texture.width / 2;
@@ -16,8 +17,7 @@ Item
         openedcontainer.visible = data.is_opened_visible
         iconcontainer.visible = data.is_icon_visible
 
-        container.width = data.container_width
-        container.height = data.container_height
+
 
         icondirectoryname.color = data.color;
         icondirectoryname.text = data.name;

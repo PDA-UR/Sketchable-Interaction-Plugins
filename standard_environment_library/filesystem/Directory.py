@@ -2,6 +2,8 @@ from libPySI import PySI
 from plugins.standard_environment_library.filesystem.Entry import Entry
 from plugins.standard_environment_library.button import Button
 from plugins.standard_environment_library.SIEffect import SIEffect
+from plugins.E import E
+import re
 
 
 class Directory(Entry):
@@ -47,6 +49,7 @@ class Directory(Entry):
         self.set_QML_data("page_name", "1 / " + str(len(self.browse_pages)), PySI.DataType.STRING)
 
         self.is_open_entry_capability_blocked = False
+        self.is_slides = False
 
     def set_folder_contents_page(self, value):
         self.btn_presses = self.btn_presses - 1 if value else self.btn_presses + 1
@@ -73,7 +76,31 @@ class Directory(Entry):
 
         self.set_QML_data("page_name", str(self.current_page + 1) + "/" + str(len(self.browse_pages)), PySI.DataType.STRING)
 
-        self.show_current_folder_contents_page()
+        if not self.is_slides:
+            self.show_current_folder_contents_page()
+        else:
+            dir_x = self.absolute_x_pos()
+            dir_y = self.absolute_y_pos()
+
+            dir_width = 1280
+            dir_height = 720
+
+            offset_x = 110
+            offset_y = 65
+
+            entry_shape = [[dir_x + offset_x, dir_y + offset_y + offset_y], [dir_x + offset_x, dir_y + dir_height + offset_y], [dir_x + dir_width + offset_x, dir_y + dir_height + offset_y], [dir_x + dir_width + offset_x, dir_height + offset_y]]
+
+            entry = self.browse_pages[self.current_page][0]
+
+            kwargs = {}
+
+            kwargs["parent"] = self._uuid
+            kwargs["cwd"] = entry[0]
+            kwargs["is_slide"] = True
+
+            self.create_region_via_id(entry_shape, entry[1], kwargs)
+
+            self.add_child_buttons(dir_x, dir_y)
 
     @SIEffect.on_enter(PySI.CollisionCapability.BTN, SIEffect.RECEPTION)
     def on_btn_enter_recv(self, cursor_id, link_attrib):
@@ -89,7 +116,17 @@ class Directory(Entry):
         pass
 
     def on_open_entry_enter_recv(self, is_other_controlled):
-        pass
+        self.is_slides = False
+        self.preview_width = 400
+        self.preview_height = 600
+        self.num_children_per_page = 6
+
+        self.browse_pages = []
+        for i in range(len(self.children_paths_and_types)):
+            if i % self.num_children_per_page == 0:
+                self.browse_pages.append([])
+
+            self.browse_pages[-1].append(self.children_paths_and_types[i])
 
     def on_open_entry_continuous_recv(self, is_other_controlled):
         if self.parent == "" and not self.is_open_entry_capability_blocked and not self.is_under_user_control and not is_other_controlled:
@@ -133,6 +170,91 @@ class Directory(Entry):
             self.set_QML_data("container_width", self.width, PySI.DataType.INT)
             self.set_QML_data("container_height", self.height, PySI.DataType.INT)
             self.set_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
+            self.set_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
+            self.is_open_entry_capability_blocked = False
+
+            for child in self.children:
+                child.delete()
+
+            self.snap_to_mouse()
+
+    @SIEffect.on_enter(E.id.slideshow_capability_show, SIEffect.RECEPTION)
+    def on_slideshow_enter_recv(self, is_other_controlled):
+        self.is_slides = True
+        self.browse_pages = []
+        for i in range(len(self.children_paths_and_types)):
+            self.browse_pages.append([self.children_paths_and_types[i]])
+
+        self.browse_pages.sort(key=lambda f: int(re.sub('\D', '', f[0][0])))
+        self.set_QML_data("page_name", "1 / " + str(len(self.browse_pages)), PySI.DataType.STRING)
+
+
+    @SIEffect.on_continuous(E.id.slideshow_capability_show, SIEffect.RECEPTION)
+    def on_slideshow_continuous_recv(self, is_other_controlled):
+        if self.parent == "" and not self.is_open_entry_capability_blocked and not self.is_under_user_control and not is_other_controlled:
+            x = self.relative_x_pos()
+            y = self.relative_y_pos()
+
+            self.width = 1500
+            self.height = 882
+            self.preview_width = self.width
+            self.preview_height = self.height
+
+            self.shape = PySI.PointVector([[x, y], [x, y + self.height], [x + self.width, y + self.height], [x + self.width, y]])
+
+            self.is_icon_visible = False
+            self.is_opened_visible = True
+            self.with_border = True
+
+            self.color = PySI.Color(250, 250, 250, 255)
+            self.set_QML_data("container_width", self.width, PySI.DataType.INT)
+            self.set_QML_data("container_height", self.height, PySI.DataType.INT)
+            self.set_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
+            self.set_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
+
+            dir_x = self.absolute_x_pos()
+            dir_y = self.absolute_y_pos()
+
+            dir_width = 1280
+            dir_height = 720
+
+            offset_x = 110
+            offset_y = 65
+
+            entry_shape = [[dir_x + offset_x, dir_y + offset_y + offset_y], [dir_x + offset_x, dir_y + dir_height + offset_y], [dir_x + dir_width + offset_x, dir_y + dir_height + offset_y], [dir_x + dir_width + offset_x, dir_height + offset_y]]
+
+            entry = self.browse_pages[self.current_page][0]
+
+            kwargs = {}
+
+            kwargs["parent"] = self._uuid
+            kwargs["cwd"] = entry[0]
+            kwargs["is_slide"] = True
+
+            self.create_region_via_id(entry_shape, entry[1], kwargs)
+
+            self.add_child_buttons(dir_x, dir_y)
+
+            self.is_open_entry_capability_blocked = True
+
+    @SIEffect.on_leave(E.id.slideshow_capability_show, SIEffect.RECEPTION)
+    def on_slideshow_leave_recv(self, is_other_controlled):
+        if self.parent == "" and self.is_open_entry_capability_blocked:
+            x = self.relative_x_pos()
+            y = self.relative_y_pos()
+
+            self.width = self.icon_width * 2
+            self.height = self.icon_height + self.text_height
+
+            self.shape = PySI.PointVector([[x, y], [x, y + self.height], [x + self.width, y + self.height], [x + self.width, y]])
+
+            self.is_icon_visible = True
+            self.is_opened_visible = False
+            self.color = PySI.Color(25, 0, 0, 0)
+            self.with_border = False
+            self.set_QML_data("container_width", self.width, PySI.DataType.INT)
+            self.set_QML_data("container_height", self.height, PySI.DataType.INT)
+            self.set_QML_data("is_icon_visible", True, PySI.DataType.BOOL)
             self.set_QML_data("is_opened_visible", self.is_opened_visible, PySI.DataType.BOOL)
             self.is_open_entry_capability_blocked = False
 

@@ -4,7 +4,6 @@ from libPySI import PySI
 import inspect
 import os
 import glob
-from plugins.E import E
 
 ## @package SIEffect
 # Documentation for this module / class

@@ -18,6 +18,16 @@ class ImageFile(Entry):
         self.img_width, self.img_height = 0, 0
         self.image = True
 
+        if "is_slide" in kwargs:
+            if kwargs["is_slide"]:
+                self.width = 1280
+                self.height = 720
+                self.set_QML_data("container_width", self.width, PySI.DataType.INT)
+                self.set_QML_data("container_height", self.height, PySI.DataType.INT)
+                self.set_QML_data("icon_width", self.width, PySI.DataType.INT)
+                self.set_QML_data("icon_height", self.height, PySI.DataType.INT)
+                self.is_in_preview = True
+
         if(self.path != ""):
             self.img_width, self.img_height = Image.open(self.path).size
 
