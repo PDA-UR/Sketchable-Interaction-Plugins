@@ -147,14 +147,6 @@
     <value id="terminal_color" type="color">(255, 255, 255, 255)</value>
     <value id="terminal_letter_color" type="str">00FF00FF</value>
 
-    <!-- Presentation -->
-    <value id="slideshow_name" type="str">__SLIDESHOW__</value>
-    <value id="slideshow_display_name" type="str">Show Slides</value>
-    <value id="slideshow_texture" type="str">res/slideshow.png</value>
-    <value id="slideshow_qml_file_name" type="str">Slides.qml</value>
-    <value id="slideshow_capability_show" type="str">__ SHOW_SLIDES __</value>
-
-    <value id="slideshow_color" type="color">(204, 229, 255, 255)</value>
-
-
+    <!-- Tangible Demo -->
+    <value id="tangible_demo_color" type="color">(255, 0, 0, 255)</value>
 </environment>
