@@ -10,8 +10,7 @@ class SliderController(Movable, SIEffect):
     regionname = E.id.slider_controller_name
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        Movable.__init__(self, shape, uuid, "", SliderController.regiontype, SliderController.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, "", SliderController.regiontype, SliderController.regionname, kwargs)
+        super(SliderController, self).__init__(shape, uuid, "", SliderController.regiontype, SliderController.regionname, kwargs)
 
         self.color = E.id.slider_controller_color
         self.color_value = E.id.slider_controller_min_value

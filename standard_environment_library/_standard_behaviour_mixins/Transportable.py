@@ -10,6 +10,7 @@ class Transportable(SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", r="", t="", s="", kwargs={}):
         super(Transportable, self).__init__(shape, uuid, r, t, s, kwargs)
+
         self.transportation_starttime = None
         self.overall_transportation_length = None
         self.transportation_path = None
@@ -70,13 +71,14 @@ class Transportable(SIEffect):
         #     del self.mergers[self.mergers.index(merger_uuid)]
         pass
 
+    # clogging is broken and breaks CBs
     @SIEffect.on_enter(E.id.transportable_clogging_capability, SIEffect.EMISSION)
     def on_clogging_state_enter_emit(self, other):
-        self.is_clogged = True
+        self.is_clogged = False
 
     @SIEffect.on_enter(E.id.transportable_clogging_capability, SIEffect.RECEPTION)
     def on_clogging_state_enter_recv(self):
-        self.is_clogged = True
+        self.is_clogged = False
 
     @SIEffect.on_leave(E.id.transportable_clogging_capability, SIEffect.EMISSION)
     def on_clogging_state_leave_emit(self, other):

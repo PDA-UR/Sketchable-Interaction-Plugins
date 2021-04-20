@@ -11,7 +11,6 @@ class TangibleDemo(Tangible, SIEffect):
     region_display_name = "TangibleDemo"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        Tangible.__init__(self, shape, uuid, SIEffect.TEXTURE_PATH_NONE, TangibleDemo.regiontype, TangibleDemo.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, SIEffect.TEXTURE_PATH_NONE, TangibleDemo.regiontype, TangibleDemo.regionname, kwargs)
+        super(TangibleDemo, self).__init__(shape, uuid, SIEffect.TEXTURE_PATH_NONE, TangibleDemo.regiontype, TangibleDemo.regionname, kwargs)
 
         self.color = E.id.tangible_demo_color

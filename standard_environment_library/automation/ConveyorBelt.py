@@ -14,9 +14,7 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
     region_display_name = "ConveyorBelt"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        Deletable.__init__(self, shape, uuid, "res/factory.png", ConveyorBelt.regiontype, ConveyorBelt.regionname, kwargs)
-        Movable.__init__(self, shape, uuid, "res/factory.png", ConveyorBelt.regiontype, ConveyorBelt.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, "res/factory.png", ConveyorBelt.regiontype, ConveyorBelt.regionname, kwargs)
+        super(ConveyorBelt, self).__init__(shape, uuid, "res/factory.png", ConveyorBelt.regiontype, ConveyorBelt.regionname, kwargs)
 
         self.qml_path = self.set_QML_path("ConveyorBelt.qml")
         self.color = PySI.Color(204, 255, 204, 255)

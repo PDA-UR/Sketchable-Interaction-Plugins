@@ -128,3 +128,5 @@ dmypy.json
 .pyre/
 
 E.py
+
+__loaded_plugins__/

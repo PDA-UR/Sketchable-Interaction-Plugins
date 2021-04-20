@@ -11,8 +11,7 @@ class ImageEditorBlurToolGetter(PositionLinkable, SIEffect):
     region_display_name = "ImageEditorBlurToolGetter"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        PositionLinkable.__init__(self, shape, uuid, "", ImageEditorBlurToolGetter.regiontype, ImageEditorBlurToolGetter.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, "", ImageEditorBlurToolGetter.regiontype, ImageEditorBlurToolGetter.regionname, kwargs)
+        super(ImageEditorBlurToolGetter, self).__init__(shape, uuid, "", ImageEditorBlurToolGetter.regiontype, ImageEditorBlurToolGetter.regionname, kwargs)
 
         self.parent_uuid = ""
         self.kwargs = kwargs

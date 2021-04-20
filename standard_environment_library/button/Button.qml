@@ -20,7 +20,8 @@ Item
            id: texture
            anchors.left: parent.left
            anchors.top: parent.top
-
+            asynchronous: true
+            cache: true
            visible: true
        }
     }

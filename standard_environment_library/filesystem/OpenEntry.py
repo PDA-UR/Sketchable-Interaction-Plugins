@@ -3,6 +3,7 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
+from plugins.standard_environment_library._standard_behaviour_mixins.Lassoable import Lassoable
 
 class OpenEntry(Deletable, Movable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
@@ -10,9 +11,7 @@ class OpenEntry(Deletable, Movable, SIEffect):
     region_display_name = "Open Folder/File"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        Deletable.__init__(self, shape, uuid, "res/open_entry.png", OpenEntry.regiontype, OpenEntry.regionname, kwargs)
-        Movable.__init__(self, shape, uuid, "res/open_entry.png", OpenEntry.regiontype, OpenEntry.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, "res/open_entry.png", OpenEntry.regiontype, OpenEntry.regionname, kwargs)
+        super(OpenEntry, self).__init__(shape, uuid, "res/open_entry.png", OpenEntry.regiontype, OpenEntry.regionname, kwargs)
 
         self.qml_path = self.set_QML_path("OpenEntry.qml")
         self.color = PySI.Color(204, 229, 255, 255)

@@ -11,9 +11,7 @@ class ConveyorBeltSplitter(Deletable, Movable, SIEffect):
     region_display_name = E.id.cb_splitter_display_name
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        Deletable.__init__(self, shape, uuid, E.id.cb_splitter_texture, ConveyorBeltSplitter.regiontype, ConveyorBeltSplitter.regionname, kwargs)
-        Movable.__init__(self, shape, uuid, E.id.cb_splitter_texture, ConveyorBeltSplitter.regiontype, ConveyorBeltSplitter.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, E.id.cb_splitter_texture, ConveyorBeltSplitter.regiontype, ConveyorBeltSplitter.regionname, kwargs)
+        super(ConveyorBeltSplitter, self).__init__(shape, uuid, E.id.cb_splitter_texture, ConveyorBeltSplitter.regiontype, ConveyorBeltSplitter.regionname, kwargs)
 
         self.qml_path = self.set_QML_path(E.id.cb_splitter_qml_file_path)
         self.color = E.id.cb_splitter_color

@@ -10,8 +10,7 @@ class ImageEditorPixel(PositionLinkable, SIEffect):
     region_display_name = "ImageEditorPixel"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        PositionLinkable.__init__(self, shape, uuid, "", ImageEditorPixel.regiontype, ImageEditorPixel.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, "", ImageEditorPixel.regiontype, ImageEditorPixel.regionname, kwargs)
+        super(ImageEditorPixel, self).__init__(shape, uuid, "", ImageEditorPixel.regiontype, ImageEditorPixel.regionname, kwargs)
 
         self.parent_uuid = ""
         self.index = kwargs["index"]

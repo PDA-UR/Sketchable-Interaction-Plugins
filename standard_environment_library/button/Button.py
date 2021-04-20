@@ -11,11 +11,9 @@ class Button(PositionLinkable, SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         if kwargs["value"]:
-            PositionLinkable.__init__(self, shape, uuid, "res/backward.png", Button.regiontype, Button.regionname, kwargs)
-            SIEffect.__init__(self, shape, uuid, "res/backward.png", Button.regiontype, Button.regionname, kwargs)
+            super(Button, self).__init__(shape, uuid, "res/backward.png", Button.regiontype, Button.regionname, kwargs)
         else:
-            PositionLinkable.__init__(self, shape, uuid, "res/forward.png", Button.regiontype, Button.regionname, kwargs)
-            SIEffect.__init__(self, shape, uuid, "res/forward.png", Button.regiontype, Button.regionname, kwargs)
+            super(Button, self).__init__(shape, uuid, "res/forward.png", Button.regiontype, Button.regionname, kwargs)
 
         self.with_border = False
 

@@ -10,8 +10,8 @@ class ImageEditorBlurToolSetter(PositionLinkable, SIEffect):
     region_display_name = "ImageEditorBlurToolSetter"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        PositionLinkable.__init__(self, shape, uuid, "", ImageEditorBlurToolSetter.regiontype, ImageEditorBlurToolSetter.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, "", ImageEditorBlurToolSetter.regiontype, ImageEditorBlurToolSetter.regionname, kwargs)
+        super(ImageEditorBlurToolSetter, self).__init__(shape, uuid, "", ImageEditorBlurToolSetter.regiontype, ImageEditorBlurToolSetter.regionname, kwargs)
+
         self.source = "libStdSI"
         self.color = PySI.Color(0, 0, 0, 0)
         self.assigned_uuid = ""

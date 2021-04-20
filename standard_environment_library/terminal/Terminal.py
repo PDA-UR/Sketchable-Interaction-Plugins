@@ -11,9 +11,7 @@ class Terminal(Deletable, Movable, SIEffect):
     region_display_name = E.id.terminal_display_name
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        Deletable.__init__(self, shape, uuid, E.id.terminal_texture, Terminal.regiontype, Terminal.regionname, kwargs)
-        Movable.__init__(self, shape, uuid, E.id.terminal_texture, Terminal.regiontype, Terminal.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, E.id.terminal_texture, Terminal.regiontype, Terminal.regionname, kwargs)
+        super(Terminal, self).__init__(shape, uuid, E.id.terminal_texture, Terminal.regiontype, Terminal.regionname, kwargs)
 
         self.qml_path = self.set_QML_path(E.id.terminal_qml_file_name)
         self.color = E.id.terminal_color

@@ -9,8 +9,8 @@ class Selector(PositionLinkable, SIEffect):
     regiontype = PySI.EffectType.SI_SELECTOR
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        PositionLinkable.__init__(self, shape, uuid, "", Selector.regiontype, Selector.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, "", Selector.regiontype, Selector.regionname, kwargs)
+        super(Selector, self).__init__(shape, uuid, "", Selector.regiontype, Selector.regionname, kwargs)
+
         self.qml_path = self.set_QML_path("Selector.qml")
 
         self.color = kwargs["target_color"]

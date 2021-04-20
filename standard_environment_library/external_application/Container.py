@@ -1,6 +1,7 @@
 from libPySI import PySI
 
 from plugins.standard_environment_library.SIEffect import SIEffect
+import math
 
 
 class Container(SIEffect):
@@ -9,19 +10,15 @@ class Container(SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Container, self).__init__(shape, uuid, self.TEXTURE_PATH_NONE, Container.regiontype, Container.regionname, kwargs)
-        self.color = PySI.Color(255, 0, 0, 0)
+        self.color = PySI.Color(128, 128, 128, 128)
 
     @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.GEOMETRY, PySI.LinkingCapability.GEOMETRY)
     def set_geometry_from_geometry(self, abs_x, abs_y, width, height):
         if self.width == width and self.height == height:
             self.move(abs_x, abs_y)
-
-            self.width = width
-            self.height = height
         else:
-            self.shape = PySI.PointVector([[abs_x, abs_y], [abs_x, abs_y + height], [abs_x + width, abs_y + height], [abs_x + width, abs_y]])
             self.has_data_changed = True
-            self.x = abs_x
-            self.y = abs_y
-            self.width = width
-            self.height = height
+            self.move(0, 0)
+            # self.move(abs_x - abs(abs_x - self.x), abs_y)
+
+            self.shape = PySI.PointVector([[abs_x - 5, abs_y - 5], [abs_x - 5, abs_y + height + 30], [abs_x + width + 5, abs_y + height + 30], [abs_x + width + 5, abs_y - 5]])

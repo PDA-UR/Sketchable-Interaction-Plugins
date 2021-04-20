@@ -54,6 +54,8 @@ Item
         anchors.left: parent.left
         anchors.top: parent.top
 
+        asynchronous: true
+
         visible: true
     }
 }

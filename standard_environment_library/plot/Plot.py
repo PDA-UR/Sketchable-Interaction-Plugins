@@ -17,9 +17,7 @@ class Plot(Deletable, Movable, SIEffect):
 	region_display_name = E.id.plot_display_name
 
 	def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-		Deletable.__init__(self, shape, uuid, E.id.plot_texture, Plot.regiontype, Plot.regionname, kwargs)
-		Movable.__init__(self, shape, uuid, E.id.plot_texture, Plot.regiontype, Plot.regionname, kwargs)
-		SIEffect.__init__(self, shape, uuid, E.id.plot_texture, Plot.regiontype, Plot.regionname, kwargs)
+		super(Plot, self).__init__(shape, uuid, E.id.plot_texture, Plot.regiontype, Plot.regionname, kwargs)
 
 		self.qml_path = self.set_QML_path(E.id.plot_qml_file_name)
 		self.color = E.id.plot_color

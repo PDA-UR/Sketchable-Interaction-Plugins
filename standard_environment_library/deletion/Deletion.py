@@ -11,9 +11,7 @@ class Deletion(Deletable, Movable, SIEffect):
     region_display_name = "Deletion"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        Deletable.__init__(self, shape, uuid, "res/deletion.png", Deletion.regiontype, Deletion.regionname, kwargs)
-        Movable.__init__(self, shape, uuid, "res/deletion.png", Deletion.regiontype, Deletion.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, "res/deletion.png", Deletion.regiontype, Deletion.regionname, kwargs)
+        super(Deletion, self).__init__(shape, uuid, "res/deletion.png", Deletion.regiontype, Deletion.regionname, kwargs)
 
         self.qml_path = self.set_QML_path("Deletion.qml")
         self.color = PySI.Color(255, 255, 204, 255)

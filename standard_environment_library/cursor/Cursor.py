@@ -10,8 +10,9 @@ class Cursor(SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Cursor, self).__init__(shape, uuid, "", Cursor.regiontype, Cursor.regionname, kwargs)
+
         self.qml_path = self.set_QML_path("Cursor.qml")
-        self.color = PySI.Color(0, 0, 0, 0)
+        self.color = PySI.Color(255, 0, 0, 0)
         self.assigned_effect = ""
         self.is_drawing_blocked = False
         self.width = Cursor.region_width

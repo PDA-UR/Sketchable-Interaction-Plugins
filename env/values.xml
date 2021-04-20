@@ -149,4 +149,11 @@
 
     <!-- Tangible Demo -->
     <value id="tangible_demo_color" type="color">(255, 0, 0, 255)</value>
+
+    <!-- Lasso -->
+    <value id="lasso_color" type="color">(128, 128, 128, 50)</value>
+    <value id="lasso_texture" type="str">res/lasso.png</value>
+    <value id="lasso_capabiliy" type="str">__ LASSO __</value>
+
+
 </environment>

@@ -10,8 +10,8 @@ class ImageEditorColorTool(PositionLinkable, SIEffect):
     region_display_name = "Color Tool"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        PositionLinkable.__init__(self, shape, uuid, "", ImageEditorColorTool.regiontype, ImageEditorColorTool.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, "", ImageEditorColorTool.regiontype, ImageEditorColorTool.regionname, kwargs)
+        super(ImageEditorColorTool, self).__init__(shape, uuid, "", ImageEditorColorTool.regiontype, ImageEditorColorTool.regionname, kwargs)
+
         self.color = kwargs["color"]
         self.parent_uuid = ""
         self.cursor_id = ""

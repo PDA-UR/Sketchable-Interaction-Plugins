@@ -37,7 +37,8 @@ Item
         fillMode: Image.PreserveAspectFit
 
         visible: true
-        cache: false
+        cache: true
+        asynchronous: true
     }
 
     Text {

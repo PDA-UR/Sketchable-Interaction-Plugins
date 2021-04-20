@@ -18,9 +18,7 @@ class ImageEditor(Deletable, Movable, SIEffect):
     region_display_name = E.id.image_editor_display_name
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        Deletable.__init__(self, shape, uuid, E.id.image_editor_texture, ImageEditor.regiontype, ImageEditor.regionname, kwargs)
-        Movable.__init__(self, shape, uuid, E.id.image_editor_texture, ImageEditor.regiontype, ImageEditor.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, E.id.image_editor_texture, ImageEditor.regiontype, ImageEditor.regionname, kwargs)
+        super(ImageEditor, self).__init__(shape, uuid, E.id.image_editor_texture, ImageEditor.regiontype, ImageEditor.regionname, kwargs)
 
         self.qml_path = self.set_QML_path(E.id.image_editor_qml_file_path)
         self.color = E.id.image_editor_color

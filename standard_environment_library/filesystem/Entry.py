@@ -3,17 +3,16 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Transportable import Transportable
+from plugins.standard_environment_library._standard_behaviour_mixins.Lassoable import Lassoable
 from plugins.E import E
 
 
-class Entry(Transportable, Movable, SIEffect):
+class Entry(Transportable, Movable, Lassoable, SIEffect):
     regiontype = PySI.EffectType.SI_ENTRY
     regionname = PySI.EffectName.SI_STD_NAME_ENTRY
 
     def __init__(self, shape=PySI.PointVector(), uuid="", regiontype=PySI.EffectType.SI_ENTRY, regionname=PySI.EffectName.SI_STD_NAME_ENTRY, kwargs={}):
-        Transportable.__init__(self, shape, uuid, self.TEXTURE_PATH_NONE, regiontype, regionname, kwargs)
-        Movable.__init__(self, shape, uuid, self.TEXTURE_PATH_NONE, regiontype, regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, self.TEXTURE_PATH_NONE, regiontype, regionname, kwargs)
+        super(Entry, self).__init__(shape, uuid, self.TEXTURE_PATH_NONE, regiontype, regionname, kwargs)
 
         self.width = 130
         self.height = 125
@@ -21,7 +20,7 @@ class Entry(Transportable, Movable, SIEffect):
         self.icon_height = 75
         self.text_height = 50
         self.color = PySI.Color(255, 10, 0, 0)
-        self.text_color = "#FF000000"
+        self.text_color = "FF000000"
         self.path = str(kwargs["cwd"]) if len(kwargs.keys()) else ""
         self.parent = str(kwargs["parent"]) if len(kwargs.keys()) else ""
         self.filename = ""

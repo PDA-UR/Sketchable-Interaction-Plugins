@@ -12,9 +12,7 @@ class ConveyorBeltMerger(Deletable, Movable, SIEffect):
     region_display_name = E.id.cb_merger_display_name
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        Deletable.__init__(self, shape, uuid, E.id.cb_merger_texture, ConveyorBeltMerger.regiontype, ConveyorBeltMerger.regionname, kwargs)
-        Movable.__init__(self, shape, uuid, E.id.cb_merger_texture, ConveyorBeltMerger.regiontype, ConveyorBeltMerger.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, E.id.cb_merger_texture, ConveyorBeltMerger.regiontype, ConveyorBeltMerger.regionname, kwargs)
+        super(ConveyorBeltMerger, self).__init__(shape, uuid, E.id.cb_merger_texture, ConveyorBeltMerger.regiontype, ConveyorBeltMerger.regionname, kwargs)
 
         self.qml_path = self.set_QML_path(E.id.cb_merger_qml_file_path)
         self.color = E.id.cb_merger_color
