@@ -11,8 +11,7 @@ class ImageFile(Entry):
     regionname = PySI.EffectName.SI_STD_NAME_IMAGEFILE
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        super(ImageFile, self).__init__(shape, uuid, ImageFile.regiontype,
-                                        ImageFile.regionname, kwargs)
+        super(ImageFile, self).__init__(shape, uuid, ImageFile.regiontype, ImageFile.regionname, kwargs)
         self.qml_path = self.set_QML_path("ImageFile.qml")
         self.is_in_preview = False
         self.image = True
