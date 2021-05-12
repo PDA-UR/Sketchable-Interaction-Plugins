@@ -15,7 +15,6 @@ Item
         else
             texture.anchors.leftMargin = texture.width / 2;
 
-        texture.source = "";
         texture.source = data.img_path;
 
         container.width = data.container_width

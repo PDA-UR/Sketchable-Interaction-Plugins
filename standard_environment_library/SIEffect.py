@@ -87,7 +87,7 @@ class SIEffect(PySI.Effect):
         self.with_border = True
 
         tmp = sys.modules[self.__class__.__module__].__file__
-        texture_path = ''.join(f'{t}/' for t in tmp.split(".")[0].split("/")[:-1]) + texture_path
+        texture_path = tmp[0:tmp.rindex("/") + 1] + texture_path
 
         ## member attribute variable containing the shape (contour) of a drawn region as a PySI.PointVector
         self.shape = shape

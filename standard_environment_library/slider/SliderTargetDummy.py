@@ -10,8 +10,7 @@ class SliderTargetDummy(Movable, SIEffect):
     regionname = E.id.slider_target_name
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        Movable.__init__(self, shape, uuid, "", SliderTargetDummy.regiontype, SliderTargetDummy.regionname, kwargs)
-        SIEffect.__init__(self, shape, uuid, "", SliderTargetDummy.regiontype, SliderTargetDummy.regionname, kwargs)
+        super(SliderTargetDummy, self).__init__(shape, uuid, "", SliderTargetDummy.regiontype, SliderTargetDummy.regionname, kwargs)
         self.color = E.id.slider_target_color
 
     @SIEffect.on_enter(E.id.slider_controller_capability_parent, SIEffect.RECEPTION)

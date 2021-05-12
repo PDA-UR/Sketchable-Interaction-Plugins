@@ -11,7 +11,7 @@ class Canvas(SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Canvas, self).__init__(shape, uuid, "", Canvas.regiontype, Canvas.regionname, kwargs)
         self.color = PySI.Color(247, 249, 239, 255)
-        self.log_file = open("TEST.TXT", "r+")
+        self.log_file = open(".TEST.TXT", "r+")
 
     @SIEffect.on_enter(PySI.CollisionCapability.SKETCH, SIEffect.RECEPTION)
     def on_sketch_enter_recv(self, x, y, sender_id):
