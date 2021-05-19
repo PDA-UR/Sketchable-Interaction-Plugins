@@ -3,8 +3,6 @@ import sys
 from libPySI import PySI
 import inspect
 import os
-# import glob
-# from plugins.E import E
 
 ## @package SIEffect
 # Documentation for this module / class
@@ -29,16 +27,22 @@ class SIEffect(PySI.Effect):
 
     ## static member attribute to notify SIGRun to not resample a region's shape when changed from PySI
     # Use with caution!
-    # May lead to unexpected / barely debugable behaviour!
+    # May lead to unexpected / barely debuggable behaviour!
     NO_RESAMPLING = False
 
-    @staticmethod
-    def on_create(f):
-        def wrap(*args):
-            pass
-
-        return wrap
-
+    ## Decorator for registering on_enter collision events
+    #
+    # Decorates a specific function in other plugin files to be used as an on_enter collision event.
+    # Recommended use: @SIEffect.on_enter(<capability>, <transmission_type>)
+    #
+    # This decorator adds no functionality and only provides easier syntax for defining on_enter collision events.
+    # The decorator is detected by the SIGRun plugin transpiler during the plugin loading step.
+    # In this step, the transpiler removes the decorator and appends an equivalent function call to the plugin's constructor, in order to register the on_enter collision event.
+    #
+    # @param capability the str value serving as the identifier for the on_enter collision event
+    # @param transmission_type the bool value serving to determine whether the event shall be emitted (SIEffect.EMISSION) or received (SIEffect.RECEPTION)
+    #
+    # @return the decorated function
     @staticmethod
     def on_enter(capability, transmission_type):
         def wrap(f):
@@ -47,6 +51,19 @@ class SIEffect(PySI.Effect):
             return wrapped_f
         return wrap
 
+    ## Decorator for registering on_continuous collision events
+    #
+    # Decorates a specific function in other plugin files to be used as an on_continuous collision event.
+    # Recommended use: @SIEffect.on_continuous(<capability>, <transmission_type>)
+    #
+    # This decorator adds no functionality and only provides easier syntax for defining on_continuous collision events.
+    # The decorator is detected by the SIGRun plugin transpiler during the plugin loading step.
+    # In this step, the transpiler removes the decorator and appends an equivalent function call to the plugin's constructor, in order to register the on_continuous collision event.
+    #
+    # @param capability the str value serving as the identifier for the on_continuous collision event
+    # @param transmission_type the bool value serving to determine whether the event shall be emitted (SIEffect.EMISSION) or received (SIEffect.RECEPTION)
+    #
+    # @return the decorated function
     @staticmethod
     def on_continuous(capability, transmission_type):
         def wrap(f):
@@ -55,6 +72,19 @@ class SIEffect(PySI.Effect):
             return wrapped_f
         return wrap
 
+    ## Decorator for registering on_leave collision events
+    #
+    # Decorates a specific function in other plugin files to be used as an on_leave collision event.
+    # Recommended use: @SIEffect.on_leave(<capability>, <transmission_type>)
+    #
+    # This decorator adds no functionality and only provides easier syntax for defining on_leave collision events.
+    # The decorator is detected by the SIGRun plugin transpiler during the plugin loading step.
+    # In this step, the transpiler removes the decorator and appends an equivalent function call to the plugin's constructor, in order to register the on_leave collision event.
+    #
+    # @param capability the str value serving as the identifier for the on_leave collision event
+    # @param transmission_type the bool value serving to determine whether the event shall be emitted (SIEffect.EMISSION) or received (SIEffect.RECEPTION)
+    #
+    # @return the decorated function
     @staticmethod
     def on_leave(capability, transmission_type):
         def wrap(f):
@@ -63,6 +93,22 @@ class SIEffect(PySI.Effect):
             return wrapped_f
         return wrap
 
+    ## Decorator for registering linking actions
+    #
+    # Decorates a specific function in other plugin files to be used as an linking action.
+    # Recommended use: @SIEffect.on_link(<transmission_type>, <emission_capability>, <reception_capability>)
+    #
+    # This decorator adds no functionality and only provides easier syntax for defining linking actions.
+    # The decorator is detected by the SIGRun plugin transpiler during the plugin loading step.
+    # In this step, the transpiler removes the decorator and appends an equivalent function call to the plugin's constructor, in order to register the linking action.
+    # Here, the transpiler differentiates the emission of a linking action: @SIEffect.on_link(SIEffect.EMISSION, <capability>)
+    # and the reception of a linking action: @SIEffect.on_link(SIEffect.Reception, <emission_capability>, <reception_capability>)
+    #
+    # @param transmission_type the bool value serving to determine whether the event shall be emitted (SIEffect.EMISSION) or received (SIEffect.RECEPTION)
+    # @param emission_capability the str value serving as the identifier of with which the linking action was emitted from its source
+    # @param reception_capability the str value serving as the identifier of with which the linking action shall be received
+    #
+    # @return the decorated function
     @staticmethod
     def on_link(transmission_type, emission_capability, reception_capability=None):
         def wrap(f):
@@ -82,8 +128,12 @@ class SIEffect(PySI.Effect):
     # @param texture_path the path to an image intended to be used as an icon for the drawn region (str)
     # @param kwargs keyworded arguments which may necessary for more specific implementations of region effects (dict)
     # @param __source__ the source of the plugin e.g. standard environment library (str)
-    def __init__(self, shape, uuid, texture_path, regiontype, regionname, kwargs, __source__="custom"):
+    #
+    # @return None
+    def __init__(self, shape: PySI.PointVector, uuid: str, texture_path: str, regiontype: int, regionname: str, kwargs: dict, __source__="custom") -> None:
         super(SIEffect, self).__init__(shape, uuid, texture_path, kwargs)
+
+        ## member attribute variable serving as a rendering hint for showing a regions border
         self.with_border = True
 
         tmp = sys.modules[self.__class__.__module__].__file__
@@ -238,38 +288,57 @@ class SIEffect(PySI.Effect):
         self.mouse_y = 0
 
     ## member function for retrieving the maximum width of a region
-    def get_region_width(self):
+    #
+    # @param self the pointer to the object
+    #
+    # @return the width of the associated region as int
+    def get_region_width(self) -> int:
         return int(self.aabb[3].x - self.aabb[0].x)
 
     ## member function for retrieving the maximum height of a region
-    def get_region_height(self):
+    #
+    # @param self the pointer to the object
+    #
+    # @return the width of the associated region as int
+    def get_region_height(self) -> int:
         return int(self.aabb[1].y - self.aabb[0].y)
 
     ## member function for getting the relative x coordinate of the parent region's top left corner
     #
     # @param self the object pointer
-    def relative_x_pos(self):
+    #
+    # @return the relative x coordinate of the associated region's top left corner
+    def relative_x_pos(self) -> int:
         return self.aabb[0].x
 
     ## member function for getting the relative y coordinate of the parent region's top left corner
     #
     # @param self the object pointer
-    def relative_y_pos(self):
+    #
+    # @return the relative y coordinate of the associated region's top left corner
+    def relative_y_pos(self) -> int:
         return self.aabb[0].y
 
     ## member function for getting the absolute x coordinate of the parent region's top left corner
     #
     # @param self the object pointer
-    def absolute_x_pos(self):
+    #
+    # @return the absolute x coordinate of the associated region's top left corner
+    def absolute_x_pos(self) -> int:
         return self.x + self.aabb[0].x
 
     ## member function for getting the absolute y coordinate of the parent region's top left corner
     #
     # @param self the object pointer
-    def absolute_y_pos(self):
+    #
+    # @return the absolute y coordinate of the associated region's top left corner
+    def absolute_y_pos(self) -> int:
         return self.y + self.aabb[0].y
 
     ## member function for enabling the emission or reception of an effect
+    #
+    # This function is used in order to register collision events.
+    # During loading of plugins, the SIGRun plugin transpiler adds this function to the constructor of transpiled plugins based on the information provided in the associated Decorator
     #
     # @param self the object pointer
     # @param capability the capability of the collision event (str)
@@ -277,13 +346,26 @@ class SIEffect(PySI.Effect):
     # @param on_enter the function to be called for the collision event PySI.ON_ENTER
     # @param on_continuous the function to be called for the collision event PySI.ON_CONTINUOUS
     # @param on_leave the function to be called for the collision event PySI.ON_LEAVE
-    def enable_effect(self, capability, is_emit, on_enter, on_continuous, on_leave):
-       if is_emit:
-           self.cap_emit[capability] = {PySI.CollisionEvent.ON_ENTER: on_enter, PySI.CollisionEvent.ON_CONTINUOUS: on_continuous, PySI.CollisionEvent.ON_LEAVE: on_leave}
-       else:
-           self.cap_recv[capability] = {PySI.CollisionEvent.ON_ENTER: on_enter, PySI.CollisionEvent.ON_CONTINUOUS: on_continuous, PySI.CollisionEvent.ON_LEAVE: on_leave}
+    #
+    # @see on_enter(capability, transmission_type):
+    # @see on_continuous(capability, transmission_type):
+    # @see on_leave(capability, transmission_type):
+    #
+    # @return None
+    def enable_effect(self, capability: str, is_emit: bool, on_enter: object, on_continuous: object, on_leave: object) -> None:
+        if is_emit:
+            self.cap_emit[capability] = {PySI.CollisionEvent.ON_ENTER: on_enter, PySI.CollisionEvent.ON_CONTINUOUS: on_continuous, PySI.CollisionEvent.ON_LEAVE: on_leave}
+        else:
+            self.cap_recv[capability] = {PySI.CollisionEvent.ON_ENTER: on_enter, PySI.CollisionEvent.ON_CONTINUOUS: on_continuous, PySI.CollisionEvent.ON_LEAVE: on_leave}
 
-    def is_effect_enabled(self, capability, is_emit):
+    ## member function for determining whether a collision event exists
+    #
+    # @param self the object pointer
+    # @param capability the capability of the collision event (str)
+    # @param is_emit the transmission type (bool)
+    #
+    # @return True if a collision event exists with the given capability and transmission type, False else
+    def is_effect_enabled(self, capability: str, is_emit: bool) -> bool:
         if is_emit:
             return capability in self.cap_emit
         else:
@@ -300,7 +382,9 @@ class SIEffect(PySI.Effect):
     #
     # This function then calls self.enable_effect(capability, is_emit, on_enter, on_continuous, on_leave)
     # @see self.enable_effect(capability, is_emit, on_enter, on_continuous, on_leave)
-    def override_effect(self, capability, is_emit, on_enter, on_continuous, on_leave):
+    #
+    # @return None
+    def override_effect(self, capability: str, is_emit: bool, on_enter: object, on_continuous: object, on_leave: object) -> None:
         self.enable_effect(capability, is_emit, on_enter, on_continuous, on_leave)
 
     ## member function for disabling the emission or reception of an effect
@@ -308,7 +392,9 @@ class SIEffect(PySI.Effect):
     # @param self the object pointer
     # @param capability the capability of the collision event (str)
     # @param is_emit the variable depicting if a region emits (True) or receives (False) an effect (bool)
-    def disable_effect(self, capability, is_emit):
+    #
+    # @return None
+    def disable_effect(self, capability: str, is_emit: bool) -> None:
         if is_emit:
             if capability in self.cap_emit:
                 del self.cap_emit[capability]
@@ -318,19 +404,33 @@ class SIEffect(PySI.Effect):
 
     ## member function for enabling the emission of data in the context of a link event
     #
+    # This function is used in order to register linking actions for emission.
+    # During loading of plugins, the SIGRun plugin transpiler adds this function to the constructor of transpiled plugins based on the information provided in the associated decorator.
+    #
     # @param self the object pointer
     # @param emission_capability the capability of the linking event (str)
     # @param emission_function the function to be called for emitting data
-    def enable_link_emission(self, emission_capability, emission_function):
+    #
+    # @see on_link(transmission_type, emission_capability, reception_capability=None)
+    #
+    # @return None
+    def enable_link_emission(self, emission_capability: str, emission_function: object) -> None:
         self.cap_link_emit[emission_capability] = emission_function
 
     ## member function for enabling the emission of data in the context of a link event
+    #
+    # This function is used in order to register linking actions for reception.
+    # During loading of plugins, the SIGRun plugin transpiler adds this function to the constructor of transpiled plugins based on the information provided in the associated decorator.
     #
     # @param self the object pointer
     # @param emission_capability the capability of the linking event used by the emitting region (str)
     # @param reception_capability the capability of the linking event of a receiving region (str)
     # @param reception_function the function to be called for receiving data
-    def enable_link_reception(self, emission_capability, reception_capability, reception_function):
+    #
+    # @see on_link(transmission_type, emission_capability, reception_capability=None)
+    #
+    # @return None
+    def enable_link_reception(self, emission_capability: str, reception_capability: str, reception_function: object) -> None:
         if emission_capability in self.cap_link_recv:
             self.cap_link_recv[emission_capability][reception_capability] = reception_function
         else:
@@ -340,7 +440,9 @@ class SIEffect(PySI.Effect):
     #
     # @param self the object pointer
     # @param emission_capability the capability of the linking event used by the emitting region (str)
-    def disable_link_emission(self, emission_capability):
+    #
+    # @return None
+    def disable_link_emission(self, emission_capability: str) -> None:
         del self.cap_link_emit[emission_capability]
 
     ## member function for disabling the reception of data in the context of a link event
@@ -351,8 +453,11 @@ class SIEffect(PySI.Effect):
     #
     # If no reception_capability is specified, the emission_capability is deleted from self.cap_link_recv.
     # If reception_capability is specified and present in self.cap_link_recv, the specified relation is deleted from emission_capability.
+    #
     # @see self.cap_link_recv
-    def disable_link_reception(self, emission_capability, reception_capability=""):
+    #
+    # @return None
+    def disable_link_reception(self, emission_capability: str, reception_capability="") -> None:
         if reception_capability == "":
             if emission_capability in self.cap_link_recv:
                 del self.cap_link_recv[emission_capability]
@@ -368,7 +473,9 @@ class SIEffect(PySI.Effect):
     # @param sender_attribute the attribute to be linked by the emitting region (str)
     # @param receiver_uuid the uuid of the receiving region (str)
     # @param receiver_attribute the attribute to be linked by the receiving region (str)
-    def create_link(self, sender_uuid, sender_attribute, receiver_uuid, receiver_attribute):
+    #
+    # @return None
+    def create_link(self, sender_uuid: str, sender_attribute: str, receiver_uuid: str, receiver_attribute: str) -> None:
         if sender_uuid != "" and sender_attribute != "" and receiver_uuid != "" and receiver_attribute != "":
             self.link_relations.append([sender_uuid, sender_attribute, receiver_uuid, receiver_attribute])
 
@@ -379,14 +486,23 @@ class SIEffect(PySI.Effect):
     # @param sender_attribute the attribute to be linked by the emitting region (str)
     # @param receiver_uuid the uuid of the receiving region (str)
     # @param receiver_attribute the attribute to be linked by the receiving region (str)
-    def remove_link(self, sender_uuid, sender_attribute, receiver_uuid, receiver_attribute):
+    #
+    # @return None
+    def remove_link(self, sender_uuid: str, sender_attribute: str, receiver_uuid: str, receiver_attribute: str) -> None:
         if sender_uuid != "" and sender_attribute != "" and receiver_uuid != "" and receiver_attribute != "":
             lr = PySI.LinkRelation(sender_uuid, sender_attribute, receiver_uuid, receiver_attribute)
 
             if lr in self.link_relations:
                 del self.link_relations[self.link_relations.index(lr)]
 
-    def emit_linking_action(self, sender, capability, args):
+    ## member function for emitting a linking action
+    #
+    # @param sender the source of the the linking action
+    # @param capability the capability with which the linking action shall be emitted
+    # @param args the data which is to be received by receivers
+    #
+    # @return None
+    def emit_linking_action(self, sender: object, capability: str, args: tuple) -> None:
         self.__emit_linking_action__(sender, capability, args)
 
     ## member function for setting data in the associated qml file of a region effect
@@ -396,8 +512,8 @@ class SIEffect(PySI.Effect):
     # @param value the value to set in the variable in the qml file (variant)
     # @param datatype the data type of the value (PySI.INT, PySI.FLOAT, ...) (int)
     #
-    # Calls the function __set_data__ (c++-bindings)
-    def set_QML_data(self, key, value, datatype, data_kwargs={}):
+    # @return None
+    def set_QML_data(self, key: str, value: object, datatype: int, data_kwargs={}) -> None:
         self.__set_data__(key, value, datatype, data_kwargs)
 
     ## member function for getting data set from an associated qml file of a region effect
@@ -405,7 +521,9 @@ class SIEffect(PySI.Effect):
     # @param self the object pointer
     # @param key the key specified in QML to address the required data
     # @param datatype the data type of the requested value (PySI.DataType.INT, PySI.DataType.FLOAT, ...) (int)
-    def get_QML_data(self, key, datatype):
+    #
+    # @return the value queried by the key as the given datatype
+    def get_QML_data(self, key: str, datatype: int) -> object:
         return self.__data__(key, datatype)
 
     ## member function for setting the path to an plugin's associated qml file
@@ -413,8 +531,8 @@ class SIEffect(PySI.Effect):
     # @param self the object pointer
     # @param filename the file name of the target qml file
     #
-    # @return the absolute path to the qml file
-    def set_QML_path(self, filename):
+    # @return the absolute path to the qml file (str)
+    def set_QML_path(self, filename: str) -> str:
         return os.path.dirname(os.path.abspath((inspect.stack()[1])[1])) + "/" + filename
 
     ## member function for adding a point to a region drawing based on a cursor id.
@@ -427,8 +545,8 @@ class SIEffect(PySI.Effect):
     # This function is specific to effects of PySI.EffectType.SI_CANVAS.
     # Therefore, this function does nothing when called with other effect types.
     #
-    # This function uses self.__partial_regions__ (c++-bindings)
-    def add_point_to_region_drawing(self, x, y, cursor_id):
+    # @return None
+    def add_point_to_region_drawing(self, x: float, y: float, cursor_id: str) -> None:
         if self.region_type is int(PySI.EffectType.SI_CANVAS):
             if cursor_id not in self.__partial_regions__.keys():
                 self.__partial_regions__[cursor_id] = PySI.PointVector()
@@ -443,8 +561,8 @@ class SIEffect(PySI.Effect):
     # This function is specific to effects of PySI.EffectType.SI_CANVAS.
     # Therefore, this function does nothing when called with other effect types.
     #
-    # This function uses self.__registered_regions__ (c++-bindings)
-    def register_region_from_drawing(self, cursor_id):
+    # @return None
+    def register_region_from_drawing(self, cursor_id: str) -> None:
         if self.region_type is int(PySI.EffectType.SI_CANVAS):
             self.__registered_regions__.append(cursor_id)
 
@@ -454,8 +572,8 @@ class SIEffect(PySI.Effect):
     # @param file_uuid the uuid of the region associated to a file icon representing a file of the filesystem (str)
     # @param file_path the path of the file in the filesystem (str)
     #
-    # This function calls self.__embed_file_standard_appliation_into_context__ (c++-bindings)
-    def start_standard_application(self, file_uuid, file_path):
+    # @return None
+    def start_standard_application(self, file_uuid: str, file_path: str) -> None:
         self.__embed_file_standard_appliation_into_context__(file_uuid, file_path)
 
     ## member function for closing the standard application of a file given its uuid as a region and its path in the filesystem
@@ -463,24 +581,27 @@ class SIEffect(PySI.Effect):
     # @param self the object pointer
     # @param file_uuid the uuid of the region associated to a file icon representing a file of the filesystem (str)
     #
-    # This function calls self.__destroy_embedded_window__ (c++-bindings)
-    def close_standard_application(self, file_uuid):
+    # @return None
+    def close_standard_application(self, file_uuid: str) -> None:
         self.__destroy_embedded_window__(file_uuid)
 
     ## member function for displaying the contents of a folder in the filesystem as pages of other filesystem entries
     #
     # @param self the object pointer
+    # @param page the number of the current page which browsed in a folder region
     # @param source_uuid the uuid of the region associated to a folder icon representing a folder of the filesystem (str)
     # @param with_buttons a flag depicting whether buttons for browsing pages is wanted (True) or not (False) (bool)
     #
-    # This function calls self.__show_folder_contents_page__ (c++-bindings)
-    def display_folder_contents_page(self, page, source_uuid, with_buttons=True):
+    # @return None
+    def display_folder_contents_page(self, page: int, source_uuid: str, with_buttons=True) -> None:
         self.__show_folder_contents_page__(page, source_uuid, with_buttons)
 
     ## member function for deleting a region
     #
     # @param self the object pointer
-    def delete(self):
+    #
+    # @return None
+    def delete(self) -> None:
         self.__signal_deletion__()
 
     ## member function for creating a new region
@@ -488,7 +609,9 @@ class SIEffect(PySI.Effect):
     # @param self the object pointer
     # @param shape the shape / contour of the region as a PySI.PointVector or list [[x1, x1], [x2, y2], ... [xn, yn]]
     # @param effect_name the name (region_name) of the effect which shall be assigned to the region (region_display_name does not work)
-    def create_region_via_name(self, shape, effect_name, as_selector=False, kwargs={}):
+    #
+    # @return None
+    def create_region_via_name(self, shape: PySI.PointVector, effect_name: str, as_selector=False, kwargs={}) -> None:
         self.__create_region__(shape, effect_name, as_selector, kwargs)
 
     ## member function for creating a new region
@@ -496,27 +619,35 @@ class SIEffect(PySI.Effect):
     # @param self the object pointer
     # @param shape the shape / contour of the region as a PySI.PointVector or list [[x1, x1], [x2, y2], ... [xn, yn]]
     # @param effect_name the name (region_name) of the effect which shall be assigned to the region (region_display_name does not work)
-    def create_region_via_id(self, shape, effect_type, kwargs={}):
+    #
+    # @return None
+    def create_region_via_id(self, shape: PySI.PointVector, effect_type: str, kwargs={}) -> None:
         self.__create_region__(shape, effect_type, kwargs)
 
     ## member function for retrieving the plugins which are available for sketching as a dict of names.
     # This dict of names uses region_name attributes as keys and region_display_name attributes as values
     #
     # @param self the object pointer
-    def available_plugins(self):
+    #
+    # @return a list containing all names of available plugins as str values
+    def available_plugins(self) -> list:
         return list(self.__available_plugins_by_name__())
 
     ## member function for snapping a region's center to the mouse cursor
     #
     # @param self the object pointer
-    def snap_to_mouse(self):
+    #
+    # @return None
+    def snap_to_mouse(self) -> None:
         self.x = self.mouse_x - self.relative_x_pos() - self.width / 2
         self.y = self.mouse_y - self.relative_y_pos() - self.height / 2
 
     ## member function for retrieving the dimensions of the active SI-Context (width in px, and height in px)
     #
     # @param self the object pointer
-    def context_dimensions(self):
+    #
+    # @return the dimensions of the active SI context as a tuple
+    def context_dimensions(self) -> tuple:
         return self.__context_dimensions__
 
     ## member function for assigning a new effect to a region
@@ -526,7 +657,9 @@ class SIEffect(PySI.Effect):
     # @param effect_name_to_assign the name of the effect which is intended to be written to a region
     # @param effect_display_name the name of the effect which is intended to be visible to a user
     # @param kwargs key-worded arguments containing specifics of certain regions
-    def assign_effect(self, effect_name_to_assign, effect_display_name, kwargs):
+    #
+    # @return None
+    def assign_effect(self, effect_name_to_assign: str, effect_display_name: str, kwargs: dict) -> None:
         self.__assign_effect__(self._uuid, effect_name_to_assign, effect_display_name, kwargs)
 
     ## member function for moving the effect's associated region to the point (x, y)
@@ -534,11 +667,48 @@ class SIEffect(PySI.Effect):
     # @param self the object pointer
     # @param x the absolute x coordinate of the point
     # @param y the absolute y coordinate of the point
-    def move(self, x, y):
+    #
+    # @return None
+    def move(self, x, y) -> None:
         self.x = x
         self.y = y
 
-    def __handle_exception__(self, ex: Exception, file: str):
-        print('Exception caught in file %s !' % file)
-        print(type(ex).__name__)
-        print(ex.args)
+    ## member function for generally handling exceptions which may occur in constructors of plugins
+    # @author Robert Fent (as part of his Bachelor's Thesis)
+    # @param ex the thrown exception as an Exception object
+    # @param file the absolute path to the plugin file in which the exception occurred
+    #
+    # @return None
+    def __handle_exception__(self, ex: Exception, file: str) -> None:
+        RED_START = '\033[1;31;40m'
+        COLOR_END = '\033[0m'
+        # remove added dir in filename after transpile
+        parsed_file_name = file.replace('__loaded_plugins__/', '')
+
+        # lineno of error in transpiled file
+        og_line = ex.__traceback__.tb_lineno
+
+        # vars from user file
+        user_line_no = 0
+        user_line_content = ''
+
+        # load current file, remove whitespaces and split into lines
+        file_lines = open(file).read().replace(' ', '').split('\n')
+
+        # get string of line in current file where error occurred
+        error_line = file_lines[og_line-1]
+
+        # load user generated file where we want the line number and remove whitespaces and split lines
+        user_file_lines = open(parsed_file_name).read().replace(' ', '').split('\n')
+
+        for line_no, line_content in enumerate(user_file_lines, 1):
+            if error_line in line_content:
+                user_line_no = line_no
+                user_line_content = line_content
+
+        print(
+            '\n%s%s occured in file:\n'
+            '%s\n'
+            'Line number: %s\n'
+            'Line content: %s%s'
+            % (RED_START, type(ex).__name__, parsed_file_name, str(user_line_no),  user_line_content.replace('\t', ''), COLOR_END))
