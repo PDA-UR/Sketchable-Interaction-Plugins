@@ -538,75 +538,7 @@ class SIEffect(PySI.Effect):
         self.x = x
         self.y = y
 
-    # def __test__(self, data):
-    #     for i in range(len(data)):
-    #         item = data[i].strip(" \t\n")
-    #
-    #         if len(item) and (item[0] == "#" or item[0] == "\""):
-    #             continue
-    #
-    #         if "class" in item:
-    #             raw_superclasses = list(item.strip(" \t").partition("(")[-1].partition(")")[0].split(","))
-    #
-    #             superclasses = []
-    #             for elem in raw_superclasses:
-    #                 if elem != '' and elem != ",":
-    #                     superclasses.append(elem.strip(" \t"))
-    #
-    #             for superclass in superclasses:
-    #                 superclass = superclass if "." not in superclass else superclass.partition(".")[0]
-    #
-    #                 if superclass != "SIEffect":
-    #                     self.__extract_registration__(os.path.abspath(glob.glob('**/' + superclass + ".py", recursive=True)[0]))
-    #
-    #         if "@SIEffect" in item:
-    #             target_function = data[i + 1].strip(" \t").partition(" ")[-1].partition("(")[0]
-    #
-    #             if not "on_link" in item:
-    #                 definition = item.strip().strip(" \t").partition(".")[-1].partition("(")
-    #
-    #                 collision_event_type = definition[0]
-    #                 try:
-    #                     collision_event_capability = eval(definition[-1].partition(",")[0].strip(" \t").replace("\"", ""))
-    #                 except:
-    #                     collision_event_capability = definition[-1].partition(",")[0].strip(" \t").replace("\"", "")
-    #
-    #                 collision_event_transmission_type = eval(definition[-1].partition(",")[-1].partition(")")[0].strip(" \t"))
-    #
-    #                 if collision_event_transmission_type:
-    #                     if collision_event_capability in self.cap_emit.keys():
-    #                         self.cap_emit[collision_event_capability][collision_event_type] = eval("self." + target_function)
-    #                     else:
-    #                         self.cap_emit[collision_event_capability] = {}
-    #                         self.cap_emit[collision_event_capability][collision_event_type] = eval("self." + target_function)
-    #                 else:
-    #                     if collision_event_capability in self.cap_recv.keys():
-    #                         self.cap_recv[collision_event_capability][collision_event_type] = eval("self." + target_function)
-    #                     else:
-    #                         self.cap_recv[collision_event_capability] = {}
-    #                         self.cap_recv[collision_event_capability][collision_event_type] = eval("self." + target_function)
-    #             else:
-    #                 definition = item.strip().strip(" \t").partition(".")[-1].partition("(")[-1].partition(")")[0].strip(" \t").partition(",")
-    #
-    #                 linking_action_transmission_type = eval(definition[0])
-    #
-    #                 capabilities = definition[-1].strip(" \t").partition(",")
-    #
-    #                 if capabilities[2] == "":
-    #                     linking_action_reception_capability = None
-    #                 else:
-    #                     linking_action_reception_capability = eval(capabilities[-1].strip(" \t"))
-    #
-    #                 linking_action_emission_capability = eval(capabilities[0].strip(" \t"))
-    #
-    #                 if linking_action_transmission_type:
-    #                     self.cap_link_emit[linking_action_emission_capability] = eval("self." + target_function)
-    #                 else:
-    #                     if linking_action_emission_capability in self.cap_link_recv:
-    #                         self.cap_link_recv[linking_action_emission_capability][linking_action_reception_capability] = eval("self." + target_function)
-    #                     else:
-    #                         self.cap_link_recv[linking_action_emission_capability] = {linking_action_reception_capability: eval("self." + target_function)}
-    #
-    # def __extract_registration__(self, target_filepath):
-    #     with open(target_filepath, "r") as file:
-    #         self.__test__(file.read().split("\n"))
+    def __handle_exception__(self, ex: Exception, file: str):
+        print('Exception caught in file %s !' % file)
+        print(type(ex).__name__)
+        print(ex.args)

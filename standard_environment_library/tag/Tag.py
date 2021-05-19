@@ -4,7 +4,6 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Movable imp
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 from plugins.E import E
 
-
 class Tag(Deletable, Movable, SIEffect):
 	regiontype = PySI.EffectType.SI_CUSTOM
 	regionname = E.id.tag_name
