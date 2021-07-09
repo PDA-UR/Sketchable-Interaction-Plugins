@@ -117,6 +117,14 @@ class SIEffect(PySI.Effect):
             return wrapped_f
         return wrap
 
+    # __getstate_manages_dict__ = 1
+    #
+    # def __getstate__(self):
+    #     pass
+    #
+    # def __setstate__(self, state):
+    #     pass
+
     ## constructor
     #
     # Constructs a new SIEffect object based on the given arguments.
@@ -131,7 +139,7 @@ class SIEffect(PySI.Effect):
     #
     # @return None
     def __init__(self, shape: PySI.PointVector, uuid: str, texture_path: str, regiontype: int, regionname: str, kwargs: dict, __source__="custom") -> None:
-        super(SIEffect, self).__init__(shape, uuid, texture_path, kwargs)
+        super().__init__(shape, uuid, texture_path, kwargs)
 
         ## member attribute variable serving as a rendering hint for showing a regions border
         self.with_border = True
@@ -152,12 +160,12 @@ class SIEffect(PySI.Effect):
         #
         # computed via aabb
 
-        self.width = int(self.get_region_width())
+        self.width = self.get_region_width()
 
         ## member variable containing the maximum height of the region
         #
         # computed via aabb
-        self.height = int(self.get_region_height())
+        self.height = self.get_region_height()
 
         ## member attribute variable containing the universally unique identifier (uuid) of a drawn region as a str
         self._uuid = uuid
@@ -223,7 +231,6 @@ class SIEffect(PySI.Effect):
             self.set_QML_data("img_path", self.texture_path, PySI.DataType.STRING)
             self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
             self.set_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
-
             self.set_QML_data("uuid", self._uuid, PySI.DataType.STRING)
 
         ## member attribute variable storing keys to functions which are called when collision events occur for emitting data to receiving regions
@@ -293,6 +300,9 @@ class SIEffect(PySI.Effect):
     #
     # @return the width of the associated region as int
     def get_region_width(self) -> int:
+        if self.aabb[3].x - self.aabb[0].x < 0:
+            return 0
+
         return int(self.aabb[3].x - self.aabb[0].x)
 
     ## member function for retrieving the maximum height of a region
@@ -301,6 +311,9 @@ class SIEffect(PySI.Effect):
     #
     # @return the width of the associated region as int
     def get_region_height(self) -> int:
+        if self.aabb[1].y - self.aabb[0].y < 0:
+            return 0
+
         return int(self.aabb[1].y - self.aabb[0].y)
 
     ## member function for getting the relative x coordinate of the parent region's top left corner

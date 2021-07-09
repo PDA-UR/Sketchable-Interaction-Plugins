@@ -213,4 +213,5 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
 
     @SIEffect.on_leave(E.id.transportable_capability, SIEffect.EMISSION)
     def on_transport_leave_emit(self, other):
-        del self.conveyed_items[other._uuid]
+        if other._uuid in self.conveyed_items:
+            del self.conveyed_items[other._uuid]

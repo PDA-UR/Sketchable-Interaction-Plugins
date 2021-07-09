@@ -33,8 +33,7 @@ class ImageFile(Entry):
             self.width = int(self.img_height / 2 * (self.img_width / self.img_height))
             self.height = int(self.img_height / 2)
 
-            self.shape = PySI.PointVector([[x, y], [x, y + self.height],
-                                           [x + self.width, y + self.height], [x + self.width, y]])
+            self.shape = PySI.PointVector([[x, y], [x, y + self.height], [x + self.width, y + self.height], [x + self.width, y]])
 
             self.set_QML_data("img_path", self.path, PySI.DataType.STRING)
             self.set_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
