@@ -78,29 +78,29 @@ class Directory(Entry):
 
         if not self.is_slides:
             self.show_current_folder_contents_page()
-        else:
-            dir_x = self.absolute_x_pos()
-            dir_y = self.absolute_y_pos()
-
-            dir_width = 1280
-            dir_height = 720
-
-            offset_x = 110
-            offset_y = 65
-
-            entry_shape = [[dir_x + offset_x, dir_y + offset_y + offset_y], [dir_x + offset_x, dir_y + dir_height + offset_y], [dir_x + dir_width + offset_x, dir_y + dir_height + offset_y], [dir_x + dir_width + offset_x, dir_height + offset_y]]
-
-            entry = self.browse_pages[self.current_page][0]
-
-            kwargs = {}
-
-            kwargs["parent"] = self._uuid
-            kwargs["cwd"] = entry[0]
-            kwargs["is_slide"] = True
-
-            self.create_region_via_id(entry_shape, entry[1], kwargs)
-
-            self.add_child_buttons(dir_x, dir_y)
+        # else:
+        #     dir_x = self.absolute_x_pos()
+        #     dir_y = self.absolute_y_pos()
+        #
+        #     dir_width = 1280
+        #     dir_height = 720
+        #
+        #     offset_x = 110
+        #     offset_y = 65
+        #
+        #     entry_shape = [[dir_x + offset_x, dir_y + offset_y + offset_y], [dir_x + offset_x, dir_y + dir_height + offset_y], [dir_x + dir_width + offset_x, dir_y + dir_height + offset_y], [dir_x + dir_width + offset_x, dir_height + offset_y]]
+        #
+        #     entry = self.browse_pages[self.current_page][0]
+        #
+        #     kwargs = {}
+        #
+        #     kwargs["parent"] = self._uuid
+        #     kwargs["cwd"] = entry[0]
+        #     kwargs["is_slide"] = True
+        #
+        #     self.create_region_via_id(entry_shape, entry[1], kwargs)
+        #
+        #     self.add_child_buttons(dir_x, dir_y)
 
     @SIEffect.on_enter(PySI.CollisionCapability.BTN, SIEffect.RECEPTION)
     def on_btn_enter_recv(self, cursor_id, link_attrib):

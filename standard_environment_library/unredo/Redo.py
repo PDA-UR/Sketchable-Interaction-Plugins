@@ -17,3 +17,19 @@ class Redo(Deletable, Movable, SIEffect):
     @SIEffect.on_enter("redo", SIEffect.EMISSION)
     def __on_redo_enter_emit__(self, other):
         pass
+
+    @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
+    def on_canvas_enter_recv(self, parent_uuid):
+        self.create_link(self._uuid, "__redo__", parent_uuid, "__redo__")
+
+    @SIEffect.on_link(SIEffect.EMISSION, "__redo__")
+    def on_canvas_redo_action_emit(self):
+        pass
+
+    @SIEffect.on_enter(PySI.CollisionCapability.CLICK, SIEffect.RECEPTION)
+    def on_click_enter_recv(self, cursor_id):
+        self.emit_linking_action(self._uuid, "__redo__", self.on_canvas_redo_action_emit)
+
+    @SIEffect.on_leave(PySI.CollisionCapability.CLICK, SIEffect.RECEPTION)
+    def on_click_leave_recv(self, cursor_id):
+        pass

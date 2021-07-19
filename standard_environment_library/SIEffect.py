@@ -614,8 +614,11 @@ class SIEffect(PySI.Effect):
     # @param self the object pointer
     #
     # @return None
-    def delete(self) -> None:
-        self.__signal_deletion__()
+    def delete(self, uuid:str=None) -> None:
+        if uuid is None:
+            self.__signal_deletion__()
+        else:
+            self.__signal_deletion_by_uuid__(uuid)
 
     ## member function for creating a new region
     #
