@@ -1,8 +1,11 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
+from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
+from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 from plugins.E import E
 
-class Tangible(SIEffect):
+
+class Tangible(Movable, Deletable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__Tangible__"
     region_display_name = "Tangible"
@@ -12,5 +15,5 @@ class Tangible(SIEffect):
 
         self.s_id = kwargs["s_id"]
         self.angle = kwargs["angle"]
+        self.linked_highlight_sids = [] if "links" not in kwargs else kwargs["links"]
         self.source = "libStdSI"
-        self.qml_path = ""

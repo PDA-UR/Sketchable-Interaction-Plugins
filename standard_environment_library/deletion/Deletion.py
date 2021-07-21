@@ -21,17 +21,21 @@ class Deletion(Deletable, Movable, SIEffect):
     @SIEffect.on_enter(PySI.CollisionCapability.DELETION, SIEffect.EMISSION)
     def on_deletion_enter_emit(self, other):
         if other.regiontype == int(PySI.EffectType.SI_DELETION):
-            if self.is_under_user_control:
-                self.last_deletion = other
-                self.emit_linking_action(self._uuid, "__undo_stack_addition__", self.on_add_unredoable_deletion_emit)
+            if other.__unredoable_deletion__:
+                if self.is_under_user_control:
+                    self.last_deletion = other
+                    self.emit_linking_action(self._uuid, "__undo_stack_addition__", self.on_add_unredoable_deletion_emit)
+
                 other.delete()
 
     @SIEffect.on_continuous(PySI.CollisionCapability.DELETION, SIEffect.EMISSION)
     def on_deletion_continuous_emit(self, other):
         if other.regiontype != int(PySI.EffectType.SI_DELETION):
             if not other.is_under_user_control:
-                self.last_deletion = other
-                self.emit_linking_action(self._uuid, "__undo_stack_addition__", self.on_add_unredoable_deletion_emit)
+                if other.__unredoable_deletion__:
+                    self.last_deletion = other
+                    self.emit_linking_action(self._uuid, "__undo_stack_addition__", self.on_add_unredoable_deletion_emit)
+
                 other.delete()
 
     @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)

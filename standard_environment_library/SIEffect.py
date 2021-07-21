@@ -117,14 +117,6 @@ class SIEffect(PySI.Effect):
             return wrapped_f
         return wrap
 
-    # __getstate_manages_dict__ = 1
-    #
-    # def __getstate__(self):
-    #     pass
-    #
-    # def __setstate__(self, state):
-    #     pass
-
     ## constructor
     #
     # Constructs a new SIEffect object based on the given arguments.
@@ -138,7 +130,7 @@ class SIEffect(PySI.Effect):
     # @param __source__ the source of the plugin e.g. standard environment library (str)
     #
     # @return None
-    def __init__(self, shape: PySI.PointVector, uuid: str, texture_path: str, regiontype: int, regionname: str, kwargs: dict, __source__="custom") -> None:
+    def __init__(self, shape: PySI.PointVector, uuid: str, texture_path: str, regiontype: int, regionname: str, kwargs: dict, __source__: str="custom") -> None:
         super().__init__(shape, uuid, texture_path, kwargs)
 
         ## member attribute variable serving as a rendering hint for showing a regions border
@@ -294,6 +286,15 @@ class SIEffect(PySI.Effect):
         ## member attribute variable storing the y position of the mouse cursor
         self.mouse_y = 0
 
+        ## member attribute variable storing whether deletion can be undone/redone
+        self.__unredoable_deletion__ = False
+
+    ## member function for retrieving all effects currently represented as regions
+    #
+    # @return the list of effects as a list
+    def current_regions(self) -> list:
+        return  self.__current_regions__()
+
     ## member function for retrieving the maximum width of a region
     #
     # @param self the pointer to the object
@@ -381,8 +382,8 @@ class SIEffect(PySI.Effect):
     def is_effect_enabled(self, capability: str, is_emit: bool) -> bool:
         if is_emit:
             return capability in self.cap_emit
-        else:
-            return capability in self.cap_recv
+
+        return capability in self.cap_recv
 
     ## member function for overriding the emission or reception of an effect
     #
@@ -470,7 +471,7 @@ class SIEffect(PySI.Effect):
     # @see self.cap_link_recv
     #
     # @return None
-    def disable_link_reception(self, emission_capability: str, reception_capability="") -> None:
+    def disable_link_reception(self, emission_capability: str, reception_capability: str="") -> None:
         if reception_capability == "":
             if emission_capability in self.cap_link_recv:
                 del self.cap_link_recv[emission_capability]

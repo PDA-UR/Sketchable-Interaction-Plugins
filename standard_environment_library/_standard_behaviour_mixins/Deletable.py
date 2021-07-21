@@ -7,6 +7,13 @@ class Deletable(SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__DELETABLE__"
 
+    @staticmethod
+    def unredoable(f):
+        def wrap(*args, **kwargs):
+            f(*args)
+            args[0].__unredoable_deletion__ = True
+        return wrap
+
     def __init__(self, shape=PySI.PointVector(), uuid="", r="", t="", s="", kwargs={}):
         super(Deletable, self).__init__(shape, uuid, r, t, s, kwargs)
 
