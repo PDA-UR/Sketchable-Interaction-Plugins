@@ -2,9 +2,10 @@ from libPySI import PySI
 
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Tangible import Tangible
+from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 
 
-class Highlight(Tangible):
+class Highlight(Movable, Tangible):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__Highlight__"
     region_display_name = "Highlight"

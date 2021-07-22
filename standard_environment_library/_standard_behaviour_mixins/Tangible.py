@@ -5,7 +5,7 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Deletable i
 from plugins.E import E
 
 
-class Tangible(Movable, Deletable, SIEffect):
+class Tangible(Deletable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__Tangible__"
     region_display_name = "Tangible"

@@ -665,7 +665,7 @@ class SIEffect(PySI.Effect):
     #
     # @return the dimensions of the active SI context as a tuple
     def context_dimensions(self) -> tuple:
-        return self.__context_dimensions__
+        return self.__context_dimensions__()
 
     ## member function for assigning a new effect to a region
     # if the region is a cursor, the effect that cursor can draw is changed instead!
