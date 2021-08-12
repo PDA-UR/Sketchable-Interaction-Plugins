@@ -17,9 +17,10 @@ class ScanCameraAreaDetection(Deletable, SIEffect):
         self.add_markers(rows, cols, w / cols)
 
     def marker_distribution(self, w: int, h: int, min: int=10, max: int=20) -> tuple:
-        return [(int(h / (w / i)), int(i)) for i in range(min, max) if w % i == 0 and h % (w / i) == 0][-1]
+        # + [k for k in range(min, max)]
+        return [(int(h / (w / i)), int(i)) for i in [48] if w % i == 0 and h % (w / i) == 0][-1]
 
-    def add_markers(self, rows: int, cols: int, marker_size: int, offset: int=10) -> None:
+    def add_markers(self, rows: int, cols: int, marker_size: int, offset: int=15) -> None:
         for i in range(rows):
             y = i * marker_size + offset
             y2 = y + marker_size - (offset << 1)

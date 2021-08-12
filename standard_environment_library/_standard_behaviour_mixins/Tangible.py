@@ -14,6 +14,6 @@ class Tangible(Deletable, SIEffect):
         super(Tangible, self).__init__(shape, uuid, r, t, s, kwargs)
 
         self.s_id = kwargs["s_id"]
+        self.c_id = kwargs["c_id"]
         self.angle = kwargs["angle"]
         self.linked_highlight_sids = [] if "links" not in kwargs else kwargs["links"]
-        self.source = "libStdSI"

@@ -44,31 +44,35 @@ class Entry(Transportable, Movable, Lassoable, SIEffect):
             self.create_link(self.parent, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
     @SIEffect.on_enter(PySI.CollisionCapability.OPEN_ENTRY, SIEffect.RECEPTION)
-    def on_open_entry_enter_recv(self, is_other_controlled):
+    def on_open_entry_enter_recv(self, is_other_controlled: bool) -> None:
         pass
 
     @SIEffect.on_continuous(PySI.CollisionCapability.OPEN_ENTRY, SIEffect.RECEPTION)
-    def on_open_entry_continuous_recv(self, is_other_controlled):
+    def on_open_entry_continuous_recv(self, is_other_controlled: bool) -> None:
         if self.parent == "" and not self.is_open_entry_capability_blocked and not self.is_under_user_control and not is_other_controlled:
             self.start_standard_application(self._uuid, self.path)
             self.is_open_entry_capability_blocked = True
 
     @SIEffect.on_leave(PySI.CollisionCapability.OPEN_ENTRY, SIEffect.RECEPTION)
-    def on_open_entry_leave_recv(self, is_other_controlled):
+    def on_open_entry_leave_recv(self, is_other_controlled: bool) -> None:
         if self.parent == "" and self.is_open_entry_capability_blocked:
             self.close_standard_application(self._uuid)
             self.is_open_entry_capability_blocked = False
 
     @SIEffect.on_enter(PySI.CollisionCapability.PARENT, SIEffect.RECEPTION)
-    def on_parent_enter_recv(self, _uuid):
+    def on_parent_enter_recv(self, _uuid: str) -> None:
         if _uuid != "":
             if self.parent == "":
                 self.parent = _uuid
                 self.create_link(_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
     @SIEffect.on_leave(PySI.CollisionCapability.PARENT, SIEffect.RECEPTION)
-    def on_parent_leave_recv(self, _uuid):
+    def on_parent_leave_recv(self, _uuid: str) -> None:
         if _uuid != "":
             if self.parent == _uuid:
                 self.parent = ""
                 self.remove_link(_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
+
+    @SIEffect.on_enter("__PRINT_REQUEST__", SIEffect.EMISSION)
+    def on_print_request_enter_emit(self, other: object) -> str:
+        return self.path

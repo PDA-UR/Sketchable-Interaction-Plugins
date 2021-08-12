@@ -12,8 +12,8 @@ class Canvas(SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Canvas, self).__init__(shape, uuid, "", Canvas.regiontype, Canvas.regionname, kwargs)
-        self.color = PySI.Color(247, 249, 239, 255)
-        # self.color = PySI.Color(8, 6, 16, 255)
+        # self.color = PySI.Color(247, 249, 239, 255)
+        self.color = PySI.Color(0, 0, 0, 255)
 
         self.log_file = open(".TEST.TXT", "r+")
         self.ustack = UndoStack()

@@ -3,6 +3,7 @@ import sys
 from libPySI import PySI
 import inspect
 import os
+import threading
 
 ## @package SIEffect
 # Documentation for this module / class
@@ -293,7 +294,7 @@ class SIEffect(PySI.Effect):
     #
     # @return the list of effects as a list
     def current_regions(self) -> list:
-        return  self.__current_regions__()
+        return self.__current_regions__()
 
     ## member function for retrieving the maximum width of a region
     #
@@ -642,13 +643,20 @@ class SIEffect(PySI.Effect):
         self.__create_region__(shape, effect_type, kwargs)
 
     ## member function for retrieving the plugins which are available for sketching as a dict of names.
-    # This dict of names uses region_name attributes as keys and region_display_name attributes as values
+    # This list of names contains regionname attributes
     #
     # @param self the object pointer
     #
     # @return a list containing all names of available plugins as str values
     def available_plugins(self) -> list:
         return list(self.__available_plugins_by_name__())
+
+    ## member function for retrieving the plugins which are exluded from use
+    # This list of names contains regionname attributes
+    #
+    # @return a list containing all names of excluded plugins as str values
+    def excluded_plugins(self) -> list:
+        return self.__excluded_plugins__()
 
     ## member function for snapping a region's center to the mouse cursor
     #
@@ -689,6 +697,19 @@ class SIEffect(PySI.Effect):
     def move(self, x, y) -> None:
         self.x = x
         self.y = y
+
+    ## member function for offloading a function call to a thread
+    #
+    # This function launches a given function in another thread.
+    # The threaded function's return value cannot be retrieved.
+    # This function should be used when a long operation (procedure) has to be computed which at the start of its computation is completely independent of any other function or variables.
+    #
+    # @param function the function to be offloaded
+    # @param args the arguments with which the function is intended to be called
+    #
+    # @return None
+    def run_in_thread(self, function: object, args: tuple) -> None:
+        threading.Thread(target=function, args=args).start()
 
     ## member function for generally handling exceptions which may occur in constructors of plugins
     # @author Robert Fent (as part of his Bachelor's Thesis)

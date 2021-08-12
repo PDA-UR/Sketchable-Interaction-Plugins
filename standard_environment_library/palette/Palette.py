@@ -12,6 +12,11 @@ class Palette(Movable, SIEffect):
         super(Palette, self).__init__(shape, uuid, "", Palette.regiontype, Palette.regionname, kwargs)
 
         available_plugins = self.available_plugins()
+        excluded_plugins = self.excluded_plugins()
+
+        for ep in excluded_plugins:
+            available_plugins.remove(ep)
+
         self.color = E.id.palette_color
 
         self.as_selector = True

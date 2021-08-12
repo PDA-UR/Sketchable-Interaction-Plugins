@@ -4,8 +4,6 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Movable imp
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 from plugins.E import E
 
-import math
-
 class ConveyorBeltMerger(Deletable, Movable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
     regionname = E.id.cb_merger_name
