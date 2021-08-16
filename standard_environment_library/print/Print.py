@@ -21,19 +21,25 @@ class Print(Movable, Deletable, SIEffect):
         self.available_printers = [printer.decode().strip() for printer in Popen("lpstat -p | awk '{print $2}'", stdout=PIPE, shell=True).stdout.readlines()]
         self.selected_printer = None
         self.selected_print_mode = None
+        self.printer_region_width = 125
+        self.printer_region_height = 50
+        self.printer_mode_region_width = 100
+        self.printer_mode_region_height = 50
+        self.offset = 5
+        self.PRINTER_MODE_DIALOG = "DIALOG"
 
     @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid: str) -> None:
         for printer_name in self.available_printers:
-            x, y = self.aabb[3].x + 5, self.aabb[3].y
-            shape = [[x, y], [x, y + 50], [x + 125, y + 50], [x + 125, y]]
+            x, y = self.aabb[3].x + self.offset, self.aabb[3].y
+            shape = [[x, y], [x, y + self.printer_region_height], [x + self.printer_region_width, y + self.printer_region_height], [x + self.printer_region_width, y]]
 
             self.create_region_via_name(shape, Printer.regionname, kwargs={"parent": self._uuid, "name": printer_name})
 
-        x, y = self.aabb[0].x - 5 - 100, self.aabb[0].y
+        x, y = self.aabb[0].x - self.offset - self.printer_mode_region_width, self.aabb[0].y
 
-        shape = [[x, y], [x, y + 50], [x + 100, y + 50], [x + 100, y]]
-        self.create_region_via_name(shape, PrinterMode.regionname, kwargs={"parent": self._uuid, "mode": "DIALOG"})
+        shape = [[x, y], [x, y + self.printer_mode_region_height], [x + self.printer_mode_region_width, y + self.printer_mode_region_height], [x + self.printer_mode_region_width, y]]
+        self.create_region_via_name(shape, PrinterMode.regionname, kwargs={"parent": self._uuid, "mode": self.PRINTER_MODE_DIALOG})
 
     @SIEffect.on_enter("__PRINTER_SELECTED__", SIEffect.RECEPTION)
     def on_printer_selected_enter_recv(self, printer_name: str) -> None:
@@ -48,11 +54,11 @@ class Print(Movable, Deletable, SIEffect):
         self.selected_print_mode = mode
 
     @SIEffect.on_leave("__PRINTER_MODE_SELECTED__", SIEffect.RECEPTION)
-    def on_printer_mode_selected_leave_emit(self) -> None:
+    def on_printer_mode_selected_leave_recv(self) -> None:
         self.selected_print_mode = None
 
     @SIEffect.on_enter("__PRINT_REQUEST__", SIEffect.RECEPTION)
-    def on_print_request_enter_emit(self, file_path: str) -> None:
+    def on_print_request_enter_recv(self, file_path: str) -> None:
         if self.selected_printer is None:
             return
 

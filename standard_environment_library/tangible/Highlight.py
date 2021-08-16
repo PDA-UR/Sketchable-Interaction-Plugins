@@ -4,8 +4,6 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Tangible import Tangible
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 
-import math
-
 
 class Highlight(Movable, Tangible):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
@@ -16,6 +14,7 @@ class Highlight(Movable, Tangible):
         super(Highlight, self).__init__(shape, uuid, "", Highlight.regiontype, Highlight.regionname, kwargs)
         self.color = PySI.Color(255, 255, 0, 128)
         self.with_border = False
+        self.visible = False
 
         self.x_in_document = kwargs["orig_x"]
         self.y_in_document = kwargs["orig_y"]
@@ -60,3 +59,4 @@ class Highlight(Movable, Tangible):
         highlight_trc_y = highlight_tlc_y + width * doc_x_axis[1]
 
         self.shape = PySI.PointVector([[highlight_tlc_x, highlight_tlc_y], [highlight_blc_x, highlight_blc_y], [highlight_brc_x, highlight_brc_y], [highlight_trc_x, highlight_trc_y]])
+        self.visible = True

@@ -11,10 +11,11 @@ class Document(Tangible):
     region_display_name = "Document"
 
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", kwargs: dict = {}) -> None:
-        super(Document, self).__init__(shape, uuid, "", Document.regiontype, Document.regionname, kwargs)
-        self.color = PySI.Color(255, 0, 0, 255)
-        self.original_doc_width = 612
-        self.original_doc_height = 792
+        super(Document, self).__init__(shape, uuid, "res/2cm.png", Document.regiontype, Document.regionname, kwargs)
+        self.color = PySI.Color(255, 0, 0, 0)
+        self.original_doc_width = 595.446
+        self.original_doc_height = 841.691
+        self.with_border = True
 
         self.doc_width = kwargs["width"]
         self.doc_height = kwargs["height"]
