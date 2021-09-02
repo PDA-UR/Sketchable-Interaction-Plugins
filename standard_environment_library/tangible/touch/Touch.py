@@ -17,9 +17,7 @@ class Touch(Tangible):
         super().__init__(shape, uuid, "", Touch.regiontype, Touch.regionname, kwargs)
 
         self.color = PySI.Color(0, 0, 0, 0)
-
         self.with_border = False
-
         self.HOVER = -1
         self.TOUCH = 0
         self.DRAG = 1
