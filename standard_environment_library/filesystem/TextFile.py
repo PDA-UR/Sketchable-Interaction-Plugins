@@ -15,6 +15,6 @@ class TextFile(Entry):
         self.set_QML_data("text_height", self.text_height, PySI.DataType.INT)
         self.set_QML_data("img_path", "res/file_icon.png", PySI.DataType.STRING)
 
-    @SIEffect.on_enter(E.id.tag_capability_tagging, SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.tag_tagging, SIEffect.RECEPTION)
     def on_tag_enter_recv(self):
         self.set_QML_data("visible", True, PySI.DataType.BOOL)

@@ -3,14 +3,15 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 from plugins.standard_environment_library.tangible.camera.ArUcoMarker import ArUcoMarker
 
+from plugins.E import E
+
 class ScanCameraAreaDetection(Deletable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
-    regionname = "__ ScanCameraAreaDetection __"
+    regionname = E.id.scan_camera_area_detection_regionname
 
     def __init__(self, shape: PySI.PointVector=PySI.PointVector(), uuid: str="", kwargs: dict={}) -> None:
-        super(ScanCameraAreaDetection, self).__init__(shape, uuid, "res/0.png", ScanCameraAreaDetection.regiontype, ScanCameraAreaDetection.regionname, kwargs)
-        self.source = "libStdSI"
-        self.color = PySI.Color(255, 255, 255, 255)
+        super(ScanCameraAreaDetection, self).__init__(shape, uuid, E.id.scan_camera_area_detection_texture, ScanCameraAreaDetection.regiontype, ScanCameraAreaDetection.regionname, kwargs)
+        self.color = E.color.scan_camera_area_detection_color
 
         w, h = self.context_dimensions()
         rows, cols = self.marker_distribution(w, h)

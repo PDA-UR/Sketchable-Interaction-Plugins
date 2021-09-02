@@ -5,7 +5,7 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Movable imp
 
 
 class Palette(Movable, SIEffect):
-    regiontype = PySI.EffectType.SI_PALETTE
+    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = PySI.EffectName.SI_STD_NAME_PALETTE
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
@@ -17,7 +17,7 @@ class Palette(Movable, SIEffect):
         for ep in excluded_plugins:
             available_plugins.remove(ep)
 
-        self.color = E.id.palette_color
+        self.color = E.color.palette_color
 
         self.as_selector = True
         self.num_selectors_per_row = int(len(available_plugins) / 3) + 1

@@ -20,7 +20,7 @@ class Plot(Deletable, Movable, SIEffect):
 		super(Plot, self).__init__(shape, uuid, E.id.plot_texture, Plot.regiontype, Plot.regionname, kwargs)
 
 		self.qml_path = self.set_QML_path(E.id.plot_qml_file_name)
-		self.color = E.id.plot_color
+		self.color = E.color.plot_color
 
 		# rework this into a linking action reception function or collision event reception function
 		figure = plt.figure()

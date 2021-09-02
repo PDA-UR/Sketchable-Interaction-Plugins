@@ -5,23 +5,23 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Movable imp
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 from plugins.standard_environment_library.button import Button
 
+from plugins.E import E
 
 class Presentation(Movable, Deletable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
-    regionname = "__ Presentation __"
-    region_display_name = "Presentation"
+    regionname = E.id.presentation_regionname
+    region_display_name = E.id.presentation_region_display_name
 
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", kwargs: dict = {}) -> None:
-        super(Presentation, self).__init__(shape, uuid, "res/presentation.png", Presentation.regiontype, Presentation.regionname, kwargs)
-        self.source = "libStdSI"
-        self.qml_path = self.set_QML_path("Presentation.qml")
+        super(Presentation, self).__init__(shape, uuid, E.id.presentation_texture, Presentation.regiontype, Presentation.regionname, kwargs)
+        self.qml_path = self.set_QML_path(E.id.presentation_qml_path)
         self.slides = []
         self.btns = []
         self.current_slide = 0
         self.is_open_entry_capability_blocked = True
-        self.color = PySI.Color(156, 0, 75, 255)
+        self.color = E.color.presentation_color
 
-    @SIEffect.on_enter("__PRESENT__", SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.presentation_present, SIEffect.RECEPTION)
     def on_present_enter_recv(self, slides: list) -> None:
         if len(self.slides) == 0:
             self.slides = [slide for slide in slides if ".png" in slide or ".jpg" in slide or ".jpeg" in slide]

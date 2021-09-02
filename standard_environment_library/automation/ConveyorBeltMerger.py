@@ -13,7 +13,7 @@ class ConveyorBeltMerger(Deletable, Movable, SIEffect):
         super(ConveyorBeltMerger, self).__init__(shape, uuid, E.id.cb_merger_texture, ConveyorBeltMerger.regiontype, ConveyorBeltMerger.regionname, kwargs)
 
         self.qml_path = self.set_QML_path(E.id.cb_merger_qml_file_path)
-        self.color = E.id.cb_merger_color
+        self.color = E.color.cb_merger_color
         self.output_width = E.id.cb_width * E.id.cb_splitter_io_width_multiplier
         self.output_point = None
 
@@ -21,6 +21,7 @@ class ConveyorBeltMerger(Deletable, Movable, SIEffect):
 
     def reshape(self):
         height = width = 200
+
         offset = (width - self.output_width) / 2
 
         self.shape = PySI.PointVector([
@@ -42,15 +43,14 @@ class ConveyorBeltMerger(Deletable, Movable, SIEffect):
 
         self.output_point = self.relative_x_pos() + offset + self.output_width / 2, self.relative_y_pos() + height + self.output_width
 
-    @SIEffect.on_enter(E.id.cb_merger_evaluate_capability, SIEffect.EMISSION)
+    @SIEffect.on_enter(E.capability.cb_merger_evaluate, SIEffect.EMISSION)
     def on_cb_merger_evaluate_enter_emit(self, other):
         return self._uuid, self.output_point[0] - other.width / 2 - other.relative_x_pos(), self.output_point[1] - other.height / 4 - other.relative_y_pos()
 
-    @SIEffect.on_leave(E.id.cb_merger_evaluate_capability, SIEffect.EMISSION)
+    @SIEffect.on_leave(E.capability.cb_merger_evaluate, SIEffect.EMISSION)
     def on_cb_merger_evaluate_leave_emit(self, other):
         return self._uuid
 
-    # overrides Movable class implementation
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
         Movable.set_position_from_position(self, rel_x, rel_y, abs_x, abs_y)
 

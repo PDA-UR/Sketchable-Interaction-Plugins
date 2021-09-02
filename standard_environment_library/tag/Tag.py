@@ -17,11 +17,15 @@ class Tag(Deletable, Movable, UnRedoable, SIEffect):
 		super().__init__(shape, uuid, E.id.tag_texture, Tag.regiontype, Tag.regionname, kwargs)
 
 		self.qml_path = self.set_QML_path(E.id.tag_qml_file_name)
-		self.color = E.id.tag_color
+		self.color = E.color.tag_color
+
+		# s = self.shape
+		# s.append([50, 50])
+		# self.shape = s
 
 		self.text = "Hello World"
 
 	# @UnRedoable.action
-	@SIEffect.on_enter(E.id.tag_capability_tagging, SIEffect.EMISSION)
+	@SIEffect.on_enter(E.capability.tag_tagging, SIEffect.EMISSION)
 	def on_tag_enter_emit(self, other):
 		text = self.get_QML_data(E.id.tag_text_from_qml, PySI.DataType.STRING)

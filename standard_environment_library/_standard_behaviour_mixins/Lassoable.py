@@ -10,11 +10,11 @@ class Lassoable(SIEffect):
         super(Lassoable, self).__init__(shape, uuid, r, t, s, kwargs)
         self.source = "libStdSI"
 
-    @SIEffect.on_enter(E.id.lasso_capabiliy, SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.lasso_lasso, SIEffect.RECEPTION)
     def on_lasso_enter_recv(self, parent_uuid):
         self.create_link(parent_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
-    @SIEffect.on_leave(E.id.lasso_capabiliy, SIEffect.RECEPTION)
+    @SIEffect.on_leave(E.capability.lasso_lasso, SIEffect.RECEPTION)
     def on_lasso_leave_recv(self, parent_uuid):
         self.remove_link(parent_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 

@@ -2,18 +2,19 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Tangible import Tangible
 
+from plugins.E import E
+
 class ScanRegion(Tangible):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
-    regionname = "__ScanRegion__"
-    region_display_name = "ScanRegion"
+    regionname = E.id.scan_region_regionname
+    region_display_name = E.id.scan_region_region_display_name
 
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", kwargs: dict = {}) -> None:
         super(ScanRegion, self).__init__(shape, uuid, "", ScanRegion.regiontype, ScanRegion.regionname, kwargs)
-        self.color = PySI.Color(5, 5, 5, 100)
-        self.source = "libStdSI"
+        self.color = E.color.scan_region_color
         self.kwargs = kwargs
 
-    @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.canvas_parent, SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid: str) -> None:
         if len(self.current_regions()) > 500:
             for r in self.current_regions():

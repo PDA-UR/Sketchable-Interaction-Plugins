@@ -6,7 +6,7 @@ from plugins.standard_environment_library._standard_behaviour_mixins.PositionLin
 
 class Selector(PositionLinkable, SIEffect):
     regionname = PySI.EffectName.SI_STD_NAME_SELECTOR
-    regiontype = PySI.EffectType.SI_SELECTOR
+    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Selector, self).__init__(shape, uuid, "", Selector.regiontype, Selector.regionname, kwargs)

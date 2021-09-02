@@ -3,27 +3,27 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
+from plugins.E import E
 
 import cv2
 import threading
 
 class Video(Movable, Deletable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
-    regionname = "__ Video __"
-    region_display_name = "Video"
+    regionname = E.id.video_regionname
+    region_display_name = E.id.video_region_display_name
 
     def __init__(self, shape :PySI.PointVector=PySI.PointVector(), uuid: str="", kwargs: dict={}) -> None:
-        super(Video, self).__init__(shape, uuid, "res/video.png", Video.regiontype, Video.regionname, kwargs)
-        self.source = "libStdSI"
-        self.qml_path = self.set_QML_path("Video.qml")
+        super(Video, self).__init__(shape, uuid, E.id.video_texture, Video.regiontype, Video.regionname, kwargs)
+        self.qml_path = self.set_QML_path(E.id.video_qml_path)
         self.origin_ip = "127.0.0.1"
         self.port = str(3335)
         self.started = False
-        self.initialize_video_stream("is_selector" in kwargs)
+        self.initialize_video_stream(E.id.video_selector in kwargs)
 
     def initialize_video_stream(self, is_selector: bool) -> None:
         if not is_selector:
-            self.pipeline = 'udpsrc port={} caps = "application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96" ! rtph264depay ! decodebin ! videoconvert ! appsink'.format(self.port)
+            self.pipeline = E.id.video_pipeline.format(self.port)
             self.thread = threading.Thread(target=self.display)
             self.thread.start()
 

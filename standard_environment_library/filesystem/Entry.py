@@ -73,6 +73,6 @@ class Entry(Transportable, Movable, Lassoable, SIEffect):
                 self.parent = ""
                 self.remove_link(_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
-    @SIEffect.on_enter("__PRINT_REQUEST__", SIEffect.EMISSION)
+    @SIEffect.on_enter(E.capability.print_print_request, SIEffect.EMISSION)
     def on_print_request_enter_emit(self, other: object) -> str:
         return self.path

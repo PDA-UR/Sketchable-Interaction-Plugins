@@ -14,7 +14,7 @@ class Terminal(Deletable, Movable, SIEffect):
         super(Terminal, self).__init__(shape, uuid, E.id.terminal_texture, Terminal.regiontype, Terminal.regionname, kwargs)
 
         self.qml_path = self.set_QML_path(E.id.terminal_qml_file_name)
-        self.color = E.id.terminal_color
+        self.color = E.color.terminal_color
         self.letter_color = E.id.terminal_letter_color
 
         self.shape = self.aabb
@@ -23,12 +23,12 @@ class Terminal(Deletable, Movable, SIEffect):
         self.set_QML_data("width", self.width, PySI.DataType.INT)
         self.set_QML_data("height", self.height, PySI.DataType.INT)
 
-    @SIEffect.on_enter(E.id.canvas_logging_capability, SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.canvas_logging, SIEffect.RECEPTION)
     def on_logging_enter_recv(self):
         self.set_QML_data("visible", False, PySI.DataType.BOOL)
         self.set_QML_data("message", self.message_header, PySI.DataType.STRING)
 
-    @SIEffect.on_continuous(E.id.canvas_logging_capability, SIEffect.RECEPTION)
+    @SIEffect.on_continuous(E.capability.canvas_logging, SIEffect.RECEPTION)
     def on_logging_continuous_recv(self, log, update):
         if update:
             self.set_QML_data("message", log, PySI.DataType.STRING)

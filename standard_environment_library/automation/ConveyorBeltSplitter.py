@@ -14,12 +14,14 @@ class ConveyorBeltSplitter(Deletable, Movable, SIEffect):
         super(ConveyorBeltSplitter, self).__init__(shape, uuid, E.id.cb_splitter_texture, ConveyorBeltSplitter.regiontype, ConveyorBeltSplitter.regionname, kwargs)
 
         self.qml_path = self.set_QML_path(E.id.cb_splitter_qml_file_path)
-        self.color = E.id.cb_splitter_color
+        self.color = E.color.cb_splitter_color
         self.io_width = E.id.cb_width * E.id.cb_splitter_io_width_multiplier
         self.output_point_true = None
         self.output_point_false = None
 
         self.reshape()
+
+        self.set_QML_data("conditions", self.conditional_variables(), PySI.DataType.LIST)
 
     def reshape(self):
         self.shape = PySI.PointVector([
@@ -42,18 +44,12 @@ class ConveyorBeltSplitter(Deletable, Movable, SIEffect):
         self.output_point_true = (self.relative_x_pos() + self.io_width) + (((self.relative_x_pos() + self.io_width * 2) - (self.relative_x_pos() + self.io_width)) / 2), self.relative_y_pos() - self.io_width
         self.output_point_false = (self.relative_x_pos() + self.io_width) + (((self.relative_x_pos() + self.io_width * 2) - (self.relative_x_pos() + self.io_width)) / 2), self.relative_y_pos() + self.io_width * 2
 
-    @SIEffect.on_enter(E.id.cb_splitter_evaluate_capability, SIEffect.EMISSION)
+    @SIEffect.on_enter(E.capability.cb_splitter_evaluate, SIEffect.EMISSION)
     def on_cb_splitter_evaluate_enter_emit(self, other):
-        condition = False
-
         try:
-            condition = eval("other." + self.get_QML_data(E.id.cb_splitter_text_from_qml, PySI.DataType.STRING))
-        except:
-            pass
-
-        if condition:
+            eval("other." + self.get_QML_data(E.id.cb_splitter_text_from_qml, PySI.DataType.STRING))
             return self._uuid, self.output_point_true[0] - other.width / 2 - other.relative_x_pos(), self.output_point_true[1] + other.height / 4 - other.relative_y_pos()
-        else:
+        except:
             return self._uuid, self.output_point_false[0] - other.width / 2 - other.relative_x_pos(), self.output_point_false[1] + other.height / 2 - other.relative_y_pos()
 
     # overrides Movable class implementation

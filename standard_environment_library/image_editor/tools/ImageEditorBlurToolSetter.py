@@ -3,6 +3,7 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.PositionLinkable import PositionLinkable
 
+from plugins.E import E
 
 class ImageEditorBlurToolSetter(PositionLinkable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
@@ -33,7 +34,7 @@ class ImageEditorBlurToolSetter(PositionLinkable, SIEffect):
     def set_conv_output_from_conv_output(self, r, g, b, a):
         self.color = PySI.Color(r, g, b, a)
 
-    @SIEffect.on_continuous("ImageEditorAssign", SIEffect.EMISSION)
+    @SIEffect.on_continuous(E.capability.cursor_image_editor_assign, SIEffect.EMISSION)
     def on_image_editor_tool_assign_continuous_emit(self, other):
         pass
 
@@ -44,6 +45,6 @@ class ImageEditorBlurToolSetter(PositionLinkable, SIEffect):
 
         return None, None
 
-    @SIEffect.on_continuous("ToolActivation", SIEffect.RECEPTION)
+    @SIEffect.on_continuous(E.capability.cursor_image_editor_tool_activation, SIEffect.RECEPTION)
     def on_tool_activation_continuous_recv(self, is_active):
         self.is_active = is_active

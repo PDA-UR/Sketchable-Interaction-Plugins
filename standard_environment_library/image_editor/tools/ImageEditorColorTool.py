@@ -3,6 +3,7 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.PositionLinkable import PositionLinkable
 
+from plugins.E import E
 
 class ImageEditorColorTool(PositionLinkable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
@@ -34,15 +35,15 @@ class ImageEditorColorTool(PositionLinkable, SIEffect):
 
             kwargs["other"].image_editor_tool = [self]
 
-    @SIEffect.on_enter("IMAGE_PARENT", SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.image_editor_image_parent, SIEffect.RECEPTION)
     def on_parent_enter_recv(self, parent_uuid, _):
         if self.parent_uuid == "":
             self.parent_uuid = parent_uuid
 
             self.create_link(parent_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
-            self.disable_effect("IMAGE_PARENT", self.RECEPTION)
+            self.disable_effect(E.capability.image_editor_image_parent, self.RECEPTION)
 
-    @SIEffect.on_continuous("ImageEditorAssign", SIEffect.EMISSION)
+    @SIEffect.on_continuous(E.capability.cursor_image_editor_assign, SIEffect.EMISSION)
     def on_image_editor_tool_assign_continuous_emit(self, other):
         if self.link_partner == "" and other.left_mouse_active:
 
@@ -53,7 +54,7 @@ class ImageEditorColorTool(PositionLinkable, SIEffect):
 
             self.create_region_via_name(self.shape, ImageEditorColorTool.regionname, kwargs=kwargs)
 
-    @SIEffect.on_continuous("ToolActivation", SIEffect.RECEPTION)
+    @SIEffect.on_continuous(E.capability.cursor_image_editor_tool_activation, SIEffect.RECEPTION)
     def on_tool_activation_continuous_recv(self, is_active):
             self.is_active = is_active
 

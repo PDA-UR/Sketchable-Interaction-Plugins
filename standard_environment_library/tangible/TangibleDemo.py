@@ -7,10 +7,9 @@ from plugins.E import E
 
 class TangibleDemo(Tangible, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
-    regionname = "__TangibleDemo__"
-    region_display_name = "TangibleDemo"
+    regionname = E.id.tangible_demo_regionname
+    region_display_name = E.id.tangible_demo_display_name
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(TangibleDemo, self).__init__(shape, uuid, SIEffect.TEXTURE_PATH_NONE, TangibleDemo.regiontype, TangibleDemo.regionname, kwargs)
-
-        self.color = E.id.tangible_demo_color
+        self.color = E.color.tangible_demo_color

@@ -1,18 +1,20 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 
+from plugins.E import E
 
 class Cursor(SIEffect):
     regiontype = PySI.EffectType.SI_MOUSE_CURSOR
     regionname = PySI.EffectName.SI_STD_NAME_MOUSE_CURSOR
-    region_width = 18
-    region_height = 24
+    region_width = E.id.cursor_width
+    region_height = E.id.cursor_height
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        super(Cursor, self).__init__(shape, uuid, "", Cursor.regiontype, Cursor.regionname, kwargs)
+        super().__init__(shape, uuid, "", Cursor.regiontype, Cursor.regionname, kwargs)
 
-        self.qml_path = self.set_QML_path("Cursor.qml")
-        self.color = PySI.Color(255, 0, 0, 0)
+        self.qml_path = self.set_QML_path(E.id.cursor_qml_path)
+        self.color = E.color.cursor_color
+
         self.assigned_effect = ""
         self.is_drawing_blocked = False
         self.width = Cursor.region_width
@@ -32,6 +34,7 @@ class Cursor(SIEffect):
 
         self.left_mouse_active = False
         self.right_mouse_active = False
+        self.middle_mouse_active = False
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
@@ -44,7 +47,7 @@ class Cursor(SIEffect):
 
         self.move(abs_x, abs_y)
 
-    def self_on_sketch_enter_emit(self, other):
+    def on_sketch_enter_emit(self, other):
         self.parent_canvas = other
 
         return 0, 0, self._uuid
@@ -91,6 +94,19 @@ class Cursor(SIEffect):
 
         return self._uuid
 
+    def on_middle_mouse_click(self, is_active):
+        self.middle_mouse_active = is_active
+
+        if is_active:
+            if E.capability.cursor_enlarge not in self.cap_emit.keys():
+                self.enable_effect(E.capability.cursor_enlarge, True, self.on_enlarge_enter_emit, None, None)
+        else:
+            if E.capability.cursor_enlarge in self.cap_emit.keys():
+                self.disable_effect(E.capability.cursor_enlarge, True)
+
+    def on_enlarge_enter_emit(self, other):
+        pass
+
     def on_left_mouse_click(self, is_active):
         self.left_mouse_active = is_active
 
@@ -100,7 +116,7 @@ class Cursor(SIEffect):
 
             if self.assigned_effect != "":
                 if not self.is_drawing_blocked and PySI.CollisionCapability.SKETCH not in self.cap_emit.keys():
-                    self.enable_effect(PySI.CollisionCapability.SKETCH, True, self.self_on_sketch_enter_emit, self.on_sketch_continuous_emit, self.on_sketch_leave_emit)
+                    self.enable_effect(PySI.CollisionCapability.SKETCH, True, self.on_sketch_enter_emit, self.on_sketch_continuous_emit, self.on_sketch_leave_emit)
         else:
             if PySI.CollisionCapability.SKETCH in self.cap_emit.keys():
                 self.disable_effect(PySI.CollisionCapability.SKETCH, True)
@@ -132,7 +148,7 @@ class Cursor(SIEffect):
                 self.assigned_effect = effect_to_assign
                 self.assign_effect(self.assigned_effect, effect_display_name, kwargs)
 
-    @SIEffect.on_continuous("ImageEditorAssign", SIEffect.RECEPTION)
+    @SIEffect.on_continuous(E.capability.cursor_image_editor_assign, SIEffect.RECEPTION)
     def on_image_editor_assign_continuous_recv(self):
         pass
 
@@ -144,7 +160,7 @@ class Cursor(SIEffect):
     def on_hover_leave_emit(self, other):
         pass
 
-    @SIEffect.on_continuous("ToolActivation", SIEffect.EMISSION)
+    @SIEffect.on_continuous(E.capability.cursor_image_editor_tool_activation, SIEffect.EMISSION)
     def on_tool_activation_continuous_emit(self, other):
         if self.left_mouse_active:
             self.disable_effect(PySI.CollisionCapability.SKETCH, True)
@@ -155,7 +171,7 @@ class Cursor(SIEffect):
 
         return False
 
-    @SIEffect.on_leave("HIDE_TOOL", SIEffect.RECEPTION)
+    @SIEffect.on_leave(E.capability.cursor_image_editor_tool_hiding, SIEffect.RECEPTION)
     def on_hide_tool_leave_recv(self):
         for tool in self.image_editor_tool:
             tool.delete()

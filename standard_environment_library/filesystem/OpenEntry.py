@@ -13,7 +13,8 @@ class OpenEntry(Deletable, Movable, SIEffect):
         super(OpenEntry, self).__init__(shape, uuid, "res/open_entry.png", OpenEntry.regiontype, OpenEntry.regionname, kwargs)
 
         self.qml_path = self.set_QML_path("OpenEntry.qml")
-        self.color = PySI.Color(204, 229, 255, 255)
+        t = 120
+        self.color = PySI.Color(204 - t, 229 - t, 255 - t, 255)
 
     @SIEffect.on_enter(PySI.CollisionCapability.OPEN_ENTRY, SIEffect.EMISSION)
     def on_open_entry_enter_emit(self, other):

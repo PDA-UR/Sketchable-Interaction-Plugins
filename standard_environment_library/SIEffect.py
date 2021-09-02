@@ -31,6 +31,11 @@ class SIEffect(PySI.Effect):
     # May lead to unexpected / barely debuggable behaviour!
     NO_RESAMPLING = False
 
+    ## static member attribute used as an type annotations for variables which are marked as variables used for SI drawable conditionals
+    #
+    # Usage self.<identifier>: SIEffect.SI_CONDITION = <bool value>
+    SI_CONDITION = None
+
     ## Decorator for registering on_enter collision events
     #
     # Decorates a specific function in other plugin files to be used as an on_enter collision event.
@@ -296,6 +301,12 @@ class SIEffect(PySI.Effect):
     def current_regions(self) -> list:
         return self.__current_regions__()
 
+    ## member function for retrieving all variables which were annotated with SIEffect.SI_CONDITION
+    #
+    # @return the list of condition variables as list
+    def conditional_variables(self) -> list:
+        return self.__conditional_variables__()
+
     ## member function for retrieving the maximum width of a region
     #
     # @param self the pointer to the object
@@ -340,7 +351,7 @@ class SIEffect(PySI.Effect):
     #
     # @return the absolute x coordinate of the associated region's top left corner
     def absolute_x_pos(self) -> int:
-        return self.x + self.aabb[0].x
+        return self.x + self.relative_x_pos()
 
     ## member function for getting the absolute y coordinate of the parent region's top left corner
     #
@@ -348,7 +359,7 @@ class SIEffect(PySI.Effect):
     #
     # @return the absolute y coordinate of the associated region's top left corner
     def absolute_y_pos(self) -> int:
-        return self.y + self.aabb[0].y
+        return self.y + self.relative_y_pos()
 
     ## member function for enabling the emission or reception of an effect
     #
@@ -685,7 +696,11 @@ class SIEffect(PySI.Effect):
     #
     # @return None
     def assign_effect(self, effect_name_to_assign: str, effect_display_name: str, kwargs: dict) -> None:
-        self.__assign_effect__(self._uuid, effect_name_to_assign, effect_display_name, kwargs)
+        if "tangible" in kwargs:
+            print(str(kwargs["tangible"]))
+            self.__assign_effect__(str(kwargs["tangible"]), effect_name_to_assign, effect_display_name, kwargs)
+        else:
+            self.__assign_effect__(self._uuid, effect_name_to_assign, effect_display_name, kwargs)
 
     ## member function for moving the effect's associated region to the point (x, y)
     #
@@ -697,6 +712,22 @@ class SIEffect(PySI.Effect):
     def move(self, x, y) -> None:
         self.x = x
         self.y = y
+
+    ## member function for registering additional drawings to a region without having them to add as a region
+    #
+    # @param drawing_additions the list containing further lists which represents lines or shapes. Such lines or shapes consist of points (x, y) also represented as a list
+    #
+    # Usage: self.set_drawing_additions([[[px, py], ... ], [[qx, qy,], ... ], ... ]
+    #
+    # @return None
+    def set_drawing_additions(self, drawing_additions: list) -> None:
+        self.__set_drawing_additions__(drawing_additions)
+
+    ## member function for retrieving the additional drawings of a region
+    #
+    # @return the list containing the additional drawings
+    def get_drawing_additions(self) -> list:
+        return self.__drawing_additions__()
 
     ## member function for offloading a function call to a thread
     #
@@ -710,6 +741,15 @@ class SIEffect(PySI.Effect):
     # @return None
     def run_in_thread(self, function: object, args: tuple) -> None:
         threading.Thread(target=function, args=args).start()
+
+    ## member function which provides a list of region uuids which are currently overlapping with the region self
+    #
+    # @return a list which contains the uuids of colliding regions
+    def present_collisions(self) -> list:
+        return [s for s in self.current_collisions]
+
+    def selected_effects_by_cursor_id(self) -> dict:
+        return self.__selected_effects_by_cursor_id__()
 
     ## member function for generally handling exceptions which may occur in constructors of plugins
     # @author Robert Fent (as part of his Bachelor's Thesis)

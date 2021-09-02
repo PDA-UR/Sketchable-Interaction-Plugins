@@ -13,12 +13,12 @@ class Preview(Deletable, Movable, SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Preview, self).__init__(shape, uuid, E.id.preview_texture, Preview.regiontype, Preview.regionname, kwargs)
         self.qml_path = self.set_QML_path(E.id.preview_qml_file_name)
-        self.color = E.id.preview_color
+        self.color = E.color.preview_color
 
-    @SIEffect.on_enter(E.id.preview_capability_previewing, SIEffect.EMISSION)
+    @SIEffect.on_enter(E.capability.preview_previewing, SIEffect.EMISSION)
     def on_preview_enter_emit(self, other):
         pass
 
-    @SIEffect.on_leave(E.id.preview_capability_previewing, SIEffect.EMISSION)
+    @SIEffect.on_leave(E.capability.preview_previewing, SIEffect.EMISSION)
     def on_preview_leave_emit(self, other):
         pass

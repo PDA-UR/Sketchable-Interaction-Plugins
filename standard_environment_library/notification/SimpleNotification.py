@@ -13,7 +13,7 @@ class SimpleNotification(SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(SimpleNotification, self).__init__(shape, uuid, "", SimpleNotification.regiontype, SimpleNotification.regionname, kwargs)
         self.qml_path = self.set_QML_path(E.id.notification_qml_file_name)
-        self.color = E.id.notification_color
+        self.color = E.color.notification_color
         self.message = E.id.notification_default_message
 
         self.width = SimpleNotification.region_width

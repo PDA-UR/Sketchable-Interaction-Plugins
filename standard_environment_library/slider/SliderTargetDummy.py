@@ -11,13 +11,13 @@ class SliderTargetDummy(Movable, SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(SliderTargetDummy, self).__init__(shape, uuid, "", SliderTargetDummy.regiontype, SliderTargetDummy.regionname, kwargs)
-        self.color = E.id.slider_target_color
+        self.color = E.color.slider_target_color
 
-    @SIEffect.on_enter(E.id.slider_controller_capability_parent, SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.slider_controller_parent, SIEffect.RECEPTION)
     def on_parent_enter_recv(self, parent_uuid):
-        self.create_link(parent_uuid, E.id.slider_controller_capability_link_push_color, self._uuid, E.id.slider_controller_capability_link_push_color)
+        self.create_link(parent_uuid, E.capability.slider_controller_capability_link_push_color, self._uuid, E.capability.slider_controller_capability_link_push_color)
 
-    @SIEffect.on_link(SIEffect.RECEPTION, E.id.slider_controller_capability_link_push_color, E.id.slider_controller_capability_link_push_color)
+    @SIEffect.on_link(SIEffect.RECEPTION, E.capability.slider_controller_link_push_color, E.capability.slider_controller_link_push_color)
     def set_color_value_from_color_value(self, values):
         channel = values["channel"]
         color_value = values["col"]

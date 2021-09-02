@@ -3,157 +3,290 @@
 <environment>
     <!-- Global environment constants -->
 
+    <!-- canvas -->
+    <capability name="canvas_logging" type="collision">__LOG_TO_TERMINAL__</capability>
+    <capability name="canvas_parent" type="collision">__PARENT_CANVAS__</capability>
 
-    <!-- Canvas related constants -->
-    <value id="canvas_logging_capability" type="str">__LOG_TO_TERMINAL__</value>
-
+    <color name="canvas_color">247, 249, 239, 255</color>
 
     <!-- Tag related constants -->
-    <value id="tag_texture" type="str">res/tag.png</value>
-    <value id="tag_name" type="str">__TAG__</value>
-    <value id="tag_qml_file_name" type="str">Tag.qml</value>
-    <value id="tag_capability_tagging" type="str">__tagging__</value>
-    <value id="tag_display_name" type="str">Tag</value>
-    <value id="tag_text_from_qml" type="str">text</value>
+    <id name="tag_texture">res/tag.png</id>
+    <id name="tag_name">__TAG__</id>
+    <id name="tag_qml_file_name">Tag.qml</id>
+    <id name="tag_display_name">Tag</id>
+    <id name="tag_text_from_qml">text</id>
 
-    <value id="tag_color" type="color">(255, 204, 204, 255)</value>
+    <capability name="tag_tagging" type="collision">__tagging__</capability>
+
+    <color name="tag_color">255, 204, 204, 255</color>
 
     <!-- Slider related constants -->
     <!-- Base -->
-    <value id="slider_base_name" type="str">__ SliderBase __</value>
-    <value id="slider_base_capability_slide" type="str">SLIDE</value>
+    <id name="slider_base_name">__ SliderBase __</id>
+    <id name="slider_base_controller_width">30</id>
+    <id name="slider_base_controller_height">60</id>
 
-    <value id="slider_base_color" type="color">(0, 0, 0, 255)</value>
+    <capability name="slider_base_slide" type="collision">SLIDE</capability>
 
-    <value id="slider_base_controller_width" type="int">30</value>
-    <value id="slider_base_controller_height" type="int">60</value>
+    <color id="slider_base_color">000000FF</color>
 
     <!-- Controller -->
-    <value id="slider_controller_name" type="str">__ SliderController __</value>
-    <value id="slider_controller_capability_parent" type="str">PARENT</value>
-    <value id="slider_controller_color_channel" type="str">color_channel</value>
-    <value id="slider_controller_capability_link_push_color" type="str">__PUSH_COLOR__</value>
+    <id name="slider_controller_name">__ SliderController __</id>
+    <id name="slider_controller_color_channel">color_channel</id>
+    <id name="slider_controller_min_value">0</id>
+    <id name="slider_controller_max_value">255</id>
 
-    <value id="slider_controller_min_value" type="int">0</value>
-    <value id="slider_controller_max_value" type="int">255</value>
+    <capability name="slider_controller_link_push_color" type="link">__PUSH_COLOR__</capability>
+    <capability name="slider_controller_parent" type="collision">PARENT</capability>
 
-    <value id="slider_controller_color" type="color">(0, 0, 0, 255)</value>
+    <color name="slider_controller_color">000000FF</color>
 
     <!-- Target -->
-    <value id="slider_target_name" type="str">__ SliderTarget __</value>
-    <value id="slider_target_color" type="color">(0, 0, 0, 255)</value>
+    <id name="slider_target_name">__ SliderController __</id>
+    <color name="slider_target_color">000000FF</color>
 
     <!-- Preview related constants -->
-    <value id="preview_texture" type="str">res/preview.png</value>
-    <value id="preview_qml_file_name" type="str">Preview.qml</value>
-    <value id="preview_capability_previewing" type="str">__preview__</value>
-    <value id="preview_display_name" type="str">Preview File</value>
+    <id name="preview_texture">res/preview.png</id>
+    <id name="preview_qml_file_name">Preview.qml</id>
+    <id name="preview_display_name">Preview File</id>
 
-    <value id="preview_color" type="color">(204, 255, 229, 255)</value>
+    <capability name="preview_previewing" type="collision">__preview__</capability>
+
+    <color name="preview_color">204, 255, 229, 255</color>
 
     <!-- Plot related constants -->
-    <value id="plot_texture" type="str">res/plot.png</value>
-    <value id="plot_qml_file_name" type="str">Plot.qml</value>
-    <value id="plot_display_name" type="str">Plot</value>
-    <value id="plot_name" type="str">__PLOT__</value>
+    <id name="plot_texture">res/plot.png</id>
+    <id name="plot_qml_file_name">Plot.qml</id>
+    <id name="plot_display_name">Plot</id>
+    <id name="plot_name">__PLOT__</id>
 
-    <value id="plot_color" type="color">(229, 204, 255, 255)</value>
+    <color name="plot_color">229, 204, 255, 255</color>
 
     <!-- Palette related constants -->
-    <value id="palette_color" type="color">(255, 255, 255, 255)</value>
+    <color name="palette_color">AAAAAAFF</color>
 
-    <value id="palette_selector_width" type="int">60</value>
-    <value id="palette_selector_height" type="int">120</value>
-    <value id="palette_selector_x_offset" type="int">5</value>
-    <value id="palette_selector_y_offset" type="int">5</value>
+    <id name="palette_selector_width">60</id>
+    <id name="palette_selector_height">120</id>
+    <id name="palette_selector_x_offset">5</id>
+    <id name="palette_selector_y_offset">5</id>
 
     <!-- simple notification -->
-    <value id="notification_default_message" type="str">Hello World</value>
-    <value id="notification_qml_file_name" type="str">SimpleNotification.qml</value>
+    <id name="notification_default_message">Hello World</id>
+    <id name="notification_qml_file_name">SimpleNotification.qml</id>
+    <id name="notification_region_width">1000</id>
+    <id name="notification_region_height">75</id>
 
-    <value id="notification_color" type="color">(255, 255, 255, 255)</value>
-
-    <value id="notification_region_width" type="int">1000</value>
-    <value id="notification_region_height" type="int">75</value>
+    <color name="notification_color">AAAAAAFF</color>
 
     <!-- Image Editor -->
     <!-- Editor -->
-    <value id="image_editor_name" type="str">__ ImageEditor __</value>
-    <value id="image_editor_display_name" type="str">Edit Image</value>
-    <value id="image_editor_texture" type="str">res/editor_icon.png</value>
-    <value id="image_editor_qml_file_path" type="str">ImageEditor.qml</value>
-    <value id="image_editor_capability_image_parent" type="str">IMAGE_PARENT</value>
-    <value id="image_editor_capability_grab_image" type="str">GRAB_IMAGE</value>
-    <value id="image_editor_capability_hide_tool" type="str">HIDE_TOOL</value>
+    <id name="image_editor_name">__ ImageEditor __</id>
+    <id name="image_editor_display_name">Edit Image</id>
+    <id name="image_editor_texture">res/editor_icon.png</id>
+    <id name="image_editor_qml_file_path">ImageEditor.qml</id>
+    <id name="image_editor_text_height">50</id>
+    <id name="image_editor_pixel_size">10</id>
+    <id name="image_editor_offset">1</id>
+    <id name="image_editor_border">15</id>
+    <id name="image_editor_max_color_value">255</id>
+    <id name="image_editor_tool_width">50</id>
+    <id name="image_editor_tool_height">50</id>
 
-    <value id="image_editor_color" type="color">(255, 229, 204, 255)</value>
-    <value id="image_editor_color_red" type="color">(255, 0, 0, 255)</value>
-    <value id="image_editor_color_green" type="color">(0, 255, 0, 255)</value>
-    <value id="image_editor_color_blue" type="color">(0, 0, 255, 255)</value>
+    <capability name="image_editor_image_parent" type="collision">IMAGE_PARENT</capability>
+    <capability name="image_editor_grab_image" type="collision">GRAB_IMAGE</capability>
+    <capability name="image_editor_hide_tool" type="collision">HIDE_TOOL</capability>
 
-    <value id="image_editor_text_height" type="int">50</value>
-    <value id="image_editor_pixel_size" type="int">10</value>
-    <value id="image_editor_offset" type="int">1</value>
-    <value id="image_editor_border" type="int">15</value>
-    <value id="image_editor_max_color_value" type="int">255</value>
-    <value id="image_editor_tool_width" type="int">50</value>
-    <value id="image_editor_tool_height" type="int">50</value>
+    <color name="image_editor_color">255, 229, 204, 255</color>
+    <color name="image_editor_color_red">FF0000FF</color>
+    <color name="image_editor_color_green">00FF00FF</color>
+    <color name="image_editor_color_blue">0000FFFF</color>
 
     <!-- ConveyorBelt -->
-    <value id="cb_name" type="str">__ ConveyorBelt __</value>
-    <value id="cb_display_name" type="str">ConveyorBelt</value>
-    <value id="cb_texture" type="str">res/factory.png</value>
-    <value id="cb_qml_file" type="str">ConveyorBelt.qml</value>
-    <value id="cb_transport_capability" type="str">__CB_TRANSPORT__</value>
+    <id name="cb_name">__ ConveyorBelt __</id>
+    <id name="cb_display_name">ConveyorBelt</id>
+    <id name="cb_texture">res/factory.png</id>
+    <id name="cb_qml_file">ConveyorBelt.qml</id>
+    <id name="cb_width">75</id>
+    <id name="cb_point_step">1</id>
+    <id name="cb_speed">350</id>
 
-    <value id="cb_width" type="int">75</value>
-    <value id="cb_point_step" type="int">1</value>
-    <value id="cb_speed" type="int">350</value>
+    <capability name="cb_transport" type="collision">__CB_TRANSPORT__</capability>
 
-    <value id="cb_color" type="color">(204, 255, 204, 255)</value>
-
+    <color name="cb_color">204, 255, 204, 255</color>
 
     <!-- Splitter -->
-    <value id="cb_splitter_name" type="str">__CONVEYOR_BELT_SPLITTER__</value>
-    <value id="cb_splitter_display_name" type="str">ConveyorBeltSplitter</value>
-    <value id="cb_splitter_texture" type="str">res/splitter.png</value>
-    <value id="cb_splitter_qml_file_path" type="str">ConveyorBeltSplitter.qml</value>
-    <value id="cb_splitter_evaluate_capability" type="str">__EVALUATE_SPLIT__</value>
-    <value id="cb_splitter_text_from_qml" type="str">text</value>
+    <id name="cb_splitter_name">__CONVEYOR_BELT_SPLITTER__</id>
+    <id name="cb_splitter_display_name">ConveyorBeltSplitter</id>
+    <id name="cb_splitter_texture">res/splitter.png</id>
+    <id name="cb_splitter_qml_file_path">ConveyorBeltSplitter.qml</id>
+    <id name="cb_splitter_text_from_qml">text</id>
+    <id name="cb_splitter_io_width_multiplier">1.5</id>
 
-    <value id="cb_splitter_io_width_multiplier" type="float">1.5</value>
+    <capability name="cb_splitter_evaluate" type="collision">__EVALUATE_SPLIT__</capability>
 
-    <value id="cb_splitter_color" type="color">(232, 189, 37, 255)</value>
+    <color name="cb_splitter_color">232, 189, 37, 255</color>
 
     <!-- Merger -->
-    <value id="cb_merger_name" type="str">__CONVEYOR_BELT_MERGER__</value>
-    <value id="cb_merger_texture" type="str">res/merger.png</value>
-    <value id="cb_merger_display_name" type="str">ConveyorBeltMerger</value>
-    <value id="cb_merger_qml_file_path" type="str">ConveyorBeltMerger.qml</value>
-    <value id="cb_merger_evaluate_capability" type="str">__EVALUATE_MERGE__</value>
-    <value id="cb_merger_color" type="color">(132, 189, 37, 255)</value>
+    <id name="cb_merger_name">__CONVEYOR_BELT_MERGER__</id>
+    <id name="cb_merger_texture">res/merger.png</id>
+    <id name="cb_merger_display_name">ConveyorBeltMerger</id>
+    <id name="cb_merger_qml_file_path">ConveyorBeltMerger.qml</id>
+
+    <capability name="cb_merger_evaluate" type="collision">__EVALUATE_MERGE__</capability>
+
+    <color name="cb_merger_color">132, 189, 37, 255</color>
 
     <!-- Transportable -->
-    <value id="transportable_name" type="str">__TRANSPORTABLE__</value>
-    <value id="transportable_capability" type="str">__ TRANSPORTABLE __</value>
-    <value id="transportable_clogging_capability" type="str">__ CLOGGING __</value>
+    <id name="transportable_name">__TRANSPORTABLE__</id>
+
+    <capability name="transportable_transportable" type="collision">__ TRANSPORTABLE __</capability>
+    <capability name="transportable_clogging" type="collision">__ CLOGGING __</capability>
 
     <!-- Terminal -->
-    <value id="terminal_name" type="str">__TERMINAL__</value>
-    <value id="terminal_display_name" type="str">Terminal</value>
-    <value id="terminal_texture" type="str">res/terminal.png</value>
-    <value id="terminal_qml_file_name" type="str">Terminal.qml</value>
+    <id name="terminal_name">__TERMINAL__</id>
+    <id name="terminal_display_name">Terminal</id>
+    <id name="terminal_texture">res/terminal.png</id>
+    <id name="terminal_qml_file_name">Terminal.qml</id>
+    <id name="terminal_letter_color">00FF00FF</id>
 
-    <value id="terminal_color" type="color">(255, 255, 255, 255)</value>
-    <value id="terminal_letter_color" type="str">00FF00FF</value>
+    <color name="terminal_color">AAAAAAFF</color>
 
     <!-- Tangible Demo -->
-    <value id="tangible_demo_color" type="color">(255, 0, 0, 255)</value>
+    <id name="tangible_demo_regionname">__TangibleDemo__</id>
+    <id name="tangible_demo_display_name">TangibleDemo</id>
+
+    <color name="tangible_demo_color">FF0000FF</color>
 
     <!-- Lasso -->
-    <value id="lasso_color" type="color">(128, 128, 128, 50)</value>
-    <value id="lasso_texture" type="str">res/lasso.png</value>
-    <value id="lasso_capabiliy" type="str">__ LASSO __</value>
+    <id name="lasso_regionname">__LASSO__</id>
+    <id name="lasso_region_display_name">Lasso</id>
+    <id name="lasso_qml_path">Lasso.qml</id>
+    <id name="lasso_texture">res/lasso.png</id>
 
+    <capability name="lasso_lasso" type="collision">__ LASSO __</capability>
 
+    <color name="lasso_color">128, 128, 128, 50</color>
+
+    <!-- Video -->
+    <id name="video_regionname">__ Video __</id>
+    <id name="video_region_display_name">Video</id>
+    <id name="video_texture">res/video.png</id>
+    <id name="video_qml_path">Video.qml</id>
+    <id name="video_selector">is_selector</id>
+    <id name="video_pipeline">udpsrc port={} caps = \"application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96\" ! rtph264depay ! decodebin ! videoconvert ! appsink</id>
+
+    <!-- UnRedo -->
+    <id name="redo_regionname">__ Redo __</id>
+    <id name="redo_region_display_name">Redo</id>
+    <id name="redo_texture">res/redo.png</id>
+    <id name="redo_qml_path">Redo.qml</id>
+
+    <capability name="redo_redo" type="link">redo</capability>
+
+    <id name="undo_regionname">__ Undo __</id>
+    <id name="undo_region_display_name">Undo</id>
+    <id name="undo_texture">res/undo.png</id>
+    <id name="undo_qml_path">Undo.qml</id>
+
+    <capability name="undo_undo" type="link">undo</capability>
+
+    <!-- ArUco Markers -->
+    <id name="aruco_regionname">__ ArUcoMarker __</id>
+    <id name="aruco_region_display_name">ArUcoMarker</id>
+    <id name="aruco_qml_path">ArUcoMarker.qml</id>
+
+    <!-- ScanCameraAreaDetection -->
+    <id name="scan_camera_area_detection_regionname">__ ScanCameraAreaDetection __</id>
+    <id name="scan_camera_area_detection_texture">res/0.png</id>
+    <id name="scan_camera_area_detection_color">FFFFFFFF</id>
+
+    <!-- Table Area -->
+    <id name="table_area_regionname">__ TableArea __</id>
+    <id name="table_area_region_display_name">TableArea</id>
+    
+    <color name="table_area_color">FF000000</color>
+
+    <!-- Document -->
+    <id name="document_regionname">__Document__</id>
+    <id name="document_region_display_name">Document</id>
+    <id name="document_texture">res/2cm.png</id>
+
+    <capability name="document_add_highlight" type="collision">ADD_HIGHLIGHT</capability>
+
+    <color name="document_color">255, 0, 0, 0</color>
+
+    <!-- Highlight -->
+    <id name="highlight_regionname">__Highlight__</id>
+    <id name="highlight_region_display_name">Highlight</id>
+
+    <color name="highlight_color">255, 255, 0, 128</color>
+
+    <!-- scan region -->
+    <id name="scan_region_regionname">__ScanRegion__</id>
+    <id name="scan_region_region_display_name">ScanRegion</id>
+
+    <color name="scan_region_color">5, 5, 5, 100</color>
+
+    <!-- Printer, Print, PrintMode -->
+    <id name="print_regionname">__ Print __</id>
+    <id name="print_region_display_name">Print</id>
+    <id name="print_texture">res/print.png</id>
+    <id name="print_qml_path">Print.qml</id>
+    <id name="print_linux_command_fetch_printer_names">lpstat -p | awk '{print $2}'</id>
+    <id name="print_dialog">DIALOG</id>
+    <id name="print_linux_command_lp_d">lp -d</id>
+    <id name="print_linux_command_xdg_open">xdg-open</id>
+    <id name="print_linux_command_hotkey_ctrl">ctrl</id>
+    <id name="print_linux_command_hotkey_p">p</id>
+    <id name="printer_regionname">__ Printer __</id>
+    <id name="printer_region_display_name">Printer</id>
+    <id name="printer_qml_path">Printer.qml</id>
+    <id name="printer_mode_regionname">__ PrinterMode __</id>
+    <id name="printer_mode_region_display_name">PrinterMode</id>
+    <id name="printer_mode_qml_path">PrinterMode.qml</id>
+
+    <capability name="print_printer_selected" type="collision">__PRINTER_SELECTED__</capability>
+    <capability name="print_printer_mode_selected" type="collision">__PRINTER_MODE_SELECTED__</capability>
+    <capability name="print_print_request" type="collision">__PRINT_REQUEST__</capability>
+
+    <!-- Presentation -->
+    <id name="presentation_regionname">__ Presentation __</id>
+    <id name="presentation_texture">res/presentation.png</id>
+    <id name="presentation_region_display_name">Presentation</id>
+    <id name="presentation_qml_path">Presentation.qml</id>
+
+    <capability name="presentation_present" type="collision">__PRESENT__</capability>
+
+    <color name="presentation_color">156, 0, 75, 255</color>
+
+    <!-- Delete -->
+    <id name="deletion_region_display_name">Deletion</id>
+    <id name="deletion_texture">res/deletion.png</id>
+    <id name="deletion_qml_path">Deletion.qml</id>
+
+    <capability name="deletion_undo_stack_addition" type="link">__undo_stack_addition__</capability>
+
+<!--    <color name="deletion_color">255, 255, 204, 255</color>-->
+    <color name="deletion_color">55, 55, 4, 255</color>
+
+    <!-- Cursor -->
+    <id name="cursor_qml_path">Cursor.qml</id>
+    <id name="cursor_width">18</id>
+    <id name="cursor_height">24</id>
+
+    <capability name="cursor_enlarge" type="collision">ENLARGE</capability>
+    <capability name="cursor_image_editor_assign" type="collision">ImageEditorAssign</capability>
+    <capability name="cursor_image_editor_tool_activation" type="collision">ToolActivation</capability>
+    <capability name="cursor_image_editor_tool_hiding" type="collision">HIDE_TOOL</capability>
+
+    <color name="cursor_color">FF000000</color>
+
+    <!-- Button -->
+    <id name="button_fwd_texture">res/forward.png</id>
+    <id name="button_rev_texture">res/backward.png</id>
+    <id name="button_width">100</id>
+    <id name="button_height">100</id>
+    <id name="button_qml_path">Button.qml</id>
+
+    <color id="button_color">192, 192, 192, 0</color>
 </environment>

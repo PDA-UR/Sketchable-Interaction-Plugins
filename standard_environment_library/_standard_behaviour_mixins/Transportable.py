@@ -20,7 +20,7 @@ class Transportable(SIEffect):
         self.is_clogged = False
         self.mergers = []
 
-    @SIEffect.on_enter(E.id.transportable_capability, SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.transportable_transportable, SIEffect.RECEPTION)
     def on_transport_enter_recv(self, x, y, length, transportation_path):
         self.delta_time = 0
         self.last_time = time.time()
@@ -29,7 +29,7 @@ class Transportable(SIEffect):
         self.transportation_path = transportation_path
         self.transport_ended = False
 
-    @SIEffect.on_continuous(E.id.transportable_capability, SIEffect.RECEPTION)
+    @SIEffect.on_continuous(E.capability.transportable_transportable, SIEffect.RECEPTION)
     def on_transport_continuous_recv(self, x, y, has_reached_end, moves_first_when_clogged):
         t = time.time()
         self.delta_time = t - self.last_time
@@ -47,43 +47,43 @@ class Transportable(SIEffect):
             if has_reached_end:
                 self.transport_ended = True
 
-    @SIEffect.on_leave(E.id.transportable_capability, SIEffect.RECEPTION)
+    @SIEffect.on_leave(E.capability.transportable_transportable, SIEffect.RECEPTION)
     def on_transport_leave_recv(self):
         self.transport_ended = False
         self.is_clogged = False
 
-    @SIEffect.on_enter(E.id.cb_splitter_evaluate_capability, SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.cb_splitter_evaluate, SIEffect.RECEPTION)
     def on_splitter_evaluate_enter_recv(self, splitter_uuid, x, y):
         if not self.transport_ended:
             self.transport_ended = True
             self.move(x, y)
 
-    @SIEffect.on_enter(E.id.cb_merger_evaluate_capability, SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.cb_merger_evaluate, SIEffect.RECEPTION)
     def on_merger_evaluate_enter_recv(self, merger_uuid, x, y):
         # if not self.transport_ended and not self.is_under_user_control:
             # if merger_uuid not in self.mergers:
             #     self.mergers.append(merger_uuid)
         self.move(x, y)
 
-    @SIEffect.on_leave(E.id.cb_merger_evaluate_capability, SIEffect.RECEPTION)
+    @SIEffect.on_leave(E.capability.cb_merger_evaluate, SIEffect.RECEPTION)
     def on_merger_evaluate_leave_recv(self, merger_uuid):
         # if merger_uuid in self.mergers:
         #     del self.mergers[self.mergers.index(merger_uuid)]
         pass
 
     # clogging is broken and breaks CBs
-    @SIEffect.on_enter(E.id.transportable_clogging_capability, SIEffect.EMISSION)
+    @SIEffect.on_enter(E.capability.transportable_clogging, SIEffect.EMISSION)
     def on_clogging_state_enter_emit(self, other):
         self.is_clogged = False
 
-    @SIEffect.on_enter(E.id.transportable_clogging_capability, SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.transportable_clogging, SIEffect.RECEPTION)
     def on_clogging_state_enter_recv(self):
         self.is_clogged = False
 
-    @SIEffect.on_leave(E.id.transportable_clogging_capability, SIEffect.EMISSION)
+    @SIEffect.on_leave(E.capability.transportable_clogging, SIEffect.EMISSION)
     def on_clogging_state_leave_emit(self, other):
         self.is_clogged = False
 
-    @SIEffect.on_leave(E.id.transportable_clogging_capability, SIEffect.RECEPTION)
+    @SIEffect.on_leave(E.capability.transportable_clogging, SIEffect.RECEPTION)
     def on_clogging_state_leave_recv(self):
         self.is_clogged = False

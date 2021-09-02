@@ -3,6 +3,7 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.PositionLinkable import PositionLinkable
 
+from plugins.E import E
 
 class ImageEditorPixel(PositionLinkable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
@@ -18,12 +19,12 @@ class ImageEditorPixel(PositionLinkable, SIEffect):
         r, g, b, a = kwargs["color"] if "color" in kwargs else (255, 255, 255, 255)
         self.color = PySI.Color(r, g, b, a)
 
-    @SIEffect.on_enter("IMAGE_PARENT", SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.image_editor_image_parent, SIEffect.RECEPTION)
     def on_parent_enter_recv(self, parent_uuid, target_color):
         if self.parent_uuid == "":
             self.parent_uuid = parent_uuid
             self.create_link(parent_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
-            self.disable_effect("IMAGE_PARENT", self.RECEPTION)
+            self.disable_effect(E.capability.image_editor_image_parent, self.RECEPTION)
 
             r, g, b, a = target_color
             self.color = PySI.Color(r, g, b, a)

@@ -27,6 +27,8 @@ class Directory(Entry):
         self.is_opened_visible = False
         self.children_paths_and_types = self.fetch_child_entries()
 
+        self.directory: SIEffect.SI_CONDITION = True
+
         self.children = []
         self.num_children_per_page = 6
 
@@ -126,7 +128,7 @@ class Directory(Entry):
             self.with_border = True
 
 
-            self.color = PySI.Color(250, 250, 250, 255)
+            self.color = PySI.Color(120, 120, 120, 255)
             self.set_QML_data("container_width", self.width, PySI.DataType.INT)
             self.set_QML_data("container_height", self.height, PySI.DataType.INT)
             self.set_QML_data("is_icon_visible", self.is_icon_visible, PySI.DataType.BOOL)
@@ -249,6 +251,6 @@ class Directory(Entry):
 
         self.create_region_via_id(shape_btn2, PySI.EffectType.SI_BUTTON, kwargs_btn2)
 
-    @SIEffect.on_enter("__PRESENT__", SIEffect.EMISSION)
+    @SIEffect.on_enter(E.capability.presentation_present, SIEffect.EMISSION)
     def on_present_enter_emit(self, other):
         return [i[0] for i in self.children_paths_and_types]

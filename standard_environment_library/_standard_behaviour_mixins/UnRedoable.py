@@ -4,6 +4,7 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from copy import deepcopy
 import inspect
 
+from plugins.E import E
 
 class UnRedoable(SIEffect):
     """
@@ -107,7 +108,13 @@ class UnRedoable(SIEffect):
                     self.set_QML_data(*e)
 
     def __redo__(self):
+        print(self.__stack_idx__)
+
         self.__stack_idx__ = self.__stack_idx__ + 1 if self.__stack_idx__ < len(self.__stack__) - 1 else len(self.__stack__) - 1
+        self.__stack_idx__ = 0 if self.__stack_idx__ < 0 else self.__stack_idx__
+
+        print(self.__stack_idx__)
+
         self.__current__ = self.__stack__[self.__stack_idx__]
 
         for k, v in self.__current__.items():
@@ -120,11 +127,11 @@ class UnRedoable(SIEffect):
     def __register__(self, qml: list):
         self.__add_to_stack__(qml)
 
-    @SIEffect.on_enter("undo", SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.undo_undo, SIEffect.RECEPTION)
     def __on_undo_enter_recv__(self):
         self.__undo__()
 
-    @SIEffect.on_enter("redo", SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.redo_redo, SIEffect.RECEPTION)
     def __on_redo_enter_recv__(self):
         self.__redo__()
 

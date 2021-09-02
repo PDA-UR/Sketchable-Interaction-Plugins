@@ -14,7 +14,8 @@ class ImageFile(Entry):
         super(ImageFile, self).__init__(shape, uuid, ImageFile.regiontype, ImageFile.regionname, kwargs)
         self.qml_path = self.set_QML_path("ImageFile.qml")
         self.is_in_preview = False
-        self.image = True
+
+        self.image: SIEffect.SI_CONDITION = True
 
         self.img_width, self.img_height = Image.open(self.path).size if self.path != "" else (0, 0)
 
@@ -22,7 +23,7 @@ class ImageFile(Entry):
         self.set_QML_data("is_visible", self.is_visible, PySI.DataType.BOOL)
         self.set_QML_data("is_in_preview", self.is_in_preview, PySI.DataType.BOOL)
 
-    @SIEffect.on_enter(E.id.preview_capability_previewing, SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.preview_previewing, SIEffect.RECEPTION)
     def on_preview_enter_recv(self):
         if not self.is_in_preview and self.parent == "":
             self.is_in_preview = True
@@ -44,7 +45,7 @@ class ImageFile(Entry):
 
             self.snap_to_mouse()
 
-    @SIEffect.on_leave(E.id.preview_capability_previewing, SIEffect.RECEPTION)
+    @SIEffect.on_leave(E.capability.preview_previewing, SIEffect.RECEPTION)
     def on_preview_leave_recv(self):
         if self.is_in_preview and self.parent == "":
             self.color = PySI.Color(10, 0, 0, 0)
@@ -70,6 +71,6 @@ class ImageFile(Entry):
             if self.is_under_user_control:
                 self.snap_to_mouse()
 
-    @SIEffect.on_leave(E.id.image_editor_capability_grab_image, SIEffect.RECEPTION)
+    @SIEffect.on_leave(E.capability.image_editor_grab_image, SIEffect.RECEPTION)
     def on_grab_image_leave_recv(self):
         self.set_QML_data("img_path", self.path, PySI.DataType.STRING)

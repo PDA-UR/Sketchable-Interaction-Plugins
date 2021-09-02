@@ -21,7 +21,7 @@ class ImageEditor(Deletable, Movable, SIEffect):
         super(ImageEditor, self).__init__(shape, uuid, E.id.image_editor_texture, ImageEditor.regiontype, ImageEditor.regionname, kwargs)
 
         self.qml_path = self.set_QML_path(E.id.image_editor_qml_file_path)
-        self.color = E.id.image_editor_color
+        self.color = E.color.image_editor_color
         self.text_height = E.id.image_editor_text_height
 
         self.img = None
@@ -33,7 +33,7 @@ class ImageEditor(Deletable, Movable, SIEffect):
         self.border = E.id.image_editor_border
         self.pixels = []
 
-    @SIEffect.on_enter(E.id.image_editor_capability_image_parent, SIEffect.EMISSION)
+    @SIEffect.on_enter(E.capability.image_editor_image_parent, SIEffect.EMISSION)
     def on_parent_enter_emit(self, other):
         if other.regionname == ImageEditorPixel.regionname:
             self.children[other.index] = other
@@ -61,7 +61,7 @@ class ImageEditor(Deletable, Movable, SIEffect):
 
         return x, y, self.x, self.y
 
-    @SIEffect.on_continuous(E.id.image_editor_capability_grab_image, SIEffect.EMISSION)
+    @SIEffect.on_continuous(E.capability.image_editor_grab_image, SIEffect.EMISSION)
     def on_grab_image_continuous_emit(self, other):
         if other.path != "" and self.image_target_file_path != other.path and not other.is_under_user_control:
             self.image_target_file_path = other.path
@@ -70,7 +70,7 @@ class ImageEditor(Deletable, Movable, SIEffect):
             self.pixels = list(self.img.getdata())
             self.children = [None] * len(self.pixels)
 
-            self.color = E.id.image_editor_color
+            self.color = E.color.image_editor_color
 
             x = self.relative_x_pos()
             y = self.relative_y_pos()
@@ -83,19 +83,19 @@ class ImageEditor(Deletable, Movable, SIEffect):
             self.shape = PySI.PointVector([[x, y], [x, y + self.height], [x + self.width, y + self.height], [x + self.width, y]])
     
             tool_kwargs = {}
-            tool_kwargs["color"] = E.id.image_editor_color_red
+            tool_kwargs["color"] = E.color.image_editor_color_red
             tool_kwargs["pixel_size"] = self.pixel_size
             tool_shape = PySI.PointVector([[x + self.border, y + self.border + self.text_height], [x + self.border, y + tool_height + self.border + self.text_height], [x + tool_width + self.border, y + tool_height + self.border + self.text_height], [x + tool_width + self.border, y + self.border + self.text_height]])
             self.create_region_via_name(tool_shape, ImageEditorColorTool.regionname, kwargs=tool_kwargs)
 
             tool_kwargs2 = {}
-            tool_kwargs2["color"] = E.id.image_editor_color_green
+            tool_kwargs2["color"] = E.color.image_editor_color_green
             tool_kwargs2["pixel_size"] = self.pixel_size
             tool_shape = PySI.PointVector([[x + self.border, y + self.border * 2 + tool_height + self.text_height], [x + self.border, y + tool_height + self.border * 2 + tool_height + self.text_height], [x + tool_width + self.border, y + tool_height + self.border * 2 + tool_height + self.text_height], [x + tool_width + self.border, y + self.border * 2 + tool_height + self.text_height]])
             self.create_region_via_name(tool_shape, ImageEditorColorTool.regionname, kwargs=tool_kwargs2)
 
             tool_kwargs3 = {}
-            tool_kwargs3["color"] = E.id.image_editor_color_blue
+            tool_kwargs3["color"] = E.color.image_editor_color_blue
             tool_kwargs3["pixel_size"] = self.pixel_size
             tool_shape = PySI.PointVector([[x + self.border, y + self.border * 3 + tool_height * 2 + self.text_height], [x + self.border, y + tool_height * 2+ self.border * 3 + tool_height + self.text_height], [x + tool_width + self.border, y + tool_height * 2 + self.border * 3 + tool_height + self.text_height], [x + tool_width + self.border, y + self.border * 3 + tool_height * 2 + self.text_height]])
             self.create_region_via_name(tool_shape, ImageEditorColorTool.regionname, kwargs=tool_kwargs3)
@@ -126,7 +126,7 @@ class ImageEditor(Deletable, Movable, SIEffect):
             self.set_QML_data("container_width", self.width, PySI.DataType.INT)
             self.set_QML_data("container_height", self.height, PySI.DataType.INT)
 
-    @SIEffect.on_leave(E.id.image_editor_capability_grab_image, SIEffect.EMISSION)
+    @SIEffect.on_leave(E.capability.image_editor_grab_image, SIEffect.EMISSION)
     def on_grab_image_leave_emit(self, other):
         pixels = []
 
@@ -138,7 +138,7 @@ class ImageEditor(Deletable, Movable, SIEffect):
 
         self.img.putdata(pixels)
         self.img.save(self.image_target_file_path)
-        self.color = E.id.image_editor_color
+        self.color = E.color.image_editor_color
         self.set_QML_data("img_path", self.texture_path, PySI.DataType.STRING)
         self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
         self.set_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
@@ -147,6 +147,6 @@ class ImageEditor(Deletable, Movable, SIEffect):
 
         self.set_QML_data("name", "", PySI.DataType.STRING)
 
-    @SIEffect.on_leave(E.id.image_editor_capability_hide_tool, SIEffect.EMISSION)
+    @SIEffect.on_leave(E.capability.image_editor_hide_tool, SIEffect.EMISSION)
     def on_hide_tool_leave_emit(self, other):
         pass

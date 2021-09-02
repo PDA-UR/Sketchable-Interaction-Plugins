@@ -2,23 +2,24 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.PositionLinkable import PositionLinkable
 
+from plugins.E import E
 
 class Button(PositionLinkable, SIEffect):
     regiontype = PySI.EffectType.SI_BUTTON
     regionname = PySI.EffectName.SI_STD_NAME_BUTTON
-    region_width = 100
-    region_height = 100
+    region_width = E.id.button_width
+    region_height = E.id.button_height
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         if kwargs["value"]:
-            super(Button, self).__init__(shape, uuid, "res/backward.png", Button.regiontype, Button.regionname, kwargs)
+            super(Button, self).__init__(shape, uuid, E.id.button_rev_texture, Button.regiontype, Button.regionname, kwargs)
         else:
-            super(Button, self).__init__(shape, uuid, "res/forward.png", Button.regiontype, Button.regionname, kwargs)
+            super(Button, self).__init__(shape, uuid, E.id.button_fwd_texture, Button.regiontype, Button.regionname, kwargs)
 
         self.with_border = False
 
-        self.qml_path = self.set_QML_path("Button.qml")
-        self.color = PySI.Color(192, 192, 192, 0)
+        self.qml_path = self.set_QML_path(E.id.button_qml_path)
+        self.color = E.color.button_color
 
         self.value = kwargs["value"] if len(kwargs.keys()) else False
         self.parent = str(kwargs["parent"]) if len(kwargs.keys()) else ""

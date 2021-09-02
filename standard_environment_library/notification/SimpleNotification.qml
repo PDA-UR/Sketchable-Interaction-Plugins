@@ -20,7 +20,7 @@ Item
     Rectangle {
         id: rect
         visible: true
-        color: "white"
+        color: "gray"
 
         anchors.fill: parent
 

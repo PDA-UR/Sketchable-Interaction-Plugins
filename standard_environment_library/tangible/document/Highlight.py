@@ -4,15 +4,16 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Tangible import Tangible
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 
+from plugins.E import E
 
 class Highlight(Movable, Tangible):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
-    regionname = "__Highlight__"
-    region_display_name = "Highlight"
+    regionname = E.id.highlight_regionname
+    region_display_name = E.id.highlight_region_display_name
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Highlight, self).__init__(shape, uuid, "", Highlight.regiontype, Highlight.regionname, kwargs)
-        self.color = PySI.Color(255, 255, 0, 128)
+        self.color = E.color.highlight_color
         self.with_border = False
         self.visible = False
 
@@ -21,7 +22,7 @@ class Highlight(Movable, Tangible):
         self.width_in_document = kwargs["orig_width"]
         self.height_in_document = kwargs["orig_height"]
 
-    @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
+    @SIEffect.on_enter(E.capability.canvas_parent, SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid):
             for r in self.current_regions():
                 if hasattr(r, "s_id"):
@@ -30,8 +31,8 @@ class Highlight(Movable, Tangible):
                             self.create_link(r._uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
                     if r.s_id == self.c_id:
-                        self.create_link(r._uuid, "ADD_HIGHLIGHT", self._uuid, "ADD_HIGHLIGHT")
-                        self.emit_linking_action(r._uuid, "ADD_HIGHLIGHT", r.on_add_highlight_link_emit())
+                        self.create_link(r._uuid, E.capability.document_add_highlight, self._uuid, E.capability.document_add_highlight)
+                        self.emit_linking_action(r._uuid, E.capability.document_add_highlight, r.on_add_highlight_link_emit())
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
@@ -42,7 +43,7 @@ class Highlight(Movable, Tangible):
 
         return rel_x, rel_y, self.x, self.y
 
-    @SIEffect.on_link(SIEffect.RECEPTION, "ADD_HIGHLIGHT", "ADD_HIGHLIGHT")
+    @SIEffect.on_link(SIEffect.RECEPTION, E.capability.document_add_highlight, E.capability.document_add_highlight)
     def on_add_highlight_link_recv(self, doc_x, doc_y, width_fraction, height_fraction, doc_x_axis, doc_y_axis) -> None:
         x = self.x_in_document * width_fraction
         y = self.y_in_document * height_fraction
@@ -60,3 +61,7 @@ class Highlight(Movable, Tangible):
 
         self.shape = PySI.PointVector([[highlight_tlc_x, highlight_tlc_y], [highlight_blc_x, highlight_blc_y], [highlight_brc_x, highlight_brc_y], [highlight_trc_x, highlight_trc_y]])
         self.visible = True
+
+    @SIEffect.on_leave("PARENT_DOCUMENT", SIEffect.RECEPTION)
+    def on_document_parent_document_leave_emit(self):
+        self.delete()

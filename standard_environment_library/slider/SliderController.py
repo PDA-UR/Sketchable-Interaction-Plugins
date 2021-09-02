@@ -12,11 +12,11 @@ class SliderController(Movable, SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(SliderController, self).__init__(shape, uuid, "", SliderController.regiontype, SliderController.regionname, kwargs)
 
-        self.color = E.id.slider_controller_color
+        self.color = E.color.slider_controller_color
         self.color_value = E.id.slider_controller_min_value
         self.target_color_channel = kwargs[E.id.slider_controller_color_channel]
 
-    @SIEffect.on_continuous(E.id.slider_base_capability_slide, SIEffect.RECEPTION)
+    @SIEffect.on_continuous(E.capability.slider_base_slide, SIEffect.RECEPTION)
     def on_slide_continuous_recv(self, x, width):
         color_value = abs((x - self.x) - x) / width * E.id.slider_controller_max_value
 
@@ -27,10 +27,10 @@ class SliderController(Movable, SIEffect):
             self.color_value = color_value
             self.emit_linking_action(self._uuid, E.id.slider_controller_capability_link_push_color, self.push_color_output)
 
-    @SIEffect.on_link(SIEffect.EMISSION, E.id.slider_controller_capability_link_push_color)
+    @SIEffect.on_link(SIEffect.EMISSION, E.capability.slider_controller_link_push_color)
     def push_color_output(self):
         return {"col": (self.color_value), "channel": self.target_color_channel}
 
-    @SIEffect.on_enter(E.id.slider_controller_capability_parent, SIEffect.EMISSION)
+    @SIEffect.on_enter(E.capability.slider_controller_parent, SIEffect.EMISSION)
     def on_parent_enter_emit(self, other):
         return self._uuid

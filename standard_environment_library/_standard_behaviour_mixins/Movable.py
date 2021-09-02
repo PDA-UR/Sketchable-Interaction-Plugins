@@ -9,9 +9,7 @@ class Movable(PositionLinkable, SIEffect):
     regionname = "__MOVEABLE__"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", r="", t="", s="", kwargs={}):
-        super(Movable, self).__init__(shape, uuid, r, t, s, kwargs)
-        # PositionLinkable.__init__(self, shape, uuid, r, t, s, kwargs)
-        # SIEffect.__init__(self, shape, uuid, r, t, s, kwargs)
+        super().__init__(shape, uuid, r, t, s, kwargs)
 
     @SIEffect.on_enter(PySI.CollisionCapability.MOVE, SIEffect.RECEPTION)
     def on_move_enter_recv(self, cursor_id, link_attrib):
