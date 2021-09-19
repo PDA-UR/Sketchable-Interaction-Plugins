@@ -222,7 +222,7 @@
     <color name="highlight_color">255, 255, 0, 128</color>
 
     <!-- scan region -->
-    <id name="scan_region_regionname">__ScanRegion__</id>
+    <id name="scan_region_regionname">__ ScanRegion __</id>
     <id name="scan_region_region_display_name">ScanRegion</id>
 
     <color name="scan_region_color">5, 5, 5, 100</color>

@@ -141,6 +141,8 @@ class SIEffect(PySI.Effect):
 
         ## member attribute variable serving as a rendering hint for showing a regions border
         self.with_border = True
+        self.border_color = PySI.Color(0, 0, 0, 255)
+
 
         tmp = sys.modules[self.__class__.__module__].__file__
         texture_path = tmp[0:tmp.rindex("/") + 1] + texture_path

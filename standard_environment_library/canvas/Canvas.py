@@ -14,7 +14,8 @@ class Canvas(SIEffect):
         super().__init__(shape, uuid, "", Canvas.regiontype, Canvas.regionname, kwargs)
 
         self.color = PySI.Color(*kwargs["rgba"]) if "rgba" in kwargs else E.color.canvas_color
-
+        self.old_color = self.color
+        self.with_border = False
         self.log_file = open(".TEST.TXT", "r+")
         self.ustack = UndoStack()
         self.can_undo = False
@@ -75,3 +76,12 @@ class Canvas(SIEffect):
 
         if ret:
             self.delete(o._uuid)
+
+    @SIEffect.on_enter("__PARENT_FLASH__", SIEffect.RECEPTION)
+    def on_flash_enter_recv(self) -> None:
+        self.old_color = PySI.Color(self.color.r, self.color.g, self.color.b, self.color.a)
+        self.color = PySI.Color(255, 255, 255, 255)
+
+    @SIEffect.on_leave("__PARENT_FLASH__", SIEffect.RECEPTION)
+    def on_flash_leave_recv(self) -> None:
+        self.color = PySI.Color(self.old_color.r, self.old_color.g, self.old_color.b, self.old_color.a)

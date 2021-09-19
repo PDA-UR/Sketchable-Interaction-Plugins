@@ -21,6 +21,7 @@ class Highlight(Movable, Tangible):
         self.y_in_document = kwargs["orig_y"]
         self.width_in_document = kwargs["orig_width"]
         self.height_in_document = kwargs["orig_height"]
+        # self.orig_shape = [[p.x, p.y] for p in self.shape]
 
     @SIEffect.on_enter(E.capability.canvas_parent, SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid):
@@ -31,8 +32,16 @@ class Highlight(Movable, Tangible):
                             self.create_link(r._uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
 
                     if r.s_id == self.c_id:
-                        self.create_link(r._uuid, E.capability.document_add_highlight, self._uuid, E.capability.document_add_highlight)
-                        self.emit_linking_action(r._uuid, E.capability.document_add_highlight, r.on_add_highlight_link_emit())
+                        # self.create_link(r._uuid, E.capability.document_add_highlight, self._uuid, E.capability.document_add_highlight)
+                        self.on_document_parent_document_continous_recv(*r.on_document_parent_document_continuous_emit(self))
+                        # self.emit_linking_action(r._uuid, E.capability.document_add_highlight, r.on_add_highlight_link_emit())
+
+    @SIEffect.on_continous(E.capability.canvas_parent, SIEffect.RECEPTION)
+    def on_canvas_enter_recv(self, canvas_uuid):
+        for r in self.current_regions():
+            if hasattr(r, "s_id"):
+                if r.s_id == self.c_id:
+                    self.on_document_parent_document_continous_recv(*r.on_document_parent_document_continuous_emit(self))
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
@@ -44,7 +53,13 @@ class Highlight(Movable, Tangible):
         return rel_x, rel_y, self.x, self.y
 
     @SIEffect.on_link(SIEffect.RECEPTION, E.capability.document_add_highlight, E.capability.document_add_highlight)
-    def on_add_highlight_link_recv(self, doc_x, doc_y, width_fraction, height_fraction, doc_x_axis, doc_y_axis) -> None:
+    def on_add_highlight_link_recv(self, parent_uuid): # doc_x, doc_y, width_fraction, height_fraction, doc_x_axis, doc_y_axis) -> None:
+        pass
+        # print("here2")
+
+
+    @SIEffect.on_continous("PARENT_DOCUMENT", SIEffect.RECEPTION)
+    def on_document_parent_document_continous_recv(self, doc_x, doc_y, width_fraction, height_fraction, doc_x_axis, doc_y_axis):
         x = self.x_in_document * width_fraction
         y = self.y_in_document * height_fraction
         width = self.width_in_document * width_fraction
@@ -63,5 +78,5 @@ class Highlight(Movable, Tangible):
         self.visible = True
 
     @SIEffect.on_leave("PARENT_DOCUMENT", SIEffect.RECEPTION)
-    def on_document_parent_document_leave_emit(self):
+    def on_document_parent_document_leave_recv(self):
         self.delete()

@@ -18,5 +18,5 @@ class Tangible(SIEffect):
         self.press = -2 if "press" not in kwargs else kwargs["press"]
 
     def __update__(self, data):
-        self.finger = data["finger"]
-        self.press = data["press"]
+        self.finger = data["finger"] if "finger" in data else ""
+        self.press = data["press"] if "press" in data else ""
