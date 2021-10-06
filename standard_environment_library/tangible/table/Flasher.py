@@ -9,7 +9,7 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Tangible im
 
 
 class Flasher(Tangible):
-    regiontype = PySI.EffectType.SI_CUSTOM
+    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__ Flasher __"
     region_display_name = "Flasher"
 

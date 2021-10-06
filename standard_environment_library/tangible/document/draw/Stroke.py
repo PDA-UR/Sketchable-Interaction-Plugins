@@ -6,7 +6,7 @@ import math
 
 
 class Stroke(SIEffect):
-    regiontype = PySI.EffectType.SI_CUSTOM
+    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__ Stroke __"
     region_display_name = "Stroke"
 

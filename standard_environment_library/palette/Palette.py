@@ -20,7 +20,7 @@ class Palette(Movable, SIEffect):
         self.color = E.color.palette_color
 
         self.as_selector = True
-        self.num_selectors_per_row = int(len(available_plugins) / 3) + 1
+        self.num_selectors_per_row = int(len(available_plugins) / 2) + 1
 
         if len(available_plugins) % self.num_selectors_per_row == 0:
             self.num_rows = len(available_plugins) / self.num_selectors_per_row
@@ -36,6 +36,10 @@ class Palette(Movable, SIEffect):
         y = -1
         x = 1
 
+        cw, ch = self.context_dimensions()
+        palette_width = (self.num_selectors_per_row * self.selector_width + (self.num_selectors_per_row + 1) * self.x_offset)
+        palette_x = cw - palette_width - 15
+
         for i in range(len(available_plugins)):
             if i % self.num_selectors_per_row:
                 x += 1
@@ -43,17 +47,17 @@ class Palette(Movable, SIEffect):
                 x = x - self.num_selectors_per_row - 1 if x - self.num_selectors_per_row - 1 >= 0 else 0
                 y += 1
 
-            shape = [[((self.x_offset + self.selector_width) * x) + (self.relative_x_pos() + self.x_offset), ((self.y_offset + self.selector_height) * y) + (self.relative_y_pos() + self.y_offset)],
-                     [((self.x_offset + self.selector_width) * x) + (self.relative_x_pos() + self.x_offset), ((self.y_offset + self.selector_height) * y) + (self.relative_y_pos() + self.y_offset + self.selector_height)],
-                     [((self.x_offset + self.selector_width) * x) + (self.relative_x_pos() + self.x_offset + self.selector_width), ((self.y_offset + self.selector_height) * y) + (self.relative_y_pos() + self.y_offset + self.selector_height)],
-                     [((self.x_offset + self.selector_width) * x) + (self.relative_x_pos() + self.x_offset + self.selector_width), ((self.y_offset + self.selector_height) * y) + (self.relative_y_pos() + self.y_offset)]]
+            shape = [[((self.x_offset + self.selector_width) * x) + (palette_x + self.x_offset), ((self.y_offset + self.selector_height) * y) + (self.relative_y_pos() + self.y_offset)],
+                     [((self.x_offset + self.selector_width) * x) + (palette_x + self.x_offset), ((self.y_offset + self.selector_height) * y) + (self.relative_y_pos() + self.y_offset + self.selector_height)],
+                     [((self.x_offset + self.selector_width) * x) + (palette_x + self.x_offset + self.selector_width), ((self.y_offset + self.selector_height) * y) + (self.relative_y_pos() + self.y_offset + self.selector_height)],
+                     [((self.x_offset + self.selector_width) * x) + (palette_x + self.x_offset + self.selector_width), ((self.y_offset + self.selector_height) * y) + (self.relative_y_pos() + self.y_offset)]]
 
             self.create_region_via_name(shape, available_plugins[i], self.as_selector, {"parent": self._uuid})
 
-        self.shape = PySI.PointVector([[self.relative_x_pos(), self.relative_y_pos()],
-                                       [self.relative_x_pos(), self.relative_y_pos() + ((y + 1) * self.selector_height + 4 * self.y_offset)],
-                                       [self.relative_x_pos() + (self.num_selectors_per_row * self.selector_width + 4 * self.x_offset), self.relative_y_pos() + ((y + 1) * self.selector_height + 4 * self.y_offset)],
-                                       [self.relative_x_pos() + (self.num_selectors_per_row * self.selector_width + 4 * self.x_offset), self.relative_y_pos()]])
+        self.shape = PySI.PointVector([[palette_x, self.relative_y_pos()],
+                                       [palette_x, self.relative_y_pos() + ((y + 1) * self.selector_height + (self.num_rows + 1) * self.y_offset)],
+                                       [palette_x + palette_width, self.relative_y_pos() + ((y + 1) * self.selector_height + (self.num_rows + 1) * self.y_offset)],
+                                       [palette_x + palette_width, self.relative_y_pos()]])
 
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
