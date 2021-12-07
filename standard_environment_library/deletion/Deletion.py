@@ -28,7 +28,9 @@ class Deletion(Deletable, Movable, SIEffect):
                     self.last_deletion = other
                     self.emit_linking_action(self._uuid, E.capability.deletion_undo_stack_addition, self.on_add_unredoable_deletion_emit)
 
-                other.delete()
+            else:
+                if self.is_under_user_control:
+                    other.delete()
 
     @SIEffect.on_continuous(PySI.CollisionCapability.DELETION, SIEffect.EMISSION)
     def on_deletion_continuous_emit(self, other):
@@ -39,6 +41,8 @@ class Deletion(Deletable, Movable, SIEffect):
                     self.emit_linking_action(self._uuid, E.capability.deletion_undo_stack_addition, self.on_add_unredoable_deletion_emit)
 
                 other.delete()
+        else:
+            other.delete()
 
     @SIEffect.on_enter(E.capability.canvas_parent, SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, parent_uuid):

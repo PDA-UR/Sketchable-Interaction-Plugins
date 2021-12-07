@@ -10,7 +10,7 @@ class SliderBase(SIEffect):
     regionname = E.id.slider_base_name
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        super(SliderBase, self).__init__(shape, uuid, "", SliderBase.regiontype, SliderBase.regionname, kwargs)
+        super().__init__(shape, uuid, "", SliderBase.regiontype, SliderBase.regionname, kwargs)
         self.color = E.color.slider_base_color
 
         self.set_QML_data("color", kwargs["color_channel"], PySI.DataType.STRING)

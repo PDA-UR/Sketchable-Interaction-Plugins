@@ -16,7 +16,7 @@ class Directory(Entry):
         super(Directory, self).__init__(shape, uuid, Directory.regiontype, Directory.regionname, kwargs)
 
         self.image_file_extensions = [".png", ".jpeg", ".jpg", ".gif", ".svg"]
-        self.text_file_extensions = [".txt", ".odt", ".md", ".pdf", ".py"]
+        self.text_file_extensions = [".txt", ".odt", ".md", ".pdf", ".py", ".tex"]
 
         self.qml_path = self.set_QML_path("Directory.qml")
         self.preview_width = 400

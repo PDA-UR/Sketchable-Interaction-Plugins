@@ -42,7 +42,7 @@
     <color name="slider_controller_color">000000FF</color>
 
     <!-- Target -->
-    <id name="slider_target_name">__ SliderController __</id>
+    <id name="slider_target_name">__ SliderTarget __</id>
     <color name="slider_target_color">000000FF</color>
 
     <!-- Preview related constants -->
@@ -266,8 +266,8 @@
 
     <capability name="deletion_undo_stack_addition" type="link">__undo_stack_addition__</capability>
 
-<!--    <color name="deletion_color">255, 255, 204, 255</color>-->
-    <color name="deletion_color">55, 55, 4, 255</color>
+    <color name="deletion_color">255, 255, 204, 255</color>
+<!--    <color name="deletion_color">55, 55, 4, 255</color>-->
 
     <!-- Cursor -->
     <id name="cursor_qml_path">Cursor.qml</id>
