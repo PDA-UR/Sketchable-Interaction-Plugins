@@ -13,3 +13,7 @@ class TangibleDemo(Tangible, SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(TangibleDemo, self).__init__(shape, uuid, SIEffect.TEXTURE_PATH_NONE, TangibleDemo.regiontype, TangibleDemo.regionname, kwargs)
         self.color = E.color.tangible_demo_color
+
+    def __update__(self, data):
+        super().__update__(data)
+        self.shape = data["contour"]

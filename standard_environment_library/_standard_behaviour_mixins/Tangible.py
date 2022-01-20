@@ -10,13 +10,8 @@ class Tangible(SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", r="", t="", s="", kwargs={}):
         super(Tangible, self).__init__(shape, uuid, r, t, s, kwargs)
-        self.s_id = kwargs["s_id"]
-        self.c_id = 0 if "c_id" not in kwargs else kwargs["c_id"]
-        self.angle = kwargs["angle"]
-        self.linked_highlight_sids = [] if "links" not in kwargs else kwargs["links"]
-        self.finger = 0 if "finger" not in kwargs else kwargs["finger"]
-        self.press = -2 if "press" not in kwargs else kwargs["press"]
+        self.object_id = kwargs["id"]
+        self.links = [] if "links" not in kwargs else kwargs["links"]
 
     def __update__(self, data):
-        self.finger = data["finger"] if "finger" in data else ""
-        self.press = data["press"] if "press" in data else ""
+        pass
