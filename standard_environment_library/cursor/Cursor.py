@@ -15,7 +15,8 @@ class Cursor(SIEffect):
         self.kwargs = kwargs
 
         self.qml_path = self.set_QML_path(E.id.cursor_qml_path)
-        self.color = E.color.cursor_color
+        self.color = PySI.Color(255, 0, 0, 255)
+        # self.color = E.color.cursor_color
 
         self.assigned_effect = ""
         self.is_drawing_blocked = False

@@ -3,10 +3,11 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 from plugins.standard_environment_library._standard_behaviour_mixins.UnRedoable import UnRedoable
+from plugins.standard_environment_library._standard_behaviour_mixins.Rotateable import Rotateable
 from plugins.E import E
 
 
-class Tag(Deletable, Movable, UnRedoable, SIEffect):
+class Tag(Deletable, Movable, Rotateable, UnRedoable, SIEffect):
 	regiontype = PySI.EffectType.SI_CUSTOM
 	regionname = E.id.tag_name
 	region_display_name = E.id.tag_display_name

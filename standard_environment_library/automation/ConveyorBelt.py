@@ -231,6 +231,8 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
         for i in range(len(self.transportation_path)):
             self.transportation_path[i] = self.transportation_path[i][0] + rel_x, self.transportation_path[i][1] + rel_y, self.transportation_path[i][2]
 
+        self.compute_drawing_additions()
+
     def compute_conveyor_belt_item_insertion_position(self, other):
         target_segment_start_point_index = -1
         smallest_distance = 99999

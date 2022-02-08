@@ -27,3 +27,14 @@ class OpenEntry(Deletable, Movable, SIEffect):
     @SIEffect.on_leave(PySI.CollisionCapability.OPEN_ENTRY, SIEffect.EMISSION)
     def on_open_entry_leave_emit(self, other):
         return self.is_under_user_control
+
+    @SIEffect.on_enter("__TEST_ROTATE__", SIEffect.EMISSION)
+    def on_test_rotate_enter_emit(self, other):
+        return self._uuid
+
+    @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
+    def position(self):
+        relx = self.x - self.last_x
+        self.last_x = self.x
+
+        return relx
