@@ -37,7 +37,7 @@ class Selector(PositionLinkable, SIEffect):
 
     @SIEffect.on_continuous(PySI.CollisionCapability.ASSIGN, SIEffect.EMISSION)
     def on_assign_continuous_emit(self, other):
-        return self.target_name, self.target_display_name, {}
+        return self.target_name, self.target_display_name, self.target_texture_path, {}
 
     @SIEffect.on_enter(PySI.CollisionCapability.HOVER, SIEffect.RECEPTION)
     def on_hover_enter_recv(self):

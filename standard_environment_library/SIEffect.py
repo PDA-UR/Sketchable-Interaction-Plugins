@@ -167,6 +167,9 @@ class SIEffect(PySI.Effect):
         # computed via aabb
         self.height = self.get_region_height()
 
+        self.visualization_width = self.width
+        self.visualization_height = self.height
+
         ## member attribute variable containing the universally unique identifier (uuid) of a drawn region as a str
         self._uuid = uuid
 
@@ -697,7 +700,7 @@ class SIEffect(PySI.Effect):
     # @param kwargs key-worded arguments containing specifics of certain regions
     #
     # @return None
-    def assign_effect(self, effect_name_to_assign: str, effect_display_name: str, kwargs: dict) -> None:
+    def assign_effect(self, effect_name_to_assign: str, effect_display_name: str, effect_texture: str, kwargs: dict) -> None:
         if "tangible" in kwargs:
             print(str(kwargs["tangible"]))
             self.__assign_effect__(str(kwargs["tangible"]), effect_name_to_assign, effect_display_name, kwargs)
@@ -748,7 +751,13 @@ class SIEffect(PySI.Effect):
     #
     # @return a list which contains the uuids of colliding regions
     def present_collisions(self) -> list:
-        return [s for s in self.current_collisions]
+        return [[uuid, name] for uuid, name in self.current_collisions]
+
+    def present_collisions_names(self) -> list:
+        return [name for uuid, name in self.current_collisions]
+
+    def present_collisions_uuids(self) -> list:
+        return [uuid for uuid, name in self.current_collisions]
 
     def selected_effects_by_cursor_id(self) -> dict:
         return self.__selected_effects_by_cursor_id__()

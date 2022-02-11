@@ -2,6 +2,8 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 
 from plugins.E import E
+import re
+
 
 class Cursor(SIEffect):
     regiontype = PySI.EffectType.SI_MOUSE_CURSOR
@@ -15,19 +17,20 @@ class Cursor(SIEffect):
         self.kwargs = kwargs
 
         self.qml_path = self.set_QML_path(E.id.cursor_qml_path)
-        self.color = PySI.Color(255, 0, 0, 255)
-        # self.color = E.color.cursor_color
+        # self.color = PySI.Color(255, 0, 0, 255)
+        self.color = E.color.cursor_color
 
         self.assigned_effect = ""
         self.is_drawing_blocked = False
         self.width = Cursor.region_width
         self.height = Cursor.region_height
+
+        self.visualization_width = 500
+        self.visualization_height = 500
+
         self.with_border = False
 
         self.clicks = 0
-
-        self.set_QML_data("width", self.width, PySI.DataType.INT)
-        self.set_QML_data("height", self.height, PySI.DataType.INT)
 
         self.parent_canvas = None
         self.move_target = None
@@ -39,12 +42,28 @@ class Cursor(SIEffect):
         self.right_mouse_active = False
         self.middle_mouse_active = False
 
+        self.current_effect_texture = ""
+        self.current_effect_name = ""
+        self.set_QML_data("movement_texture", "res/movement.png", PySI.DataType.STRING)
+
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
         return self.x - self.last_x, self.y - self.last_y, self.x, self.y
 
     @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION)
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
+        if len(self.present_collisions_names()) == 1 and self.present_collisions_names()[0] == PySI.EffectName.SI_STD_NAME_CANVAS:
+            self.set_QML_data("visible", True, PySI.DataType.BOOL)
+        else:
+            testRegex = re.compile(r'__SI_CANVAS_NAME__|__SI_PALETTE_NAME__|Selector for (A-Za-z0-9)*')
+
+            is_valid = True
+            for t in self.present_collisions_names():
+                is_valid &= testRegex.search(t) is not None
+
+            if not is_valid:
+                self.set_QML_data("visible", False, PySI.DataType.BOOL)
+
         self.last_x = self.x
         self.last_y = self.y
 
@@ -157,11 +176,20 @@ class Cursor(SIEffect):
                 self.move_target.on_move_leave_recv(*self.on_move_leave_emit(self.move_target))
 
     @SIEffect.on_continuous(PySI.CollisionCapability.ASSIGN, SIEffect.RECEPTION)
-    def on_assign_continuous_recv(self, effect_to_assign, effect_display_name, kwargs):
+    def on_assign_continuous_recv(self, effect_to_assign, effect_display_name, effect_texture, kwargs):
         if self.left_mouse_active:
             if self.assigned_effect != effect_to_assign:
                 self.assigned_effect = effect_to_assign
-                self.assign_effect(self.assigned_effect, effect_display_name, kwargs)
+                self.current_effect_texture = effect_texture
+                self.current_effect_name = effect_display_name
+
+                self.set_QML_data("effect_texture", effect_texture, PySI.DataType.STRING)
+                self.set_QML_data("effect_text", effect_display_name, PySI.DataType.STRING)
+                self.set_QML_data("visible", True, PySI.DataType.BOOL)
+
+
+
+                self.assign_effect(self.assigned_effect, effect_display_name, effect_texture, kwargs)
 
     @SIEffect.on_continuous(E.capability.cursor_image_editor_assign, SIEffect.RECEPTION)
     def on_image_editor_assign_continuous_recv(self):
