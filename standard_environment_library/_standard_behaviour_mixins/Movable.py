@@ -16,6 +16,7 @@ class Movable(PositionLinkable, SIEffect):
         if cursor_id != "" and link_attrib != "":
             self.create_link(cursor_id, link_attrib, self._uuid, link_attrib)
             self.is_under_user_control = True
+            self.was_under_user_control = False
 
     @SIEffect.on_continuous(PySI.CollisionCapability.MOVE, SIEffect.RECEPTION)
     def on_move_continuous_recv(self):
@@ -24,12 +25,10 @@ class Movable(PositionLinkable, SIEffect):
     @SIEffect.on_leave(PySI.CollisionCapability.MOVE, SIEffect.RECEPTION)
     def on_move_leave_recv(self, cursor_id, link_attrib):
         if not cursor_id == "" and not link_attrib == "":
-
             lr = PySI.LinkRelation(cursor_id, link_attrib, self._uuid, link_attrib)
 
             if lr in self.link_relations:
                 del self.link_relations[self.link_relations.index(lr)]
 
             self.is_under_user_control = False
-
-        return 0
+            self.was_under_user_control = True

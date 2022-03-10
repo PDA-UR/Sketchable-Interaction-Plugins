@@ -20,10 +20,6 @@ class Tag(Deletable, Movable, Rotateable, UnRedoable, SIEffect):
 		self.qml_path = self.set_QML_path(E.id.tag_qml_file_name)
 		self.color = E.color.tag_color
 
-		# s = self.shape
-		# s.append([50, 50])
-		# self.shape = s
-
 		self.text = "Hello World"
 
 	# @UnRedoable.action

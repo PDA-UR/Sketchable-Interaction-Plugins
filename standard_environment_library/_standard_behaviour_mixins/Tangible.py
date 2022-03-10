@@ -9,7 +9,7 @@ class Tangible(SIEffect):
     region_display_name = "Tangible"
 
     def __init__(self, shape=PySI.PointVector(), uuid="", r="", t="", s="", kwargs={}):
-        super(Tangible, self).__init__(shape, uuid, r, t, s, kwargs)
+        super().__init__(shape, uuid, r, t, s, kwargs)
         self.object_id = kwargs["id"]
         self.links = [] if "links" not in kwargs else kwargs["links"]
 

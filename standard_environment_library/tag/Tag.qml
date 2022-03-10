@@ -27,7 +27,7 @@ Item {
         width: 240
         horizontalAlignment: TextEdit.AlignHCenter
         verticalAlignment: TextEdit.AlignVCenter
-        text: "Hello World"
+        text: ""
         font.family: "Helvetica"
         font.pointSize: 20
         color: "black"

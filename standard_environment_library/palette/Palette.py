@@ -9,13 +9,14 @@ class Palette(Movable, SIEffect):
     regionname = PySI.EffectName.SI_STD_NAME_PALETTE
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
-        super(Palette, self).__init__(shape, uuid, "", Palette.regiontype, Palette.regionname, kwargs)
+        super().__init__(shape, uuid, "", Palette.regiontype, Palette.regionname, kwargs)
 
         available_plugins = self.available_plugins()
         excluded_plugins = self.excluded_plugins()
 
         for ep in excluded_plugins:
-            available_plugins.remove(ep)
+            if ep in available_plugins:
+                available_plugins.remove(ep)
 
         self.color = E.color.palette_color
 

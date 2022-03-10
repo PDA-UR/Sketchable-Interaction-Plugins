@@ -1,12 +1,18 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.7
+import QtGraphicalEffects 1.0
 
 Item
 {
     id: container
-
     function updateData(data)
     {
+        if (data.is_highlighted === undefined) {
+            overlay.visible = false;
+        } else {
+            overlay.visible = data.is_highlighted;
+        }
+
         filename.color = data.color;
         texture.source = data.img_path;
         filename.text = data.name;
@@ -69,6 +75,14 @@ Item
         visible: true
     }
 
+    ColorOverlay {
+        id: overlay
+        anchors.fill: texture
+        source: texture
+        color: "#880078D7"
+        visible: false
+    }
+
     TextEdit {
         id: filename
         visible: true
@@ -82,13 +96,5 @@ Item
         wrapMode: Text.Wrap
         focus: true
         onEditingFinished: REGION.set_data({text: filename.text});
-    }
-
-    Rectangle {
-       id: tag
-       width: 15
-       height: 15
-       color: "blue"
-       visible: false
     }
 }

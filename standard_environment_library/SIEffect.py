@@ -137,18 +137,19 @@ class SIEffect(PySI.Effect):
     #
     # @return None
     def __init__(self, shape: PySI.PointVector, uuid: str, texture_path: str, regiontype: int, regionname: str, kwargs: dict, __source__: str="custom") -> None:
+        kwargs["__name__"] = regionname
         super().__init__(shape, uuid, texture_path, kwargs)
 
         ## member attribute variable serving as a rendering hint for showing a regions border
         self.with_border = True
         self.border_color = PySI.Color(0, 0, 0, 255)
-
+        self.__enveloped_by__ = []
 
         tmp = sys.modules[self.__class__.__module__].__file__
         texture_path = tmp[0:tmp.rindex("/") + 1] + texture_path
 
         ## member attribute variable containing the shape (contour) of a drawn region as a PySI.PointVector
-        self.shape = shape
+        self.shape
 
         ## member attribute variable containing the axis-aligned bounding-box (aabb) of a drawn region as a PySI.PointVector
         #
@@ -161,6 +162,9 @@ class SIEffect(PySI.Effect):
         # computed via aabb
 
         self.width = self.get_region_width()
+
+        self.border_color = PySI.Color(72, 79, 81, 255)
+        self.default_border_color = PySI.Color(72, 79, 81, 255)
 
         ## member variable containing the maximum height of the region
         #
@@ -210,6 +214,8 @@ class SIEffect(PySI.Effect):
 
         ## member attribute variable which is true when an user directly controls the region (e.g. moving it around) as a bool
         self.is_under_user_control = False
+
+        self.was_under_user_control = False
 
         ## member attribute variable storing the uuids of present cursors once a region drawing is to be registered as a PySI.StringVector
         self.__registered_regions__ = PySI.StringVector()
@@ -305,6 +311,12 @@ class SIEffect(PySI.Effect):
     # @return the list of effects as a list
     def current_regions(self) -> list:
         return self.__current_regions__()
+
+    def was_moved(self):
+        b = self.was_under_user_control
+        self.was_under_user_control = False
+
+        return b
 
     ## member function for retrieving all variables which were annotated with SIEffect.SI_CONDITION
     #
@@ -526,6 +538,10 @@ class SIEffect(PySI.Effect):
             if lr in self.link_relations:
                 del self.link_relations[self.link_relations.index(lr)]
 
+    def is_linked(self, send_uuid, send_attr, recv_uuid, recv_attr) -> bool:
+        return PySI.LinkRelation(send_uuid, send_attr, recv_uuid, recv_attr) in self.link_relations
+
+
     ## member function for emitting a linking action
     #
     # @param sender the source of the the linking action
@@ -593,9 +609,15 @@ class SIEffect(PySI.Effect):
     # Therefore, this function does nothing when called with other effect types.
     #
     # @return None
-    def register_region_from_drawing(self, cursor_id: str) -> None:
+    def register_region_from_drawing(self, cursor_id: str, kwargs: dict={}) -> None:
         if self.region_type is int(PySI.EffectType.SI_CANVAS):
             self.__registered_regions__.append(cursor_id)
+            self.__registered_regions_kwargs__.append(kwargs)
+
+    def cancel_region_drawing(self, cursor_id: str) -> None:
+        self.__partial_regions__[cursor_id] = PySI.PointVector([[0, 0]])
+        self.__registered_regions__.append(cursor_id)
+        self.__registered_regions_kwargs__.append({})
 
     ## member function for starting the standard application of a file given its uuid as a region and its path in the filesystem
     #
@@ -638,6 +660,12 @@ class SIEffect(PySI.Effect):
         else:
             self.__signal_deletion_by_uuid__(uuid)
 
+    def is_flagged_for_deletion(self):
+        return self.__is_flagged_for_deletion__
+
+    def enveloped_by(self, other):
+        return other._uuid in self.__enveloped_by__
+
     ## member function for creating a new region
     #
     # @param self the object pointer
@@ -657,6 +685,16 @@ class SIEffect(PySI.Effect):
     # @return None
     def create_region_via_id(self, shape: PySI.PointVector, effect_type: str, kwargs={}) -> None:
         self.__create_region__(shape, effect_type, kwargs)
+
+    ## member function for creating a new region
+    #
+    # @param self the object pointer
+    # @param shape the shape / contour of the region as a PySI.PointVector or list [[x1, x1], [x2, y2], ... [xn, yn]]
+    # @param clazz the object which can be used to call the constructor from
+    #
+    # @return None
+    def create_region_via_class(self, shape: list, clazz: object, kwargs={}) -> None:
+        self.__create_region__(shape, clazz, kwargs)
 
     ## member function for retrieving the plugins which are available for sketching as a dict of names.
     # This list of names contains regionname attributes
@@ -702,7 +740,6 @@ class SIEffect(PySI.Effect):
     # @return None
     def assign_effect(self, effect_name_to_assign: str, effect_display_name: str, effect_texture: str, kwargs: dict) -> None:
         if "tangible" in kwargs:
-            print(str(kwargs["tangible"]))
             self.__assign_effect__(str(kwargs["tangible"]), effect_name_to_assign, effect_display_name, kwargs)
         else:
             self.__assign_effect__(self._uuid, effect_name_to_assign, effect_display_name, kwargs)
@@ -761,6 +798,15 @@ class SIEffect(PySI.Effect):
 
     def selected_effects_by_cursor_id(self) -> dict:
         return self.__selected_effects_by_cursor_id__()
+
+    def si_print(self, *args):
+        print(type(self).__name__, *args)
+
+    def set_cursor_stroke_width_by_cursorid(self, cursor_id: str, stroke_width: int) -> None:
+        self.__set_cursor_stroke_width_by_cursorid__(cursor_id, int(stroke_width))
+
+    def set_cursor_stroke_color_by_cursorid(self, cursor_id: str, color: PySI.Color) -> None:
+        self.__set_cursor_stroke_color_by_cursorid__(cursor_id, color)
 
     ## member function for generally handling exceptions which may occur in constructors of plugins
     # @author Robert Fent (as part of his Bachelor's Thesis)

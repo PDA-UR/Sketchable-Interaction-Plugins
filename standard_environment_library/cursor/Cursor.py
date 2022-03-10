@@ -1,8 +1,12 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
+from plugins.standard_environment_library.paint_test.Painter import Painter
+from plugins.standard_environment_library.filesystem.Folder import Folder
+from plugins.standard_environment_library.filesystem.FolderIcon import FolderIcon
 
 from plugins.E import E
 import re
+import math
 
 
 class Cursor(SIEffect):
@@ -15,23 +19,16 @@ class Cursor(SIEffect):
         super().__init__(shape, uuid, "", Cursor.regiontype, Cursor.regionname, kwargs)
 
         self.kwargs = kwargs
-
         self.qml_path = self.set_QML_path(E.id.cursor_qml_path)
-        # self.color = PySI.Color(255, 0, 0, 255)
         self.color = E.color.cursor_color
-
         self.assigned_effect = ""
         self.is_drawing_blocked = False
         self.width = Cursor.region_width
         self.height = Cursor.region_height
-
         self.visualization_width = 500
         self.visualization_height = 500
-
         self.with_border = False
-
         self.clicks = 0
-
         self.parent_canvas = None
         self.move_target = None
         self.btn_target = None
@@ -41,10 +38,14 @@ class Cursor(SIEffect):
         self.left_mouse_active = False
         self.right_mouse_active = False
         self.middle_mouse_active = False
-
+        self.double_click_active = False
+        self.is_draw_canceled = False
         self.current_effect_texture = ""
         self.current_effect_name = ""
         self.set_QML_data("movement_texture", "res/movement.png", PySI.DataType.STRING)
+
+        self.paint_color = PySI.Color(0, 0, 0, 255)
+        self.paint_tool = None
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
@@ -55,11 +56,11 @@ class Cursor(SIEffect):
         if len(self.present_collisions_names()) == 1 and self.present_collisions_names()[0] == PySI.EffectName.SI_STD_NAME_CANVAS:
             self.set_QML_data("visible", True, PySI.DataType.BOOL)
         else:
-            testRegex = re.compile(r'__SI_CANVAS_NAME__|__SI_PALETTE_NAME__|Selector for (A-Za-z0-9)*')
+            tr = re.compile(r'__SI_CANVAS_NAME__|__SI_PALETTE_NAME__|Selector for (A-Za-z0-9)*')
 
             is_valid = True
             for t in self.present_collisions_names():
-                is_valid &= testRegex.search(t) is not None
+                is_valid &= tr.search(t) is not None
 
             if not is_valid:
                 self.set_QML_data("visible", False, PySI.DataType.BOOL)
@@ -71,18 +72,29 @@ class Cursor(SIEffect):
 
     def on_sketch_enter_emit(self, other):
         self.parent_canvas = other
+        if self.paint_tool is not None and self.assigned_effect == Painter.regionname:
+            self.set_cursor_stroke_width_by_cursorid(self._uuid, self.paint_tool.stroke_width)
+            self.set_cursor_stroke_color_by_cursorid(self._uuid, self.paint_tool.color)
 
-        return 0, 0, self._uuid
+        return self.x, self.y, self._uuid
 
     def on_sketch_continuous_emit(self, other):
         return self.x, self.y, self._uuid
 
     def on_sketch_leave_emit(self, other):
         self.parent_canvas = None
+        kwargs = {}
+        if self.paint_tool is not None and self.assigned_effect == Painter.regionname:
+            kwargs["color"] = self.paint_tool.color
+            kwargs["stroke_width"] = self.paint_tool.stroke_width
+            kwargs["__name__"] = Painter.regionname
 
-        return 0, 0, self._uuid
+        return self.x, self.y, self._uuid, self.is_draw_canceled, kwargs
 
     def on_move_enter_emit(self, other):
+        if other.regionname == Painter.regionname and other == self.paint_tool:
+            return "", ""
+
         if self.move_target is None:
             self.move_target = other
 
@@ -126,14 +138,42 @@ class Cursor(SIEffect):
             if E.capability.cursor_enlarge in self.cap_emit.keys():
                 self.disable_effect(E.capability.cursor_enlarge, True)
 
+    def on_double_click(self, is_active):
+        if is_active:
+            collisions = [uuid for uuid, name in self.present_collisions() if name == Folder.regionname or name == FolderIcon.regionname]
+            regions = [r for r in self.current_regions() if r._uuid in collisions]
+
+            icons = [r for r in regions if r.regionname == FolderIcon.regionname]
+
+            if len(icons) > 0:
+                target = icons[0]
+            else:
+                folders = [r for r in regions if r.regionname == Folder.regionname]
+                folders.sort(key=lambda x: x.parent_level, reverse=True)
+
+                target = folders[0] if len(folders) > 0 else None
+
+            if target is not None:
+                target.on_double_clicked()
+
     def on_enlarge_enter_emit(self, other):
         pass
 
     def on_left_mouse_click(self, is_active):
         self.left_mouse_active = is_active
+        self.is_draw_canceled = False
 
         if self.kwargs["draw"] == "RMB":
             self.handle_move(is_active)
+
+            if self.right_mouse_active: # cancel
+                self.is_draw_canceled = True
+                if PySI.CollisionCapability.SKETCH in self.cap_emit.keys():
+                    self.disable_effect(PySI.CollisionCapability.SKETCH, True)
+
+                if self.parent_canvas is not None:
+                    self.parent_canvas.on_sketch_leave_recv(*self.on_sketch_leave_emit(self.parent_canvas))
+                self.parent_canvas = None
         elif self.kwargs["draw"] == "LMB":
             self.handle_drawing_click(is_active)
 
@@ -179,6 +219,8 @@ class Cursor(SIEffect):
     def on_assign_continuous_recv(self, effect_to_assign, effect_display_name, effect_texture, kwargs):
         if self.left_mouse_active:
             if self.assigned_effect != effect_to_assign:
+                if self.paint_tool is not None:
+                    self.paint_tool.delete()
                 self.assigned_effect = effect_to_assign
                 self.current_effect_texture = effect_texture
                 self.current_effect_name = effect_display_name
@@ -187,7 +229,21 @@ class Cursor(SIEffect):
                 self.set_QML_data("effect_text", effect_display_name, PySI.DataType.STRING)
                 self.set_QML_data("visible", True, PySI.DataType.BOOL)
 
+                if self.assigned_effect == Painter.regionname:
+                    if self.paint_tool is not None:
+                        self.paint_tool.delete()
 
+                    shape = []
+                    cx, cy = self.absolute_x_pos() + self.width / 2, self.absolute_y_pos() + self.height / 2
+                    r = 7
+
+                    for i in range(360):
+                        x, y = r * math.cos(i * math.pi / 180) + cx - r, r * math.sin(i * math.pi / 180) + cy - r
+                        shape.append([x, y])
+
+                    kwargs["link_partner"] = self
+                    kwargs["color"] = self.paint_color
+                    self.create_region_via_name(PySI.PointVector(shape), Painter.regionname, kwargs=kwargs)
 
                 self.assign_effect(self.assigned_effect, effect_display_name, effect_texture, kwargs)
 

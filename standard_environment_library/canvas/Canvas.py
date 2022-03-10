@@ -4,6 +4,7 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.E import E
 
 from plugins.standard_environment_library.__UndoStack import UndoStack
+from plugins.standard_environment_library.canvas.FPS_Counter import FPS_Counter
 
 
 class Canvas(SIEffect):
@@ -20,9 +21,14 @@ class Canvas(SIEffect):
         self.ustack = UndoStack()
         self.can_undo = False
 
+        self.create_region_via_name(PySI.PointVector([[10, 10], [10, 35], [110, 35], [110, 10]]), FPS_Counter.regionname, kwargs=kwargs)
+
     @SIEffect.on_enter(PySI.CollisionCapability.SKETCH, SIEffect.RECEPTION)
-    def on_sketch_enter_recv(self, x, y, sender_id):
-        return 0
+    def on_sketch_enter_recv(self, x, y, cursor_id):
+        if x == 0 and y == 0:
+            return
+
+        self.add_point_to_region_drawing(x, y, cursor_id)
 
     @SIEffect.on_continuous(PySI.CollisionCapability.SKETCH, SIEffect.RECEPTION)
     def on_sketch_continuous_recv(self, x, y, cursor_id, add=True):
@@ -30,8 +36,12 @@ class Canvas(SIEffect):
             self.add_point_to_region_drawing(x, y, cursor_id)
 
     @SIEffect.on_leave(PySI.CollisionCapability.SKETCH, SIEffect.RECEPTION)
-    def on_sketch_leave_recv(self, x, y, cursor_id):
-        self.register_region_from_drawing(cursor_id)
+    def on_sketch_leave_recv(self, x, y, cursor_id, is_canceled, kwargs):
+        self.add_point_to_region_drawing(x, y, cursor_id)
+        if not is_canceled:
+            self.register_region_from_drawing(cursor_id, kwargs)
+        else:
+            self.cancel_region_drawing(cursor_id)
 
     @SIEffect.on_enter(E.capability.canvas_logging, SIEffect.EMISSION)
     def on_logging_enter_emit(self, other):

@@ -6,7 +6,7 @@ from plugins.E import E
 
 
 class Lasso(Deletable, Movable, SIEffect):
-	regiontype = PySI.EffectType.SI_CUSTOM
+	regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
 	regionname = E.id.lasso_regionname
 	region_display_name = E.id.lasso_region_display_name
 

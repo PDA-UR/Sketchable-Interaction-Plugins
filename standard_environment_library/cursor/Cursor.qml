@@ -4,8 +4,12 @@ Item
 {
     function updateData(data)
     {
-        effect_text.text = data.effect_text;
-        effect_texture.source = data.effect_texture;
+        if(data.effect_text !== undefined)
+            effect_text.text = data.effect_text;
+
+        if(data.effect_text !== undefined)
+            effect_texture.source = data.effect_texture;
+
         movement_texture.source = data.movement_texture;
 
         if(effect_text.text === "") {
@@ -42,10 +46,12 @@ Item
                 createAnimationTextOut.start()
         }
 
-        effect_text_rect.visible = data.visible;
-        effect_text.visible = data.visible;
-        effect_texture.visible = data.visible;
-        movement_texture.visible = !data.visible;
+        if(data.visible !== undefined) {
+            effect_text_rect.visible = data.visible;
+            effect_text.visible = data.visible;
+            effect_texture.visible = data.visible;
+            movement_texture.visible = !data.visible;
+        }
     }
 
     id: container
@@ -147,7 +153,7 @@ Item
         }
 
         id: effect_text
-        visible: false
+        visible: true
         color: "black"
         text: ""
         anchors.left: parent.left
