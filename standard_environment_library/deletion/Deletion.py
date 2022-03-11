@@ -44,10 +44,10 @@ class Deletion(Deletable, Movable, SIEffect):
         else:
             other.delete()
 
-    @SIEffect.on_enter(E.capability.canvas_parent, SIEffect.RECEPTION)
-    def on_canvas_enter_recv(self, parent_uuid):
-        self.create_link(self._uuid, E.capability.deletion_undo_stack_addition, parent_uuid, E.capability.deletion_undo_stack_addition)
-
-    @SIEffect.on_link(SIEffect.EMISSION, E.capability.deletion_undo_stack_addition)
-    def on_add_unredoable_deletion_emit(self):
-        return self.last_deletion
+    # @SIEffect.on_enter(E.capability.canvas_parent, SIEffect.RECEPTION)
+    # def on_canvas_enter_recv(self, parent_uuid):
+    #     self.create_link(self._uuid, E.capability.deletion_undo_stack_addition, parent_uuid, E.capability.deletion_undo_stack_addition)
+    #
+    # @SIEffect.on_link(SIEffect.EMISSION, E.capability.deletion_undo_stack_addition)
+    # def on_add_unredoable_deletion_emit(self):
+    #     return self.last_deletion

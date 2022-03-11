@@ -11,7 +11,7 @@ class Painter(Movable, SIEffect):
 
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", kwargs: dict = {}) -> None:
         super().__init__(shape, uuid, "res/painter.png", Painter.regiontype, Painter.regionname, kwargs)
-        self.qml_path = self.set_QML_path("Painter.qml")
+        self.qml_path = ""
         self.color = PySI.Color(0, 255, 0, 255)
         self.link_partner = None
         self.with_border = False
@@ -35,7 +35,6 @@ class Painter(Movable, SIEffect):
             self.stroke_width = kwargs["stroke_width"]
             self.orig_shape = [p for p in self.shape]
             self.transportation_path = []
-            self.length = 0
             self.rebuild_shape()
 
     @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
@@ -74,13 +73,32 @@ class Painter(Movable, SIEffect):
     def build_transportation_path(self):
         self.transportation_path = []
         line = [(p.x + self.x, p.y + self.y) for p in self.orig_shape]
+        prev_i = 0
+        self.transportation_path.append((int(line[0][0]), int(line[0][1])))
         for i in range(len(line)):
-            self.transportation_path.append((line[i][0], line[i][1]))
+            dx = line[i][0] - line[prev_i][0]
+            dy = line[i][1] - line[prev_i][1]
+            if math.sqrt(dx * dx + dy * dy) > 15:
+                self.transportation_path.append((int(line[i][0]), int(line[i][1])))
+                prev_i = i
+        self.transportation_path.append((int(line[-1][0]), int(line[-1][1])))
 
     def build_shape(self):
         shape, shape_part_one, shape_part_two = [], [], []
 
         if len(self.transportation_path) != 0:
+            p = self.transportation_path[0]
+            q = self.transportation_path[1]
+            qp = self.normalize_vector((p[0] - q[0], p[1] - q[1]))
+
+            self.transportation_path.insert(0, (p[0] + qp[0] * self.stroke_width / 2, p[1] + qp[1] * self.stroke_width / 2))
+
+            q = self.transportation_path[-1]
+            p = self.transportation_path[-2]
+            pq = self.normalize_vector((q[0] - p[0], q[1] - p[1]))
+
+            # self.transportation_path.append((q[0] + pq[0] * self.stroke_width, q[1] + pq[1] * self.stroke_width))
+
             p = self.transportation_path[0]
             for i in range(1, len(self.transportation_path)):
                 q = self.transportation_path[i]
@@ -88,6 +106,9 @@ class Painter(Movable, SIEffect):
                 shape_part_one.append([p[0] - pq[0] * (self.stroke_width / 2), p[1] - pq[1] * (self.stroke_width / 2)])
                 shape_part_two.append([p[0] + pq[0] * (self.stroke_width / 2), p[1] + pq[1] * (self.stroke_width / 2)])
                 p = q
+
+            shape_part_one = self.compute_spline_points(shape_part_one)
+            shape_part_two = self.compute_spline_points(shape_part_two)
 
             for s in shape_part_one:
                 shape.append(s)
@@ -109,4 +130,30 @@ class Painter(Movable, SIEffect):
 
     def dot(self, u, v):
         return sum((a * b) for a, b in zip(u, v))
+
+    def compute_spline_points(self, points: list) -> list:
+        import splines
+        import numpy as np
+        spline = splines.CatmullRom(points)
+        dots_per_second = 20
+        total_duration = spline.grid[-1] - spline.grid[0]
+        dots = int(total_duration * dots_per_second) + 1
+        times = spline.grid[0] + np.arange(dots) / dots_per_second
+        result = spline.evaluate(times).T
+
+        return [[result[0][i], result[1][i]] for i in range(len(result[0]))]
+
+    def interpolate(self, pts):
+        import numpy as np
+        from scipy.interpolate import splprep, splev
+
+        X = np.array([p[0] for p in pts])
+        Y = np.array([p[1] for p in pts])
+        pts = np.vstack((X, Y))
+        # Find the B-spline representation of an N-dimensional curve
+        tck, u = splprep(pts, s=0.0)
+        u_new = np.linspace(u.min(), u.max(), 1000)
+        x_new, y_new = splev(u_new, tck)
+
+        return [[x, y] for x, y in zip(x_new, y_new)]
 

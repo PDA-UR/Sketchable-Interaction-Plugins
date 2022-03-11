@@ -37,6 +37,9 @@ class Canvas(SIEffect):
 
     @SIEffect.on_leave(PySI.CollisionCapability.SKETCH, SIEffect.RECEPTION)
     def on_sketch_leave_recv(self, x, y, cursor_id, is_canceled, kwargs):
+        if "ignore" in kwargs and kwargs["ignore"]:
+            return
+
         self.add_point_to_region_drawing(x, y, cursor_id)
         if not is_canceled:
             self.register_region_from_drawing(cursor_id, kwargs)

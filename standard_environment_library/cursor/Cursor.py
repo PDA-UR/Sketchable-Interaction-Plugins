@@ -46,6 +46,7 @@ class Cursor(SIEffect):
 
         self.paint_color = PySI.Color(0, 0, 0, 255)
         self.paint_tool = None
+        self.temp = []
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
@@ -75,7 +76,6 @@ class Cursor(SIEffect):
         if self.paint_tool is not None and self.assigned_effect == Painter.regionname:
             self.set_cursor_stroke_width_by_cursorid(self._uuid, self.paint_tool.stroke_width)
             self.set_cursor_stroke_color_by_cursorid(self._uuid, self.paint_tool.color)
-
         return self.x, self.y, self._uuid
 
     def on_sketch_continuous_emit(self, other):
@@ -88,7 +88,6 @@ class Cursor(SIEffect):
             kwargs["color"] = self.paint_tool.color
             kwargs["stroke_width"] = self.paint_tool.stroke_width
             kwargs["__name__"] = Painter.regionname
-
         return self.x, self.y, self._uuid, self.is_draw_canceled, kwargs
 
     def on_move_enter_emit(self, other):

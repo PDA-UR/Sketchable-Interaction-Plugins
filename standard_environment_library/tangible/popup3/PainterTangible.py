@@ -17,15 +17,17 @@ class PainterTangible(Tangible):
         self.color = kwargs["color"]
         self.stroke_width = 10
         self.to_radians = math.pi / 180
-        self.prev_x = kwargs["x"]
-        self.prev_y = kwargs["y"]
-        self.initial_x = kwargs["x"]
-        self.initial_y = kwargs["y"]
+        self.prev_x = int(kwargs["x"])
+        self.prev_y = int(kwargs["y"])
+        self.initial_x = int(kwargs["x"])
+        self.initial_y = int(kwargs["y"])
         self.parent_canvas = None
+        self.temp = []
+        self.is_called = False
 
         s = []
         w = self.stroke_width
-        cx, cy = kwargs["x"], kwargs["y"]
+        cx, cy = int(kwargs["x"]), int(kwargs["y"])
 
         for i in range(360):
             x, y = w / 2 * math.cos(i * self.to_radians) + cx, w / 2 * math.sin(i * self.to_radians) + cy
@@ -37,11 +39,11 @@ class PainterTangible(Tangible):
         if data["alive"]:
             super().__update__(data)
             self.color = data["color"]
-            self.move(self.x + (data["x"] - self.prev_x), self.y + (data["y"] - self.prev_y))
-            self.prev_x = data["x"]
-            self.prev_y = data["y"]
+            self.move(int(self.x + (data["x"] - self.prev_x)), int(self.y + (data["y"] - self.prev_y)))
+            self.prev_x = int(data["x"])
+            self.prev_y = int(data["y"])
         else:
-            if self.parent_canvas is not None:
+            if self.parent_canvas is not None and not self.is_called:
                 self.parent_canvas.on_sketch_leave_recv(*self.on_sketch_leave_emit(self.parent_canvas))
                 self.delete()
 
@@ -54,21 +56,23 @@ class PainterTangible(Tangible):
         self.parent_canvas = other
         self.set_cursor_stroke_width_by_cursorid(self._uuid, self.stroke_width)
         self.set_cursor_stroke_color_by_cursorid(self._uuid, self.color)
-        return self.x + self.initial_x, self.y + self.initial_y, self._uuid
+        return int(self.x + self.initial_x), int(self.y + self.initial_y), self._uuid
 
     @SIEffect.on_continuous(PySI.CollisionCapability.SKETCH, SIEffect.EMISSION)
     def on_sketch_continuous_emit(self, other):
-        return self.x + self.initial_x, self.y + self.initial_y, self._uuid
+        return int(self.x + self.initial_x), int(self.y + self.initial_y), self._uuid
 
-    @SIEffect.on_cleave(PySI.CollisionCapability.SKETCH, SIEffect.EMISSION)
+    @SIEffect.on_leave(PySI.CollisionCapability.SKETCH, SIEffect.EMISSION)
     def on_sketch_leave_emit(self, other):
-        self.parent_canvas = None
-
         kwargs = {}
-        kwargs["color"] = self.color
-        kwargs["stroke_width"] = self.stroke_width
-        kwargs["resampling"] = False
-
-        return self.x + self.initial_x, self.y + self.initial_y, self._uuid, False, kwargs
+        if not self.is_called:
+            self.is_called = True
+            self.parent_canvas = None
+            kwargs["color"] = self.color
+            kwargs["stroke_width"] = self.stroke_width
+            kwargs["resampling"] = False
+        else:
+            kwargs["ignore"] = True
+        return int(self.x + self.initial_x), int(self.y + self.initial_y), self._uuid, False, kwargs
 
 

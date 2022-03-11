@@ -75,41 +75,41 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
 
         return [qr, q]
 
-    def resample_points(self, points, num_desired_points=64):
-        I = self.path_length(points) / (num_desired_points - 1)
-        D = 0.0
+    # def resample_points(self, points, num_desired_points=64):
+    #     I = self.path_length(points) / (num_desired_points - 1)
+    #     D = 0.0
+    #
+    #     new_points = [points[0]]
+    #
+    #     i = 1
+    #
+    #     while i < len(points):
+    #         d = self.vector_norm((points[i - 1][0] - points[i][0], points[i - 1][1] - points[i][1]))
+    #
+    #         if (D + d) >= I:
+    #             qx = points[i - 1][0] + ((I - D) / d) * (points[i][0] - points[i - 1][0])
+    #             qy = points[i - 1][1] + ((I - D) / d) * (points[i][1] - points[i - 1][1])
+    #             new_points.append((qx, qy))
+    #             points.insert(i, (qx, qy))
+    #
+    #             D = 0.0
+    #         else:
+    #             D += d
+    #
+    #         i += 1
+    #
+    #     if len(new_points) == num_desired_points - 1:
+    #         new_points.append(points[-1])
+    #
+    #     return new_points
 
-        new_points = [points[0]]
-
-        i = 1
-
-        while i < len(points):
-            d = self.vector_norm((points[i - 1][0] - points[i][0], points[i - 1][1] - points[i][1]))
-
-            if (D + d) >= I:
-                qx = points[i - 1][0] + ((I - D) / d) * (points[i][0] - points[i - 1][0])
-                qy = points[i - 1][1] + ((I - D) / d) * (points[i][1] - points[i - 1][1])
-                new_points.append((qx, qy))
-                points.insert(i, (qx, qy))
-
-                D = 0.0
-            else:
-                D += d
-
-            i += 1
-
-        if len(new_points) == num_desired_points - 1:
-            new_points.append(points[-1])
-
-        return new_points
-
-    def path_length(self, points):
-        d = 0.0
-
-        for i in range(1, len(points)):
-            d += self.vector_norm((points[i - 1][0] - points[i][0], points[i - 1][1] - points[i][1]))
-
-        return d
+    # def path_length(self, points):
+    #     d = 0.0
+    #
+    #     for i in range(1, len(points)):
+    #         d += self.vector_norm((points[i - 1][0] - points[i][0], points[i - 1][1] - points[i][1]))
+    #
+    #     return d
 
     def rotate(self, p: list, q: list, angle: float):
         ox, oy = p[0], p[1]
@@ -120,19 +120,19 @@ class ConveyorBelt(Deletable, Movable, SIEffect):
 
         return qx, qy
 
-    def normalize_vector(self, v):
-        n = float(self.vector_norm(v))
+    # def normalize_vector(self, v):
+    #     n = float(self.vector_norm(v))
+    #
+    #     if n != 0:
+    #         return [float(v[i]) / n for i in range(len(v))]
+    #     else:
+    #         return [-1 for i in range(len(v))]
 
-        if n != 0:
-            return [float(v[i]) / n for i in range(len(v))]
-        else:
-            return [-1 for i in range(len(v))]
+    # def vector_norm(self, v):
+    #     return math.sqrt(self.dot(v, v))
 
-    def vector_norm(self, v):
-        return math.sqrt(self.dot(v, v))
-
-    def dot(self, u, v):
-        return sum((a * b) for a, b in zip(u, v))
+    # def dot(self, u, v):
+    #     return sum((a * b) for a, b in zip(u, v))
 
     @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid: str) -> None:
