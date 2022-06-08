@@ -1,94 +1,107 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.7
+import QtGraphicalEffects 1.0
 
 Item
 {
-    id: container
+    property var texturePointSize: 18
 
+    id: container
     function updateData(data)
     {
-        filename.color = data.color;
-        texture.source = data.img_path;
-        filename.text = data.name;
-
-        var width = data.icon_width;
-        if(filename.paintedWidth > width)
-            width = filename.paintedWidth;
-
-        var actual_name = "";
-
-        var temp_width = width;
-        if (temp_width > data.widget_width) {
-
-            var num_chars = filename.text.length;
-            var char_width = width / num_chars;
-
-            var i = 0;
-            var num_chars_line = Math.trunc(100 / char_width);
-            var num_chars_left = 0;
-
-            for(var i = 0; temp_width > 100; ++i, temp_width -= 100) {
-                actual_name += filename.text.substring(i * num_chars_line, (i + 1) * num_chars_line) + "-\n";
-                num_chars_left += num_chars_line;
+        if(data.icon_view) {
+            if(data.is_greyed_out) {
+                texture.opacity = 0.25;
+                filename.opacity = 0.25;
+            } else {
+                texture.opacity = 1;
+                filename.opacity = 1;
             }
 
-            actual_name += filename.text.substring(num_chars_left);
-        } else {
-            actual_name = data.name;
+            edit_filename.visible = false;
+            edit_textedit.visible = false;
+            texture.visible = true;
+            filename.visible = true;
+            filename.color = data.color;
+            texture.source = data.img_path;
+            filename.text = data.name;
+            container.width = data.widget_width;
+            texture.width = data.icon_width;
+            texture.height = data.icon_height;
+            container.height = texture.paintedHeight + filename.paintedHeight + container.texturePointSize;
+            texture.anchors.leftMargin = container.width / 2 - texture.width / 2;
+
+            REGION.set_data(
+            {
+                container_width: container.width,
+                container_height: container.height
+            });
         }
 
-        filename.text = actual_name;
-        var height = data.icon_height + filename.paintedHeight;
-        width = filename.paintedWidth;
-
-        container.width = width + 5;
-        container.height = height + 5;
-
-        texture.width = data.icon_width;
-        texture.height = data.icon_height;
-        texture.anchors.leftMargin = (width - texture.width) / 2 + 2.5;
-        texture.anchors.topMargin = 2.5;
-
-        filename.anchors.leftMargin = 2.5;
-
-        REGION.set_data(
-        {
-            container_width: container.width,
-            container_height: container.height,
-        });
+        if(data.edit_view) {
+            texture.visible = false;
+            filename.visible = false;
+            edit_filename.visible = true;
+            edit_textedit.visible = true;
+            edit_filename.text = data.name;
+            container.width = data.widget_width;
+            container.height = data.widget_height;
+            edit_textedit.text = data.content;
+        }
     }
 
     visible: true
+
+    Text {
+        id: edit_filename
+        anchors.top: parent.top
+        anchors.left: parent.left
+        font.family: "Helvetica"
+        font.pointSize: 14
+        color: "black"
+    }
+
+    Shortcut {
+        sequence: "Ctrl+S"
+        onActivated: REGION.set_data({te_content: edit_textedit.text})
+    }
+
+    TextEdit {
+        id: edit_textedit
+        wrapMode: TextEdit.WordWrap
+        anchors.top: edit_filename.bottom
+        anchors.left: parent.left
+        anchors.fill: parent
+        anchors.bottom: parent.bottom
+        anchors.topMargin: edit_filename.height + 10
+        font.pointSize: 12
+    }
 
     Image {
         id: texture
         anchors.left: container.left
         anchors.top: container.top
         asynchronous: true
+        opacity: 1
 
         visible: true
     }
 
-    TextEdit {
+    TextArea {
         id: filename
         visible: true
-        text: ""
-        font.pixelSize: 18
+        text: "hello world"
+        font.pixelSize: parent.texturePointSize
         color: "black"
-        anchors.verticalCenter: texture.verticalCenter
-        textFormat: Text.PlainText
+        wrapMode: TextEdit.Wrap
+        anchors.fill: parent
         anchors.top: texture.bottom
-        anchors.left: container.left
-        wrapMode: Text.Wrap
-        focus: true
+        anchors.topMargin: texture.height
         onEditingFinished: REGION.set_data({text: filename.text});
-    }
+        opacity: 1
 
-    Rectangle {
-       id: tag
-       width: 15
-       height: 15
-       color: "blue"
-       visible: false
+        Keys.onPressed: {
+            container.height = texture.height + filename.paintedHeight + 18;
+        }
     }
 }

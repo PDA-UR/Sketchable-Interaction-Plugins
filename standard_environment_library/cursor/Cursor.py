@@ -1,12 +1,14 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library.paint_test.Painter import Painter
-from plugins.standard_environment_library.filesystem.Folder import Folder
-from plugins.standard_environment_library.filesystem.FolderIcon import FolderIcon
-
+from plugins.standard_environment_library.palette.RadialPalette import RadialPalette
+from plugins.standard_environment_library.email.InboxItem import InboxItem
+from plugins.standard_environment_library.canvas.Clear import Clear
 from plugins.E import E
 import re
 import math
+
+from plugins.standard_environment_library.filesystem import Folder, FolderIcon, FolderBubble, TextFile, ImageFile
 
 
 class Cursor(SIEffect):
@@ -34,6 +36,9 @@ class Cursor(SIEffect):
         self.btn_target = None
         self.image_editor_tool = []
         self.image_editor_tooltype = None
+        self.has_palette_active = False
+        self.palette = None
+        self.double_clickables = [Clear.regionname, FolderBubble.FolderBubble.regionname, FolderIcon.FolderIcon.regionname, InboxItem.regionname, ImageFile.ImageFile.regionname, TextFile.TextFile.regionname]
 
         self.left_mouse_active = False
         self.right_mouse_active = False
@@ -43,6 +48,7 @@ class Cursor(SIEffect):
         self.current_effect_texture = ""
         self.current_effect_name = ""
         self.set_QML_data("movement_texture", "res/movement.png", PySI.DataType.STRING)
+        self.was_previously_active = False
 
         self.paint_color = PySI.Color(0, 0, 0, 255)
         self.paint_tool = None
@@ -139,31 +145,64 @@ class Cursor(SIEffect):
 
     def on_double_click(self, is_active):
         if is_active:
-            collisions = [uuid for uuid, name in self.present_collisions() if name == Folder.regionname or name == FolderIcon.regionname]
+            accecpted = False
+
+            collisions = [uuid for uuid, name in self.present_collisions() if name in self.double_clickables]
             regions = [r for r in self.current_regions() if r._uuid in collisions]
 
-            icons = [r for r in regions if r.regionname == FolderIcon.regionname]
+            icons = [r for r in regions if r.regionname == FolderIcon.FolderIcon.regionname]
 
-            if len(icons) > 0:
-                target = icons[0]
+            if len(icons) > 0 and not accecpted:
+                accecpted = icons[0].on_double_clicked()
             else:
-                folders = [r for r in regions if r.regionname == Folder.regionname]
+                folders = [r for r in regions if r.regionname == FolderBubble.FolderBubble.regionname]
                 folders.sort(key=lambda x: x.parent_level, reverse=True)
 
-                target = folders[0] if len(folders) > 0 else None
+                if len(folders) > 0 and not accecpted:
+                    accecpted = folders[0].on_double_clicked()
 
-            if target is not None:
-                target.on_double_clicked()
+            inbox_items = [r for r in regions if r.regionname == InboxItem.regionname]
+            textfiles = [r for r in regions if r.regionname == TextFile.TextFile.regionname]
+            imagefiles = [r for r in regions if r.regionname == ImageFile.ImageFile.regionname]
+            clearbtns = [r for r in regions if r.regionname == Clear.regionname]
+
+            if len(inbox_items) > 0 and not accecpted:
+                accecpted = inbox_items[0].on_double_clicked()
+
+            if len(textfiles) > 0 and not accecpted:
+                accecpted = textfiles[0].on_double_clicked()
+
+            if len(imagefiles) > 0 and not accecpted:
+                accecpted = imagefiles[0].on_double_clicked()
+
+            if len(clearbtns) and not accecpted:
+                accecpted = clearbtns[0].on_double_clicked()
 
     def on_enlarge_enter_emit(self, other):
         pass
+
+    def show_radial_palette(self):
+        kwargs = {"source": self}
+        self.create_region_via_name(PySI.PointVector([[self.x, self.y], [self.x, self.y + 50], [self.x + 50, self.y + 50], [self.x + 50, self.y]]), RadialPalette.regionname, kwargs=kwargs)
+
+    def remove_radial_palette(self):
+        if self.has_palette_active:
+            self.has_palette_active = False
+            self.palette.remove()
+            self.palette = None
 
     def on_left_mouse_click(self, is_active):
         self.left_mouse_active = is_active
         self.is_draw_canceled = False
 
         if self.kwargs["draw"] == "RMB":
-            self.handle_move(is_active)
+            if len(self.present_collisions()) == 1 and is_active:
+                sorts = [s.is_popup_shown for s in self.current_regions() if s.regionname == "__ FolderSort __"]
+                if not any(sorts):
+                    self.show_radial_palette()
+            else:
+                self.remove_radial_palette()
+                self.handle_move(is_active)
 
             if self.right_mouse_active: # cancel
                 self.is_draw_canceled = True

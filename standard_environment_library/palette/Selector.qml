@@ -7,8 +7,10 @@ Item
         texture.width = data.img_width;
         texture.height = data.img_height;
         texture.source = data.img_path;
-        texture.anchors.leftMargin = data.width / 2 - texture.width / 2;
-        texture.anchors.topMargin = data.height / 2 - texture.height * 1.25;
+        //texture.anchors.leftMargin = data.width / 2 - texture.width / 2;
+        //texture.anchors.topMargin = data.height / 2 - texture.height * 1.25;
+        texture.x = data.x;
+        texture.y = data.y;
 
         if(data.visible)
             createAnimation.start();
@@ -51,8 +53,8 @@ Item
 
     Image {
         id: texture
-        anchors.left: parent.left
-        anchors.top: parent.top
+        //anchors.left: parent.left
+        //anchors.top: parent.top
 
         asynchronous: true
 

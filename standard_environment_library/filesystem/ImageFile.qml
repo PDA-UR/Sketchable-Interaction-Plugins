@@ -3,6 +3,8 @@ import QtQuick.Controls 2.7
 
 Item
 {
+    property var texturePointSize: 18
+
     function updateData(data)
     {
 
@@ -28,50 +30,24 @@ Item
         }
         else
         {
+            texture.visible = true;
             filename.visible = true;
             filename.color = data.color;
             texture.source = data.img_path;
             filename.text = data.name;
-
-            var width = data.icon_width;
-            if(filename.paintedWidth > width)
-                width = filename.paintedWidth;
-
-            var actual_name = "";
-
-            var temp_width = width;
-            if (temp_width > 150) {
-
-                var num_chars = filename.text.length;
-                var char_width = width / num_chars;
-
-                var i = 0;
-                var num_chars_line = Math.trunc(100 / char_width);
-                var num_chars_left = 0;
-
-                for(var i = 0; temp_width > 100; ++i, temp_width -= 100) {
-                    actual_name += filename.text.substring(i * num_chars_line, (i + 1) * num_chars_line) + "-\n";
-                    num_chars_left += num_chars_line;
-                }
-
-                actual_name += filename.text.substring(num_chars_left);
-            } else {
-                actual_name = data.name;
-            }
-
-            filename.text = actual_name;
-            var height = data.icon_height + filename.paintedHeight;
-            width = filename.paintedWidth;
-
-            container.width = width + 5;
-            container.height = height + 5;
-
+            container.width = data.widget_width;
             texture.width = data.icon_width;
             texture.height = data.icon_height;
-            texture.anchors.leftMargin = (width - texture.width) / 2 + 2.5;
-            texture.anchors.topMargin = 2.5;
+            container.height = texture.height + filename.paintedHeight + container.texturePointSize;
+            texture.anchors.leftMargin = container.width / 2 - texture.width / 2;
 
-            filename.anchors.leftMargin = 2.5;
+            if(data.is_greyed_out) {
+                texture.opacity = 0.25;
+                filename.opacity = 0.25;
+            } else {
+                texture.opacity = 1;
+                filename.opacity = 1;
+            }
 
             REGION.set_data(
             {
@@ -96,18 +72,20 @@ Item
         asynchronous: true
     }
 
-    TextEdit {
-            id: filename
-            visible: true
-            text: ""
-            font.pixelSize: 18
-            color: "black"
-            anchors.verticalCenter: texture.verticalCenter
-            textFormat: Text.PlainText
-            anchors.top: texture.bottom
-            anchors.left: container.left
-            wrapMode: Text.Wrap
-            focus: true
-            onEditingFinished: REGION.set_data({text: filename.text});
+    TextArea {
+        id: filename
+        visible: true
+        text: "hello world"
+        font.pixelSize: parent.texturePointSize
+        color: "black"
+        wrapMode: TextEdit.Wrap
+        anchors.fill: parent
+        anchors.top: texture.bottom
+        anchors.topMargin: texture.height
+        onEditingFinished: REGION.set_data({text: filename.text});
+
+        Keys.onPressed: {
+            container.height = texture.height + filename.paintedHeight + 18;
         }
+    }
 }

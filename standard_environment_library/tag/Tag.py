@@ -13,7 +13,7 @@ class Tag(Deletable, Movable, Rotateable, UnRedoable, SIEffect):
 	region_display_name = E.id.tag_display_name
 
 	# @UnRedoable.action
-	@Deletable.unredoable
+	# @Deletable.unredoable
 	def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
 		super().__init__(shape, uuid, E.id.tag_texture, Tag.regiontype, Tag.regionname, kwargs)
 

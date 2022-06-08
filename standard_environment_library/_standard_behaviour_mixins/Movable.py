@@ -10,6 +10,8 @@ class Movable(PositionLinkable, SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", r="", t="", s="", kwargs={}):
         super().__init__(shape, uuid, r, t, s, kwargs)
+        self.move_border_color = PySI.Color(0, 255, 0, 255)
+        self.default_border_color = PySI.Color(72, 79, 81, 255)
 
     @SIEffect.on_enter(PySI.CollisionCapability.MOVE, SIEffect.RECEPTION)
     def on_move_enter_recv(self, cursor_id, link_attrib):
@@ -17,6 +19,7 @@ class Movable(PositionLinkable, SIEffect):
             self.create_link(cursor_id, link_attrib, self._uuid, link_attrib)
             self.is_under_user_control = True
             self.was_under_user_control = False
+            self.border_color = self.move_border_color
 
     @SIEffect.on_continuous(PySI.CollisionCapability.MOVE, SIEffect.RECEPTION)
     def on_move_continuous_recv(self):
@@ -32,3 +35,4 @@ class Movable(PositionLinkable, SIEffect):
 
             self.is_under_user_control = False
             self.was_under_user_control = True
+            self.border_color = self.default_border_color

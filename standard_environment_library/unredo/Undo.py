@@ -7,7 +7,7 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Deletable i
 from plugins.E import E
 
 class Undo(Deletable, Movable, SIEffect):
-    regiontype = PySI.EffectType.SI_CUSTOM
+    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = E.id.undo_regionname
     region_display_name = E.id.undo_region_display_name
 

@@ -5,6 +5,8 @@ import QtGraphicalEffects 1.0
 Item
 {
     id: container
+    property var texturePointSize: 18
+
     function updateData(data)
     {
         if (data.is_highlighted === undefined) {
@@ -13,49 +15,30 @@ Item
             overlay.visible = data.is_highlighted;
         }
 
+        if(data.is_greyed_out) {
+            texture.opacity = 0.25;
+            filename.opacity = 0.25;
+        } else {
+            texture.opacity = 1;
+            filename.opacity = 1;
+        }
+
+        if(data.search_hit_count !== undefined) {
+            search_hit_count.text = data.search_hit_count
+            search_hit_count.visible = data.search_hit_count_visible
+            search_hit_count_fixed.visible = data.search_hit_count_visible
+        }
+
+        texture.visible = true;
+        filename.visible = true;
         filename.color = data.color;
         texture.source = data.img_path;
         filename.text = data.name;
-
-        var width = data.icon_width;
-        if(filename.paintedWidth > width)
-            width = filename.paintedWidth;
-
-        var actual_name = "";
-
-        var temp_width = width;
-        if (temp_width > data.widget_width) {
-
-            var num_chars = filename.text.length;
-            var char_width = width / num_chars;
-
-            var i = 0;
-            var num_chars_line = Math.trunc(100 / char_width);
-            var num_chars_left = 0;
-
-            for(var i = 0; temp_width > 100; ++i, temp_width -= 100) {
-                actual_name += filename.text.substring(i * num_chars_line, (i + 1) * num_chars_line) + "-\n";
-                num_chars_left += num_chars_line;
-            }
-
-            actual_name += filename.text.substring(num_chars_left);
-        } else {
-            actual_name = data.name;
-        }
-
-        filename.text = actual_name;
-        var height = data.icon_height + filename.paintedHeight;
-        width = filename.paintedWidth;
-
-        container.width = width + 5;
-        container.height = height + 5;
-
+        container.width = data.widget_width;
         texture.width = data.icon_width;
         texture.height = data.icon_height;
-        texture.anchors.leftMargin = (width - texture.width) / 2 + 2.5;
-        texture.anchors.topMargin = 2.5;
-
-        filename.anchors.leftMargin = 2.5;
+        container.height = texture.paintedHeight + filename.paintedHeight + container.texturePointSize;
+        texture.anchors.leftMargin = container.width / 2 - texture.width / 2;
 
         REGION.set_data(
         {
@@ -83,18 +66,47 @@ Item
         visible: false
     }
 
-    TextEdit {
+    Text {
+        id: search_hit_count
+        visible: false
+        text: "1"
+        color: "white"
+        font.family: "Helvetica"
+        font.pointSize: 20
+        anchors.left: texture.left
+        anchors.top: texture.top
+        anchors.right: texture.right
+        horizontalAlignment: Text.AlignHCenter
+    }
+
+    Text {
+        id: search_hit_count_fixed
+        visible: false
+        text: "found"
+        color: "white"
+        font.family: "Helvetica"
+        font.pointSize: 12
+        anchors.left: texture.left
+        anchors.top: search_hit_count.bottom
+        anchors.bottom: texture.bottom
+        anchors.right: texture.right
+        anchors.leftMargin: 5
+    }
+
+    TextArea {
         id: filename
         visible: true
-        text: ""
-        font.pixelSize: 18
+        text: "hello world"
+        font.pixelSize: parent.texturePointSize
         color: "black"
-        anchors.verticalCenter: texture.verticalCenter
-        textFormat: Text.PlainText
+        wrapMode: TextEdit.Wrap
+        anchors.fill: parent
         anchors.top: texture.bottom
-        anchors.left: container.left
-        wrapMode: Text.Wrap
-        focus: true
+        anchors.topMargin: texture.height
         onEditingFinished: REGION.set_data({text: filename.text});
+
+        Keys.onPressed: {
+            container.height = texture.height + filename.paintedHeight + 18;
+        }
     }
 }

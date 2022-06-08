@@ -4,12 +4,9 @@ Item
 {
     function updateData(data)
     {
-        texture.width = data.img_width;
-        texture.height = data.img_height;
+        texture.width = data.icon_width;
+        texture.height = data.icon_height;
         texture.source = data.img_path;
-
-        texture.anchors.leftMargin = data.widget_width / 2 - texture.width / 2;
-        texture.anchors.topMargin = data.widget_height / 2 - texture.height / 2;
     }
 
     id: container
