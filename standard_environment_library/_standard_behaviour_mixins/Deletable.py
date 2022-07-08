@@ -19,8 +19,10 @@ class Deletable(SIEffect):
 
     @SIEffect.on_enter(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
     def on_deletion_enter_recv(self):
-        pass
+        if not self.is_under_user_control:
+            self.delete()
 
     @SIEffect.on_continuous(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
     def on_deletion_continuous_recv(self):
-        pass
+        if not self.is_under_user_control:
+            self.delete()

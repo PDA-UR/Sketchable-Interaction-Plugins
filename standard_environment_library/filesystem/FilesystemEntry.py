@@ -21,9 +21,9 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
         self.parent = None if "parent" not in kwargs else kwargs["parent"]
         self.parent_level = -1 if "parent_level" not in kwargs.keys() else kwargs["parent_level"]
         self.evaluate_enveloped = True
-        self.icon_width = cw // 39
-        self.icon_height = ch // 17
-        self.text_height = ch // 22
+        self.icon_width = cw // 45
+        self.icon_height = ch // 21
+        self.text_height = ch // 26
         self.color = PySI.Color(0, 0, 0, 0)
         self.default_color = PySI.Color(0, 0, 0, 0)
         self.border_color = PySI.Color(0, 0, 0, 0)
@@ -61,10 +61,19 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
 
                 self.width = int(container_width)
                 self.height = int(container_height)
+
+                self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
+                self.set_QML_data("height", self.height, PySI.DataType.INT)
+
                 if self.parent is not None and self.path != "":
                     centerx, centery = self.parent.aabb[0].x + (self.parent.aabb[3].x - self.parent.aabb[0].x) / 2, self.parent.aabb[0].y + (self.parent.aabb[1].y - self.parent.aabb[0].y) / 2
                     self.move(self.parent.x + centerx - self.aabb[0].x - self.width / 2, centery - self.aabb[0].y - self.height / 2 + self.parent.y)
                 self.is_ready = True
+        else:
+            self.width = int(self.icon_width * 2)
+            self.height = int(self.icon_height * 2)
+            self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
+            self.set_QML_data("height", self.height, PySI.DataType.INT)
 
         fname = self.get_QML_data("text", PySI.DataType.STRING)
         if self.is_new([fname], ["text"]):
@@ -125,3 +134,20 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
 
     def remove(self):
         self.delete()
+
+    def delete_from_disk(self):
+        os.remove(self.path)
+
+    @SIEffect.on_enter(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
+    def on_deletion_enter_recv(self):
+        self.remove()
+
+        if self.entryname != "test":
+            self.delete_from_disk()
+
+    @SIEffect.on_continuous(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
+    def on_deletion_continuous_recv(self):
+        self.remove()
+
+        if self.entryname != "test":
+            self.delete_from_disk()

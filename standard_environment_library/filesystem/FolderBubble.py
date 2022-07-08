@@ -3,6 +3,8 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library.filesystem.Folder import Folder
 from plugins.standard_environment_library.filesystem import TextFile
+from plugins.standard_environment_library.filesystem import PDFFile
+from plugins.standard_environment_library.filesystem import ZIPFile
 from plugins.standard_environment_library.filesystem import ImageFile
 from plugins.standard_environment_library.filesystem import FolderIcon
 from plugins.standard_environment_library.filesystem.FolderSort import FolderSort
@@ -37,7 +39,9 @@ class FolderBubble(Folder):
         self.default_with_border = True
         self.qml_path = self.set_QML_path("FolderBubble.qml")
         self.image_file_extensions = [".png", ".jpeg", ".jpg"]
-        self.text_file_extensions = [".txt", ".odt", ".md", ".pdf", ".py", ".tex"]
+        self.text_file_extensions = [".txt", ".md", ".py", ".tex"]
+        self.pdf_file_extension = ".pdf"
+        self.zip_file_extension = ".zip"
         self.mail_file_extensions = ["Mail:"]
         self.start_center = None if "center" not in kwargs else kwargs["center"]
         self.content = self.__fetch_contents__()
@@ -49,7 +53,7 @@ class FolderBubble(Folder):
         self.border_width = int(8 * cw / 1920)
         self.default_border_color = PySI.Color(72, 79, 81, 255)
         self.border_color = self.default_border_color
-        self.entry_spacing_offset = cw / 384
+        self.entry_spacing_offset = cw / 750
         self.parent_level = 0
         self.set_QML_data("widget_width", int(self.aabb[3].x - self.aabb[0].x), PySI.DataType.FLOAT)
         self.set_QML_data("height", int(self.aabb[1].y - self.aabb[0].y), PySI.DataType.INT)
@@ -188,7 +192,7 @@ class FolderBubble(Folder):
         self.set_QML_data("img_path", "", PySI.DataType.STRING)
 
     def __fetch_contents__(self) -> list:
-        return [(entry, FolderIcon if os.path.isdir(entry) else TextFile if entry[entry.rfind("."):] in self.text_file_extensions else ImageFile if entry[entry.rfind("."):] in self.image_file_extensions else InboxItem if entry[entry.rfind("/") + 1:entry.rfind(":")+1] in self.mail_file_extensions else TextFile) for entry in glob.glob(self.path + "/*")]
+        return [(entry, FolderIcon if os.path.isdir(entry) else ZIPFile if entry[entry.rfind("."):] == self.zip_file_extension else PDFFile if entry[entry.rfind("."):] == self.pdf_file_extension else TextFile if entry[entry.rfind("."):] in self.text_file_extensions else ImageFile if entry[entry.rfind("."):] in self.image_file_extensions else InboxItem if entry[entry.rfind("/") + 1:entry.rfind(":")+1] in self.mail_file_extensions else TextFile) for entry in glob.glob(self.path + "/*")]
 
     def on_double_clicked(self):
         self.morph()
@@ -217,14 +221,16 @@ class FolderBubble(Folder):
         self.remove()
 
         centerx, centery = self.aabb[0].x + (self.aabb[3].x - self.aabb[0].x) / 2, self.aabb[0].y + (self.aabb[1].y - self.aabb[0].y) / 2
-        x = centerx - self.icon_width + self.x
-        y = centery - self.icon_height + self.text_height / 2 + self.y
+
+        x = centerx - self.icon_width / 2 + self.x
+        y = centery - self.icon_height / 2 + self.y
 
         kwargs = {}
         kwargs["parent"] = self.parent
         kwargs["path"] = self.path
+        kwargs["morphed"] = True
 
-        self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width, y + self.icon_height], [x + self.icon_width, y]], FolderIcon, kwargs)
+        self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], FolderIcon, kwargs)
 
     def expand(self):
         movements, grid_pts = self.to_grid()
@@ -237,7 +243,7 @@ class FolderBubble(Folder):
                 if t.regionname == FolderBubble.regionname:
                     t.emit_linking_action(t._uuid, PySI.LinkingCapability.POSITION, t.position())
 
-            exploded = self.explode(grid_pts, 1.05)
+            exploded = self.explode(grid_pts, 0.9)
             shape = self.splines(exploded)
             self.shape = PySI.PointVector(shape)
             self.set_QML_data("widget_width", int(self.aabb[3].x - self.aabb[0].x), PySI.DataType.FLOAT)
@@ -274,7 +280,7 @@ class FolderBubble(Folder):
 
         return points
 
-    def grid_dimensions(self, n, max_cols=5):
+    def grid_dimensions(self, n, max_cols=3):
         rows = int(n / max_cols) + 1 if n % max_cols != 0 else int(n / max_cols)
         rows = rows if rows != 0 else 1
         cols = n / rows
@@ -414,9 +420,9 @@ class FolderBubble(Folder):
     def prepare_existing_entry_inner_addition(self, other):
         if other in other.parent.linked_content:
             other.parent.linked_content.remove(other)
-        other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
-        other.parent.expand()
-        other.parent = None
+            other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+            # other.parent.expand()
+            other.parent = None
 
     def add(self, other):
         if other.is_ready and other.parent == self:

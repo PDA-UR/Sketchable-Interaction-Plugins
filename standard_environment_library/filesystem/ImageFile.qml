@@ -83,6 +83,7 @@ Item
         anchors.top: texture.bottom
         anchors.topMargin: texture.height
         onEditingFinished: REGION.set_data({text: filename.text});
+        horizontalAlignment: TextArea.AlignHCenter
 
         Keys.onPressed: {
             container.height = texture.height + filename.paintedHeight + 18;

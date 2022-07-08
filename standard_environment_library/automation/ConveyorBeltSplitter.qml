@@ -13,8 +13,20 @@ Item {
 		texture.anchors.leftMargin = data.widget_width / 2 - texture.width / 2 + 35;
 		texture.anchors.topMargin = data.widget_height / 2 - texture.height / 2;
 
-        for(var i = 0; i < data.conditions.length; i++)
-            model.append({text: data.conditions[i]});
+		entry.width = data.img_width;
+        entry.height = data.img_height;
+        entry.source = data.entry_image;
+        entry.visible = data.entry_image_visible;
+
+        entry2.width = data.img_width;
+        entry2.height = data.img_height;
+        entry2.source = data.entry_image;
+        entry2.visible = data.entry_image_visible;
+
+        no_entry.width = data.img_width;
+        no_entry.height = data.img_height;
+        no_entry.source = data.no_entry_image;
+
 	}
 
 	id: container
@@ -29,6 +41,42 @@ Item {
 		visible: true
 	}
 
+	Image {
+        id: entry
+        anchors.left: parent.left
+        asynchronous: true
+
+        anchors.leftMargin: 28
+        anchors.top: parent.top
+        anchors.topMargin: 10
+
+        visible: false
+    }
+
+    Image {
+        id: entry2
+        anchors.left: parent.left
+        asynchronous: true
+
+        anchors.leftMargin: 28
+       anchors.top: parent.top
+       anchors.topMargin: 260
+
+        visible: false
+    }
+
+	Image {
+        id: no_entry
+        anchors.left: parent.left
+        asynchronous: true
+
+       anchors.leftMargin: 28
+       anchors.top: parent.top
+       anchors.topMargin: 260
+
+        visible: true
+    }
+    /*
 	Text {
             id: output_true
             visible: true
@@ -62,7 +110,8 @@ Item {
            text: "FALSE"
            wrapMode: Text.Wrap
         }
-
+        */
+    /*
     ComboBox {
         id: cbox
         width: 200
@@ -90,6 +139,7 @@ Item {
             REGION.set_data({uuid: container.uuid, text: cbox.model.get(currentIndex).text});
         }
     }
+    */
 
 	//TextInput {
     //    id: te

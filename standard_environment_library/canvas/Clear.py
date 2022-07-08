@@ -7,7 +7,7 @@ from plugins.standard_environment_library._standard_behaviour_mixins.UnRedoable 
 from plugins.E import E
 
 class Clear(Movable, Deletable, SIEffect):
-    regiontype = PySI.EffectType.SI_CUSTOM
+    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__ Clear __"
     region_display_name = "Clear"
 

@@ -48,6 +48,7 @@ Item {
         anchors.horizontalCenter: container.horizontalCenter;
         wrapMode: TextEdit.Wrap
         onEditingFinished: REGION.set_data({text: filename.text});
+        horizontalAlignment: TextArea.AlignHCenter
 
         Keys.onPressed: {
             container.height = container.initial_height + filename.paintedHeight + container.texturePointSize;

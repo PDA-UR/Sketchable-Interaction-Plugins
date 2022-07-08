@@ -8,7 +8,6 @@ from plugins.E import E
 import os
 from iteration_utilities import flatten
 
-
 class FolderIcon(Transportable, Folder):
     regiontype = PySI.EffectType.SI_CUSTOM
     regionname = "__ FolderIcon __"
@@ -19,6 +18,13 @@ class FolderIcon(Transportable, Folder):
         self.qml_path = self.set_QML_path("FolderIcon.qml")
         self.is_folder: SIEffect.SI_CONDITION = True
         self.colliding_entry_searches = []
+
+        if "morphed" not in kwargs or not kwargs["morphed"]:
+            centerx, centery = self.aabb[0].x + (self.aabb[3].x - self.aabb[0].x) / 2, self.aabb[0].y + (self.aabb[1].y - self.aabb[0].y) / 2
+            x = centerx - self.icon_width / 2
+            y = centery - self.icon_height / 2 + self.text_height / 2
+
+            self.shape = PySI.PointVector([[x, y], [x, y + self.icon_height], [x + self.icon_width, y + self.icon_height], [x + self.icon_width, y]])
 
     @SIEffect.on_enter("__HIGHLIGHT_ADDITION__", SIEffect.EMISSION)
     def on_highlight_addition_enter_emit(self, other):
@@ -107,7 +113,6 @@ class FolderIcon(Transportable, Folder):
         return x, y, centerx, centery
 
     def morph(self):
-        centerx, centery = self.x + self.aabb[0].x + (self.aabb[3].x - self.aabb[0].x) / 2, self.y + self.aabb[0].y + (self.aabb[1].y - self.aabb[0].y) / 2
         x, y, centerx, centery = self.compute_morph_coordinates()
         kwargs = {}
         kwargs["parent"] = self.parent if self.parent is not None else None

@@ -14,19 +14,20 @@ from plugins.standard_environment_library.filesystem import Folder, FolderIcon, 
 class Cursor(SIEffect):
     regiontype = PySI.EffectType.SI_MOUSE_CURSOR
     regionname = PySI.EffectName.SI_STD_NAME_MOUSE_CURSOR
-    region_width = E.id.cursor_width
-    region_height = E.id.cursor_height
+    region_width = E.id.cursor_width / 8
+    region_height = E.id.cursor_height / 8
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super().__init__(shape, uuid, "", Cursor.regiontype, Cursor.regionname, kwargs)
 
         self.kwargs = kwargs
         self.qml_path = self.set_QML_path(E.id.cursor_qml_path)
-        self.color = E.color.cursor_color
+        # self.color = E.color.cursor_color
+        self.color = PySI.Color(255, 0, 0, 255)
         self.assigned_effect = ""
         self.is_drawing_blocked = False
-        self.width = Cursor.region_width
-        self.height = Cursor.region_height
+        self.width = int(Cursor.region_width)
+        self.height = int(Cursor.region_height)
         self.visualization_width = 500
         self.visualization_height = 500
         self.with_border = False
@@ -56,26 +57,34 @@ class Cursor(SIEffect):
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
+        if not self.left_mouse_active:
+            for r in self.current_regions():
+                if r.regionname == "__SI_SELECTOR_NAME__":
+                    r.delete()
+
         return self.x - self.last_x, self.y - self.last_y, self.x, self.y
 
     @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION)
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
-        if len(self.present_collisions_names()) == 1 and self.present_collisions_names()[0] == PySI.EffectName.SI_STD_NAME_CANVAS:
-            self.set_QML_data("visible", True, PySI.DataType.BOOL)
-        else:
-            tr = re.compile(r'__SI_CANVAS_NAME__|__SI_PALETTE_NAME__|Selector for (A-Za-z0-9)*')
-
-            is_valid = True
-            for t in self.present_collisions_names():
-                is_valid &= tr.search(t) is not None
-
-            if not is_valid:
-                self.set_QML_data("visible", False, PySI.DataType.BOOL)
-
-        self.last_x = self.x
-        self.last_y = self.y
-
-        self.move(abs_x, abs_y)
+        # somehow is not called at all
+        pass
+    #     if len(self.present_collisions_names()) == 1 and self.present_collisions_names()[0] == PySI.EffectName.SI_STD_NAME_CANVAS:
+    #         self.set_QML_data("visible", True, PySI.DataType.BOOL)
+    #     else:
+    #         tr = re.compile(r'__SI_CANVAS_NAME__|__SI_PALETTE_NAME__|Selector for (A-Za-z0-9)*')
+    #
+    #         is_valid = True
+    #         for t in self.present_collisions_names():
+    #             is_valid &= tr.search(t) is not None
+    #
+    #         if not is_valid:
+    #             self.set_QML_data("visible", False, PySI.DataType.BOOL)
+    #
+    #     self.last_x = self.x
+    #     self.last_y = self.y
+    #
+    #     self.move(abs_x, abs_y)
+    #
 
     def on_sketch_enter_emit(self, other):
         self.parent_canvas = other

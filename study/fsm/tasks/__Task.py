@@ -3,7 +3,9 @@ from threading import Thread
 import time
 import os
 import sys
-
+from plugins.standard_environment_library.filesystem.FilesystemAccess import FilesystemAccess
+import shutil
+from datetime import datetime
 
 class Task:
     def __init__(self, task, participant, repetition):
@@ -12,15 +14,11 @@ class Task:
         self.repetition = repetition
 
         self.root_dir = os.getcwd()
+        self.root_path = FilesystemAccess.root_path
 
-        if sys.platform == "win32":
-            self.root_dir = self.root_dir[:self.root_dir.rfind("\\")]
-            self.root_dir = self.root_dir + "\\logs"
-            self.log_file = self.root_dir + "\\si_data.csv"
-        else:
-            self.root_dir = self.root_dir[:self.root_dir.rfind("/")]
-            self.root_dir = self.root_dir + "/logs"
-            self.log_file = self.root_dir + "/si_data.csv"
+        self.root_dir = self.root_dir[:self.root_dir.rfind("/")]
+        self.root_dir = self.root_dir + "/logs"
+        self.log_file = self.root_dir + "/si_data.csv"
 
         if not os.path.exists(self.root_dir):
             os.mkdir(self.root_dir)
@@ -30,6 +28,14 @@ class Task:
         if not os.path.exists(self.log_file):
             with open(self.log_file, 'w') as out:
                 out.write("pid,system,task,repetition,duration,starttime,endtime\n")
+        else:
+            self.backup()
+
+    def backup(self):
+        if not os.path.isdir(self.root_dir + "/backup"):
+            os.mkdir(self.root_dir + "/backup")
+
+        shutil.copy(self.log_file, self.root_dir + "/backup/si_data" + datetime.now().strftime("%d-%m-%Y %H:%M:%S") + ".csv")
 
     def start_test_thread(self):
         try:
@@ -40,7 +46,7 @@ class Task:
 
     def test_thread(self):
         proc = subprocess.Popen(["xmessage", "-geometry", "730x200+300+400",
-                                 "Bitte lese dir die Aufgabe sorgfaeltig durch. Klicke auf den 'okay' Button, sobald du bereit bist. \n\n Erstelle eine Bubble, die alle Textdateien enthaelt und eine Bubble,\n die alle Bilddateien enthaelt. \n"])
+                                 "Bitte lese dir die Aufgabe sorgfaeltig durch. Klicke auf den 'okay' Button, sobald du bereit bist. \n\n " + self.task_message()])
         proc.wait(1000)
         starttime = time.time()
 
@@ -52,11 +58,14 @@ class Task:
                     out.write(f"{self.participant},si,{self.task},{self.repetition},{duration},{str(starttime)},{str(endtime)}\n")
                 self.finish()
                 return
-            time.sleep(0.001)
+            time.sleep(0.016)
 
     #override
     def task_solution(self):
         pass
+    #override
+    def task_message(self):
+        return ""
 
     def finish(self):
         proc = subprocess.Popen(["xmessage","-geometry", "730x200+300+400", "Erfolgreich beendet!"])
