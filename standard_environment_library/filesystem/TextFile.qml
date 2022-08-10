@@ -9,6 +9,9 @@ Item
     id: container
     function updateData(data)
     {
+        if(data.is_overlay_visible !== undefined)
+            overlay.visible = data.is_overlay_visible;
+
         if(data.icon_view) {
             if(data.is_greyed_out) {
                 texture.opacity = 0.25;
@@ -38,6 +41,7 @@ Item
             });
         }
 
+
         if(data.edit_view) {
             texture.visible = false;
             filename.visible = false;
@@ -52,21 +56,31 @@ Item
 
     visible: true
 
-    Text {
+    TextArea {
         id: edit_filename
         anchors.top: parent.top
         anchors.left: parent.left
         font.family: "Helvetica"
         font.pointSize: 14
         color: "black"
+        onEditingFinished: REGION.set_data({text: edit_filename.text});
+        Keys.onReturnPressed: {
+            focus = false;
+            editingFinished();
+        }
+
+        Keys.onPressed: {
+        }
     }
+
+
 
     Shortcut {
         sequence: "Ctrl+S"
         onActivated: REGION.set_data({te_content: edit_textedit.text})
     }
 
-    TextEdit {
+    TextArea {
         id: edit_textedit
         wrapMode: TextEdit.WordWrap
         anchors.top: edit_filename.bottom
@@ -87,6 +101,14 @@ Item
         visible: true
     }
 
+    ColorOverlay {
+        id: overlay
+        anchors.fill: texture
+        source: texture
+        color: "#88FA842B"
+        visible: false
+    }
+
     TextArea {
         id: filename
         visible: true
@@ -100,6 +122,11 @@ Item
         onEditingFinished: REGION.set_data({text: filename.text});
         opacity: 1
         horizontalAlignment: TextArea.AlignHCenter
+
+        Keys.onReturnPressed: {
+            focus = false;
+            editingFinished();
+        }
 
         Keys.onPressed: {
             container.height = texture.height + filename.paintedHeight + 18;

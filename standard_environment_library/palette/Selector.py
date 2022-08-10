@@ -2,7 +2,7 @@ from libPySI import PySI
 
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.PositionLinkable import PositionLinkable
-
+from shapely import geometry
 
 class Selector(PositionLinkable, SIEffect):
     regionname = PySI.EffectName.SI_STD_NAME_SELECTOR
@@ -58,3 +58,6 @@ class Selector(PositionLinkable, SIEffect):
     @SIEffect.on_leave(PySI.CollisionCapability.HOVER, SIEffect.RECEPTION)
     def on_hover_leave_recv(self):
         self.border_color = self.default_border_color
+
+    def round_edge(self, pts):
+        return [[t[0], t[1]] for t in list(geometry.Polygon(pts).buffer(10, single_sided=True, join_style=geometry.JOIN_STYLE.round, cap_style=geometry.CAP_STYLE.round).exterior.coords)]

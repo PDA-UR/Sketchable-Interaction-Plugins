@@ -1,5 +1,6 @@
 import QtQuick 2.7
 import QtQuick.Controls 2.7
+import QtGraphicalEffects 1.0
 
 Item
 {
@@ -7,6 +8,8 @@ Item
 
     function updateData(data)
     {
+        if(data.is_overlay_visible !== undefined)
+            overlay.visible = data.is_overlay_visible;
 
         if(data.is_in_preview)
         {
@@ -70,6 +73,14 @@ Item
         visible: true
         cache: true
         asynchronous: true
+    }
+
+    ColorOverlay {
+        id: overlay
+        anchors.fill: texture
+        source: texture
+        color: "#88FA842B"
+        visible: false
     }
 
     TextArea {

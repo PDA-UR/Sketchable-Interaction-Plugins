@@ -14,19 +14,20 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
         super(FilesystemEntry, self).__init__(shape, uuid, texture_path, regiontype, regionname, kwargs)
 
         self.root_path = "/home/juergen/Desktop/test" if "root_path" not in kwargs else kwargs["root_path"]
-
-        cw, ch = self.context_dimensions()
         self.path = "" if "path" not in kwargs.keys() else kwargs["path"]
         self.entryname = "" if self.path == "" else self.path[self.path.rfind("/") + 1:]
         self.parent = None if "parent" not in kwargs else kwargs["parent"]
         self.parent_level = -1 if "parent_level" not in kwargs.keys() else kwargs["parent_level"]
+        self.is_copy = False if "copy" not in kwargs.keys() else kwargs["copy"]
         self.evaluate_enveloped = True
+        cw, ch = self.context_dimensions()
         self.icon_width = cw // 45
         self.icon_height = ch // 21
         self.text_height = ch // 26
         self.color = PySI.Color(0, 0, 0, 0)
         self.default_color = PySI.Color(0, 0, 0, 0)
         self.border_color = PySI.Color(0, 0, 0, 0)
+        self.folder_color = PySI.Color(250, 132, 43, 255)
         self.text_color = "FF000000"
         self.__qml_data__ = {}
         self.is_ready = False
@@ -39,10 +40,12 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
         self.set_QML_data("color", self.text_color, PySI.DataType.STRING)
         self.set_QML_data("name", self.entryname, PySI.DataType.STRING)
         self.parenting_time = 0
+        self.last_position_x, self.last_position_y = self.absolute_x_pos(), self.absolute_y_pos()
+        self.previous_parent = None
 
-        if self.path != "":
-            self.creation_time = time.ctime(os.path.getctime(self.path))
-            self.modification_time = time.ctime(os.path.getmtime(self.path))
+        # if self.path != "":
+        #     self.creation_time = time.ctime(os.path.getctime(self.path))
+        #     self.modification_time = time.ctime(os.path.getmtime(self.path))
 
     @SIEffect.on_continuous("__PARENT_CANVAS__", SIEffect.RECEPTION)
     def on_canvas_continuous_recv(self, canvas_uuid: str) -> None:
@@ -65,10 +68,11 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
                 self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
                 self.set_QML_data("height", self.height, PySI.DataType.INT)
 
+                self.is_ready = True
+
                 if self.parent is not None and self.path != "":
                     centerx, centery = self.parent.aabb[0].x + (self.parent.aabb[3].x - self.parent.aabb[0].x) / 2, self.parent.aabb[0].y + (self.parent.aabb[1].y - self.parent.aabb[0].y) / 2
                     self.move(self.parent.x + centerx - self.aabb[0].x - self.width / 2, centery - self.aabb[0].y - self.height / 2 + self.parent.y)
-                self.is_ready = True
         else:
             self.width = int(self.icon_width * 2)
             self.height = int(self.icon_height * 2)
@@ -120,11 +124,19 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
     def on_add_to_folder_continuous_recv(self):
         pass
 
+    @SIEffect.on_leave("ADD_TO_FOLDERBUBBLE", SIEffect.RECEPTION)
+    def on_add_to_folder_leave_recv(self):
+        pass
+
     @SIEffect.on_enter("__FOLDER_SPLIT__", SIEffect.RECEPTION)
     def on_folder_split_enter_recv(self):
         pass
 
     def on_move_enter_recv(self, cursor_id, link_attrib):
+        if not self.with_border:
+            self.last_position_x, self.last_position_y = self.absolute_x_pos(), self.absolute_y_pos()
+            self.previous_parent = self.parent
+
         self.with_border = True
         super().on_move_enter_recv(cursor_id, link_attrib)
 
@@ -133,6 +145,7 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
         super().on_move_leave_recv(cursor_id, link_attrib)
 
     def remove(self):
+        self.flagged_for_deletion = True
         self.delete()
 
     def delete_from_disk(self):
@@ -140,14 +153,16 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
 
     @SIEffect.on_enter(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
     def on_deletion_enter_recv(self):
-        self.remove()
+        if not self.is_under_user_control:
+            self.remove()
 
-        if self.entryname != "test":
-            self.delete_from_disk()
+            if self.entryname != "test" and self.path != "":
+                self.delete_from_disk()
 
     @SIEffect.on_continuous(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
     def on_deletion_continuous_recv(self):
-        self.remove()
+        if not self.is_under_user_control:
+            self.remove()
 
-        if self.entryname != "test":
-            self.delete_from_disk()
+            if self.entryname != "test" and self.path != "":
+                self.delete_from_disk()

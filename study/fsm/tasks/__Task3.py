@@ -1,29 +1,32 @@
 from plugins.study.fsm.tasks.__Task import Task
 import os
-import glob
+from pathlib import Path
 
 
 class Task3(Task):
     """
-    COPY all PDF-files with ”cheathsheet” in their names from FOLDER ”Mathematik I” toFOLDER ”Mathematik II”
+    DELETE all FILES which are zip FILES from FOLDER OOP
     """
     def __init__(self, participant, repetition):
         super().__init__("3", participant, repetition)
-        self.source_folder = "Studium/1. Semester/Mathematik I/"
-        self.source_files = [t for t in [f for f in os.listdir(self.root_path + "/" + self.source_folder) if os.path.isfile(os.path.join(self.root_path + "/" + self.source_folder, f))] if "Cheatsheet" in t]
-
-        self.target_folder = "Studium/2. Semester/Mathematik II/"
+        self.source_folder = "Studium/1. Semester/OOP"
+        self.source_files = [t for t in os.listdir(self.root_path + "/" + self.source_folder) if ".zip" in t]
 
     #provide task message here
     def task_message(self):
-        return "COPY all PDF-files with \"cheathsheet\" in their names from FOLDER \"Mathematik I\" toFOLDER \"Mathematik II\""
+        return "DELETE all FILES which are zip FILES from FOLDER OOP"
 
     # provide task implementation here
     def task_solution(self):
-        target_files = [t for t in os.listdir(self.root_path + "/" + self.target_folder) if "Cheatsheet" in t]
+        # OOP Folder still there
+        if not os.path.isdir(self.root_path + "/" + self.source_folder):
+            return False
 
-        for s in self.source_files:
-            if s not in target_files:
+        # ZIP files gone from File System
+        zips = [p.name for p in Path(self.root_path + "/Studium").rglob("*.zip")]
+
+        for f in self.source_files:
+            if f in zips:
                 return False
 
         return True

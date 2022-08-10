@@ -10,10 +10,8 @@ from plugins.standard_environment_library.filesystem import FolderIcon
 from plugins.standard_environment_library.filesystem.FolderSort import FolderSort
 from plugins.standard_environment_library.email import InboxItem
 from plugins.E import E
-from iteration_utilities import flatten
-
-import numpy as np
-import splines
+import shutil
+from shapely import geometry
 import glob
 import os
 from datetime import datetime
@@ -50,15 +48,16 @@ class FolderBubble(Folder):
         self.grey_out_color = PySI.Color(132, 132, 132, 63)
         self.default_color = PySI.Color(250, 132, 43, 255)
         self.highlight_color = PySI.Color(0, 120, 215, 255)
-        self.border_width = int(8 * cw / 1920)
+        self.border_width = int(4 * cw / 1920)
         self.default_border_color = PySI.Color(72, 79, 81, 255)
         self.border_color = self.default_border_color
-        self.entry_spacing_offset = cw / 750
+        self.entry_spacing_offset = cw / 1200
         self.parent_level = 0
         self.set_QML_data("widget_width", int(self.aabb[3].x - self.aabb[0].x), PySI.DataType.FLOAT)
         self.set_QML_data("height", int(self.aabb[1].y - self.aabb[0].y), PySI.DataType.INT)
         self.set_QML_data("name", self.entryname, PySI.DataType.STRING)
         self.morph_entryname = "" if "entryname" not in kwargs else kwargs["entryname"]
+        self.is_morphed = False if "is_morphed" not in kwargs else kwargs["is_morphed"]
         self.is_split = False if "is_split" not in kwargs else kwargs["is_split"]
         self.colliding_entry_searches = []
         self.last_recv_sort_mode = -1
@@ -104,10 +103,9 @@ class FolderBubble(Folder):
             self.colliding_entry_searches.append(entry_search)
 
     @SIEffect.on_continuous("__MATCH_ENTRIES__", SIEffect.RECEPTION)
-    def on_match_entries_continuous_recv(self, entry_search, query, change):
-        if change:
-            self.remove_grey_out(entry_search, query)
-            self.grey_out(entry_search, query)
+    def on_match_entries_continuous_recv(self, entry_search, query):
+        self.remove_grey_out(entry_search, query)
+        self.grey_out(entry_search, query)
 
     @SIEffect.on_leave("__MATCH_ENTRIES__", SIEffect.RECEPTION)
     def on_match_entries_leave(self, entry_search, query):
@@ -124,7 +122,6 @@ class FolderBubble(Folder):
                 lc.color = lc.default_color
                 lc.border_color = lc.default_border_color
                 lc.remove_grey_out(entry_search, query)
-                lc.grey_out(entry_search, query)
 
             if lc.regionname == FolderIcon.FolderIcon.regionname and query != "":
                 lc.visualize_search_count(entry_search, query)
@@ -173,6 +170,7 @@ class FolderBubble(Folder):
             kwargs["path"] = c[0]
             kwargs["parent_level"] = self.parent_level + 1
             kwargs["root_path"] = self.root_path
+            kwargs["is_initial"] = True
 
             if getattr(c[1], c[1].__si_name__).regionname == InboxItem.InboxItem.regionname:
                 f = open(c[0])
@@ -207,9 +205,10 @@ class FolderBubble(Folder):
 
             if lc.regionname == FolderBubble.regionname:
                 lc.remove(False)
-
-            lc.delete()
-            lc.is_removed = True
+                lc.is_removed = True
+            else:
+                lc.remove()
+                lc.is_removed = True
 
         self.linked_content.clear()
 
@@ -229,6 +228,7 @@ class FolderBubble(Folder):
         kwargs["parent"] = self.parent
         kwargs["path"] = self.path
         kwargs["morphed"] = True
+        kwargs["is_initial"] = True
 
         self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], FolderIcon, kwargs)
 
@@ -243,9 +243,7 @@ class FolderBubble(Folder):
                 if t.regionname == FolderBubble.regionname:
                     t.emit_linking_action(t._uuid, PySI.LinkingCapability.POSITION, t.position())
 
-            exploded = self.explode(grid_pts, 0.9)
-            shape = self.splines(exploded)
-            self.shape = PySI.PointVector(shape)
+            self.shape = PySI.PointVector(self.round_edge(self.explode(grid_pts, 1.05)))
             self.set_QML_data("widget_width", int(self.aabb[3].x - self.aabb[0].x), PySI.DataType.FLOAT)
             self.set_QML_data("height", int(self.aabb[1].y - self.aabb[0].y), PySI.DataType.INT)
             self.width = int(self.aabb[3].x - self.aabb[0].x)
@@ -258,15 +256,8 @@ class FolderBubble(Folder):
         if self.parent is not None:
             self.parent.expand()
 
-    def splines(self, pts):
-        spline = splines.CatmullRom(pts, endconditions='closed')
-        dots_per_second = 10
-        total_duration = spline.grid[-1] - spline.grid[0]
-        dots = int(total_duration * dots_per_second) + 1
-        times = spline.grid[0] + np.arange(dots) / dots_per_second
-        result = spline.evaluate(times).T
-
-        return [[result[0][i], result[1][i]] for i in range(len(result[0]))]
+    def round_edge(self, pts):
+        return [[t[0], t[1]] for t in list(geometry.Polygon(pts).buffer(10, single_sided=True, join_style=geometry.JOIN_STYLE.round, cap_style=geometry.CAP_STYLE.round).exterior.coords)]
 
     def compute_center(self, points):
         return sum([p[0] for p in points]) / len(points), sum([p[1] for p in points]) / len(points)
@@ -280,7 +271,7 @@ class FolderBubble(Folder):
 
         return points
 
-    def grid_dimensions(self, n, max_cols=3):
+    def grid_dimensions(self, n, max_cols=4):
         rows = int(n / max_cols) + 1 if n % max_cols != 0 else int(n / max_cols)
         rows = rows if rows != 0 else 1
         cols = n / rows
@@ -290,9 +281,9 @@ class FolderBubble(Folder):
         rows, cols = self.grid_dimensions(len(lc))
         moves = []
         y = self.aabb[0].y + self.y
-        ty = 0
         for row in range(rows):
             x = self.aabb[0].x + self.x
+            ty = 0
             for col in range(cols):
                 i = row * cols + col
                 if i == len(lc):
@@ -349,6 +340,9 @@ class FolderBubble(Folder):
             if len(self.linked_content) == len(self.content):
                 self.expand()
 
+            if other.is_copy:
+                self.expand()
+
     def prepare_drawn_entry_addition(self, other):
         other.path = self.path + "/" + other.entryname
 
@@ -394,6 +388,12 @@ class FolderBubble(Folder):
             other.path = new_path
             open(other.path, 'w').close()
 
+            if other.regionname == FolderBubble.regionname:
+                other.adjust_linked_content_paths()
+
+            self.parent_to(other)
+            self.parent.expand()
+
     def parent_to(self, other):
         self.content = self.__fetch_contents__()
         other.parent = self
@@ -408,6 +408,84 @@ class FolderBubble(Folder):
 
     def prepare_existing_entry_addition(self, other):
         if os.path.commonprefix([self.path, other.path]) != other.path:
+            if os.path.commonprefix([self.path, other.path]) != self.path:
+                if not other.enveloped_by(self):
+                    if other.regionname != FolderBubble.regionname and other.regionname != FolderIcon.FolderIcon.regionname:
+                        shutil.copy(other.path, self.path)
+                        new_path = self.handle_duplicate_renaming(other)
+                        kwargs = {}
+                        kwargs["parent"] = self
+                        kwargs["path"] = new_path
+                        kwargs["parent_level"] = self.parent_level + 1
+                        kwargs["root_path"] = self.root_path
+                        kwargs["copy"] = True
+                        x, y = self.aabb[0].x + self.x, self.aabb[0].y + self.y
+                        if other in other.parent.linked_content:
+                            other.parent.linked_content.remove(other)
+                        other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+                        other.parent = other.previous_parent
+                        other.parent.parent_to(other)
+                        if other not in other.parent.linked_content:
+                            other.parent.linked_content.append(other)
+                        other.move(other.last_position_x - other.absolute_x_pos(), other.last_position_y - other.absolute_y_pos())
+                        other.parent.expand()
+                        self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
+                        return
+
+            if not other.enveloped_by(self):
+                if other.regionname != FolderBubble.regionname and other.regionname != FolderIcon.FolderIcon.regionname:
+                    shutil.copy(other.path, self.path)
+                    new_path = self.handle_duplicate_renaming(other)
+                    kwargs = {}
+                    kwargs["parent"] = self
+                    kwargs["path"] = new_path
+                    kwargs["parent_level"] = self.parent_level + 1
+                    kwargs["root_path"] = self.root_path
+                    kwargs["copy"] = True
+                    x, y = self.aabb[0].x + self.x, self.aabb[0].y + self.y
+                    if other in other.parent.linked_content:
+                        other.parent.linked_content.remove(other)
+                    other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+                    other.parent = other.previous_parent
+                    other.parent.parent_to(other)
+                    if other not in other.parent.linked_content:
+                        other.parent.linked_content.append(other)
+                    other.move(other.last_position_x - other.absolute_x_pos(), other.last_position_y - other.absolute_y_pos())
+                    other.parent.expand()
+                    self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
+                    return
+
+                if other.regionname == FolderIcon.FolderIcon.regionname and not other.is_initial:
+                    new_path = self.handle_duplicate_renaming(other)
+                    kwargs = {}
+                    kwargs["parent"] = self
+                    kwargs["path"] = new_path
+                    kwargs["parent_level"] = self.parent_level + 1
+                    kwargs["root_path"] = self.root_path
+                    kwargs["copy"] = True
+                    x, y = self.aabb[0].x + self.x, self.aabb[0].y + self.y
+                    if other in other.parent.linked_content:
+                        other.parent.linked_content.remove(other)
+                    other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+                    other.parent = other.previous_parent
+                    other.parent.parent_to(other)
+                    if other not in other.parent.linked_content:
+                        other.parent.linked_content.append(other)
+                    other.move(other.last_position_x - other.absolute_x_pos(), other.last_position_y - other.absolute_y_pos())
+                    other.parent.expand()
+                    self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
+
+                    try:
+                        shutil.copytree(other.path, self.path + "/" + other.entryname)
+                    except:
+                        pass
+
+                    return
+
+            if other.regionname == FolderIcon.FolderIcon.regionname:
+                other.is_initial = False
+
+
             new_path = self.handle_duplicate_renaming(other)
             os.rename(other.path, new_path)
             other.path = new_path
@@ -417,32 +495,95 @@ class FolderBubble(Folder):
 
             self.parent_to(other)
 
+    def regionname_to_class(self, regionname):
+        if regionname == ImageFile.ImageFile.regionname:
+            return ImageFile
+        elif regionname == PDFFile.PDFFile.regionname:
+            return PDFFile
+        elif regionname == TextFile.TextFile.regionname:
+            return TextFile
+        elif regionname == ZIPFile.ZIPFile.regionname:
+            return ZIPFile
+        elif regionname == FolderIcon.FolderIcon.regionname:
+            return FolderIcon
+
     def prepare_existing_entry_inner_addition(self, other):
         if other in other.parent.linked_content:
             other.parent.linked_content.remove(other)
             other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
-            # other.parent.expand()
             other.parent = None
 
     def add(self, other):
-        if other.is_ready and other.parent == self:
-            self.add_entry(other)
-        elif other.is_ready and other.parent is None and other.path != self.root_path:
-            if other.entryname == "":
-                return
-            if not self.is_under_user_control and not other.is_under_user_control:
-                if other.path == "":
-                    self.prepare_drawn_entry_addition(other)
-                else:
-                    self.prepare_existing_entry_addition(other)
-        elif other.is_ready and other.parent is not None:
-            if not self.is_under_user_control and other.is_under_user_control:
-                self.prepare_existing_entry_inner_addition(other)
+        if not other.flagged_for_deletion:
+            if other.is_ready and other.parent == self:
+                self.add_entry(other)
+            elif other.is_ready and other.parent is None and other.path != self.root_path:
+                if other.entryname == "":
+                    return
+
+                if not self.is_under_user_control and not other.is_under_user_control:
+                    if other.path == "":
+                        self.prepare_drawn_entry_addition(other)
+                        self.parent_to(other)
+                        self.expand()
+                    else:
+                        if hasattr(other, "prio"):
+                            collisions = [uuid for uuid, name in other.present_collisions()]
+                            regions = [r for r in other.current_regions() if r._uuid in collisions]
+                            regions = [r for r in regions if r.regionname == FolderBubble.regionname or r.regionname == FolderIcon.FolderIcon.regionname]
+                            regions = [r for r in regions if r.parent_level == max(regions, key=lambda x: x.parent_level).parent_level]
+
+                            if len(regions) == 1:
+                                self.prepare_existing_entry_addition(other)
+                            else:
+                                if other.prio.folder_regionname == FolderBubble.regionname:
+                                    if other.prio.folder_path == self.path:
+                                        self.prepare_existing_entry_addition(other)
+                        else:
+                            self.prepare_existing_entry_addition(other)
+            elif other.is_ready and other.parent is not None:
+                if not self.is_under_user_control and other.is_under_user_control:
+                    self.prepare_existing_entry_inner_addition(other)
 
     @SIEffect.on_continuous("ADD_TO_FOLDERBUBBLE", SIEffect.EMISSION)
     def on_add_to_folder_continuous_emit(self, other):
-        if other not in self.linked_content:
-            self.add(other)
+        cursor = [r for r in self.current_regions() if r.regionname == PySI.EffectName.SI_STD_NAME_MOUSE_CURSOR][0]
+
+        # if hasattr(other, "path") and other.path == "":
+        #     if other in cursor.ctrl_selected and other == cursor.ctrl_selected[0] and not cursor.ctrl_pressed and not other.is_under_user_control:
+        #         print("HIT")
+        #
+        #         cursor.ctrl_selected = []
+
+        if other in cursor.ctrl_selected and other == cursor.ctrl_selected[0] and not cursor.ctrl_pressed and not other.is_under_user_control:
+            for r in cursor.ctrl_selected:
+                r.remove_link(cursor._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
+                if r.parent is not None:
+                    r.remove_link(r.parent._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
+                    r.parent.linked_content.remove(r)
+                r.move(other.absolute_x_pos() - r.absolute_x_pos() + r.x, other.absolute_y_pos() - r.absolute_y_pos() + r.y)
+                r.is_under_user_control = False
+                r.is_blocked = False
+                r.is_ready = True
+                self.linked_content.append(r)
+                self.parent_to(r)
+                new_path = self.handle_duplicate_renaming(r)
+                if r.path == "":
+                    if r.regionname == FolderIcon.FolderIcon.regionname:
+                        os.mkdir(new_path)
+                    else:
+                        open(new_path, 'w').close()
+                else:
+                    os.rename(r.path, new_path)
+
+                r.path = new_path
+
+            self.expand()
+            cursor.ctrl_selected = []
+        else:
+            if other.regionname != "__ InteractionPriorization __":
+                if other not in self.linked_content and not cursor.ctrl_pressed:
+                    self.add(other)
 
     @SIEffect.on_leave("ADD_TO_FOLDERBUBBLE", SIEffect.EMISSION)
     def on_add_to_folder_leave_emit(self, other):
@@ -450,7 +591,7 @@ class FolderBubble(Folder):
             self.linked_content.remove(other)
             other.parent = None
             other.remove_link(self._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
-            self.expand()
+            # self.expand()
 
     @SIEffect.on_continuous("__HIGHLIGHT_ADDITION__", SIEffect.EMISSION)
     def on_highlight_addition_continuous_emit(self, other):

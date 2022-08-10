@@ -8,7 +8,7 @@ from plugins.E import E
 import re
 import math
 
-from plugins.standard_environment_library.filesystem import Folder, FolderIcon, FolderBubble, TextFile, ImageFile
+from plugins.standard_environment_library.filesystem import Folder, FolderIcon, FolderBubble, TextFile, ImageFile, ZIPFile, PDFFile
 
 
 class Cursor(SIEffect):
@@ -40,6 +40,7 @@ class Cursor(SIEffect):
         self.has_palette_active = False
         self.palette = None
         self.double_clickables = [Clear.regionname, FolderBubble.FolderBubble.regionname, FolderIcon.FolderIcon.regionname, InboxItem.regionname, ImageFile.ImageFile.regionname, TextFile.TextFile.regionname]
+        self.ctrl_pressables = [FolderIcon.FolderIcon.regionname, InboxItem.regionname, ImageFile.ImageFile.regionname, TextFile.TextFile.regionname, ZIPFile.ZIPFile.regionname, PDFFile.PDFFile.regionname]
 
         self.left_mouse_active = False
         self.right_mouse_active = False
@@ -54,6 +55,9 @@ class Cursor(SIEffect):
         self.paint_color = PySI.Color(0, 0, 0, 255)
         self.paint_tool = None
         self.temp = []
+        self.ctrl_selected = []
+
+        self.ctrl_pressed = False
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
@@ -85,6 +89,9 @@ class Cursor(SIEffect):
     #
     #     self.move(abs_x, abs_y)
     #
+
+    def on_ctrl_pressed(self, is_active):
+        self.ctrl_pressed = is_active
 
     def on_sketch_enter_emit(self, other):
         self.parent_canvas = other
@@ -200,6 +207,36 @@ class Cursor(SIEffect):
             self.palette.remove()
             self.palette = None
 
+    def handle_ctrl_press(self):
+        if self.ctrl_pressed:
+            collisions = [uuid for uuid, name in self.present_collisions() if name in self.ctrl_pressables]
+
+            if len(collisions) > 0:
+                regions = [r for r in self.current_regions() if r._uuid in collisions]
+                regions.sort(key=lambda x: x.parent_level, reverse=True)
+
+                for i, r in enumerate(regions):
+                    x_offset = len(self.ctrl_selected) * r.width // 8
+                    y_offset = len(self.ctrl_selected) * r.height // 8
+
+                    if r not in self.ctrl_selected:
+                        r.create_link(self._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
+                        r.is_under_user_control = True
+                        r.is_ready = False
+                        r.move(self.x - r.absolute_x_pos() - r.width // 2 + r.x + x_offset, self.y - r.absolute_y_pos() - r.height // 4 + r.y + y_offset)
+                        self.ctrl_selected.append(r)
+                        r.is_blocked = True
+                        break
+
+        else:
+            if len(self.ctrl_selected) > 0:
+                for r in self.ctrl_selected:
+                    r.remove_link(self._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
+                    r.is_ready = True
+                    r.is_under_user_control = False
+                    r.is_blocked = False
+                self.ctrl_selected = []
+
     def on_left_mouse_click(self, is_active):
         self.left_mouse_active = is_active
         self.is_draw_canceled = False
@@ -212,6 +249,8 @@ class Cursor(SIEffect):
             else:
                 self.remove_radial_palette()
                 self.handle_move(is_active)
+
+                self.handle_ctrl_press()
 
             if self.right_mouse_active: # cancel
                 self.is_draw_canceled = True

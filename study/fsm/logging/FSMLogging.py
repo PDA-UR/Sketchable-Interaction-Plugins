@@ -7,12 +7,12 @@ from plugins.study.fsm.tasks.__Task3 import Task3
 from plugins.study.fsm.tasks.__Task4 import Task4
 from plugins.study.fsm.tasks.__Task5 import Task5
 from plugins.study.fsm.tasks.__Task6 import Task6
-from plugins.study.fsm.tasks.__Task7 import Task7
-from plugins.study.fsm.tasks.__Task8 import Task8
-from plugins.study.fsm.tasks.__Task9 import Task9
-from plugins.study.fsm.tasks.__Task10 import Task10
-from plugins.study.fsm.tasks.__Task11 import Task11
-from plugins.study.fsm.tasks.__Task12 import Task12
+# from plugins.study.fsm.tasks.__Task7 import Task7
+# from plugins.study.fsm.tasks.__Task8 import Task8
+# from plugins.study.fsm.tasks.__Task9 import Task9
+# from plugins.study.fsm.tasks.__Task10 import Task10
+# from plugins.study.fsm.tasks.__Task11 import Task11
+# from plugins.study.fsm.tasks.__Task12 import Task12
 
 
 class FSMLogging(SIEffect):
@@ -23,4 +23,5 @@ class FSMLogging(SIEffect):
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", kwargs: dict = {}) -> None:
         super(FSMLogging, self).__init__(shape, uuid, "", FSMLogging.regiontype, FSMLogging.regionname, kwargs)
         self.color = PySI.Color(0, 0, 0, 0)
+        self.with_border = False
         self.task = eval(f"Task{kwargs['task']}(kwargs[\"participant\"], kwargs[\"repetition\"])")

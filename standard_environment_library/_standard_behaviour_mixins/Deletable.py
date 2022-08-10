@@ -16,13 +16,16 @@ class Deletable(SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", r="", t="", s="", kwargs={}):
         super(Deletable, self).__init__(shape, uuid, r, t, s, kwargs)
+        self.flagged_for_deletion = False
 
     @SIEffect.on_enter(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
     def on_deletion_enter_recv(self):
         if not self.is_under_user_control:
+            self.flagged_for_deletion = True
             self.delete()
 
     @SIEffect.on_continuous(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
     def on_deletion_continuous_recv(self):
         if not self.is_under_user_control:
+            self.flagged_for_deletion = True
             self.delete()

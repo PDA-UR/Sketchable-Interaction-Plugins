@@ -54,5 +54,12 @@ Item {
         anchors.leftMargin: 5
         anchors.rightMargin: 5
         onTextChanged: REGION.set_data({text: te.text});
+
+        Keys.onReturnPressed: {
+            textChanged();
+        }
+
+        Keys.onPressed: {
+        }
     }
 }

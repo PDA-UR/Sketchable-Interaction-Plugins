@@ -106,6 +106,11 @@ Item
         anchors.topMargin: texture.height
         onEditingFinished: REGION.set_data({text: filename.text});
 
+        Keys.onReturnPressed: {
+            focus = false;
+            editingFinished();
+        }
+
         Keys.onPressed: {
             container.height = texture.height + filename.paintedHeight + 18;
         }

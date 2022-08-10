@@ -6,6 +6,8 @@ import sys
 from plugins.standard_environment_library.filesystem.FilesystemAccess import FilesystemAccess
 import shutil
 from datetime import datetime
+import codecs
+
 
 class Task:
     def __init__(self, task, participant, repetition):
@@ -19,6 +21,8 @@ class Task:
         self.root_dir = self.root_dir[:self.root_dir.rfind("/")]
         self.root_dir = self.root_dir + "/logs"
         self.log_file = self.root_dir + "/si_data.csv"
+        self.w, self.h, self.x, self.y = 730 * 2, 200 * 2, 300, 400
+
 
         if not os.path.exists(self.root_dir):
             os.mkdir(self.root_dir)
@@ -45,8 +49,9 @@ class Task:
             print("Start Test Thread failed")
 
     def test_thread(self):
-        proc = subprocess.Popen(["xmessage", "-geometry", "730x200+300+400",
-                                 "Bitte lese dir die Aufgabe sorgfaeltig durch. Klicke auf den 'okay' Button, sobald du bereit bist. \n\n " + self.task_message()])
+        intro = "Bitte lese dir die Aufgabe sorgfältig durch. Klicke auf den 'OK' Button unten rechts im Fenster, sobald du bereit bist. \n\n"
+        proc = subprocess.Popen(["gxmessage", "-geometry", f"{self.w}x{self.h}+{self.x}+{self.y}",
+                                 intro + self.task_message()])
         proc.wait(1000)
         starttime = time.time()
 
@@ -68,4 +73,4 @@ class Task:
         return ""
 
     def finish(self):
-        proc = subprocess.Popen(["xmessage","-geometry", "730x200+300+400", "Erfolgreich beendet!"])
+        proc = subprocess.Popen(["gxmessage","-geometry", f"{self.w}x{self.h}+{self.x}+{self.y}", "Erfolgreich beendet!"])

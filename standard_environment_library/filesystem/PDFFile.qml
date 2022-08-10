@@ -9,6 +9,9 @@ Item
     id: container
     function updateData(data)
     {
+        if(data.is_overlay_visible !== undefined)
+            overlay.visible = data.is_overlay_visible;
+
         if(data.is_greyed_out) {
             texture.opacity = 0.25;
             filename.opacity = 0.25;
@@ -54,6 +57,14 @@ Item
         opacity: 1
 
         visible: true
+    }
+
+    ColorOverlay {
+        id: overlay
+        anchors.fill: texture
+        source: texture
+        color: "#88FA842B"
+        visible: false
     }
 
     TextArea {

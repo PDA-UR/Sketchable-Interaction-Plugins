@@ -12,3 +12,5 @@ https://icon-icons.com/download/153458/PNG/256/
 search.png <div>Icon made from <a href="http://www.onlinewebfonts.com/icon">Icon Fonts</a> is licensed by CC BY 3.0</div>
 
 sort_icon.png https://www.iconfinder.com/icons/352137/sort_icon
+
+zip.png <a href="https://www.flaticon.com/de/kostenlose-icons/daten-und-ordner" title="daten und ordner Icons">Daten und ordner Icons erstellt von juicy_fish - Flaticon</a>

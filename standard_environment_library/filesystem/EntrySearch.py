@@ -33,14 +33,8 @@ class EntrySearch(Movable, Deletable, SIEffect):
 
     @SIEffect.on_continuous("__MATCH_ENTRIES__", SIEffect.EMISSION)
     def on_match_entries_continuous_emit(self, other):
-        query = self.get_QML_data(E.id.tag_text_from_qml, PySI.DataType.STRING)
-
-        if query != self.current_query:
-            self.current_query = query
-
-            return self, self.current_query, True
-
-        return self, "", False
+        self.current_query = self.get_QML_data(E.id.tag_text_from_qml, PySI.DataType.STRING)
+        return self, self.current_query
 
     @SIEffect.on_leave("__MATCH_ENTRIES__", SIEffect.EMISSION)
     def on_match_entries_leave(self, other):

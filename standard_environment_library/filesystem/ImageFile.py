@@ -61,6 +61,14 @@ class ImageFile(File):
         self.set_QML_data("img_path", self.path, PySI.DataType.STRING)
         self.set_QML_data("is_in_preview", False, PySI.DataType.BOOL)
 
+    @SIEffect.on_leave("ADD_TO_FOLDERBUBBLE", SIEffect.RECEPTION)
+    def on_add_to_folder_leave_recv(self):
+        self.set_QML_data("is_overlay_visible", True, PySI.DataType.BOOL)
+
+    @SIEffect.on_continuous("ADD_TO_FOLDERBUBBLE", SIEffect.RECEPTION)
+    def on_add_to_folder_continuous_recv(self):
+        self.set_QML_data("is_overlay_visible", False, PySI.DataType.BOOL)
+
     @SIEffect.on_enter(E.capability.preview_previewing, SIEffect.RECEPTION)
     def on_preview_enter_recv(self):
         if not self.is_in_preview:

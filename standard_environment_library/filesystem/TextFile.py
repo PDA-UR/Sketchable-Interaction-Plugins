@@ -2,6 +2,7 @@ from libPySI import PySI
 
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library.filesystem.File import File
+from plugins.standard_environment_library.filesystem import InteractionPriorization
 from plugins.E import E
 
 
@@ -31,6 +32,14 @@ class TextFile(File):
 
         self.set_QML_data("icon_view", self.is_in_icon_view, PySI.DataType.BOOL)
         self.set_QML_data("edit_view", self.is_in_edit_view, PySI.DataType.BOOL)
+
+    @SIEffect.on_continuous("ADD_TO_FOLDERBUBBLE", SIEffect.RECEPTION)
+    def on_add_to_folder_continuous_recv(self):
+        self.set_QML_data("is_overlay_visible", False, PySI.DataType.BOOL)
+
+    @SIEffect.on_leave("ADD_TO_FOLDERBUBBLE", SIEffect.RECEPTION)
+    def on_add_to_folder_leave_recv(self):
+        self.set_QML_data("is_overlay_visible", True, PySI.DataType.BOOL)
 
     def to_edit_view(self):
         self.with_border = True
@@ -92,3 +101,4 @@ class TextFile(File):
             return True
 
         return False
+
