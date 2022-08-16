@@ -1,3 +1,5 @@
+import pathlib
+
 from libPySI import PySI
 
 from plugins.standard_environment_library.SIEffect import SIEffect
@@ -392,7 +394,9 @@ class FolderBubble(Folder):
                 other.adjust_linked_content_paths()
 
             self.parent_to(other)
-            self.parent.expand()
+
+            if self.parent is not None:
+                self.parent.expand()
 
     def parent_to(self, other):
         self.content = self.__fetch_contents__()
@@ -433,8 +437,13 @@ class FolderBubble(Folder):
                         return
 
             if not other.enveloped_by(self):
-                if other.regionname != FolderBubble.regionname and other.regionname != FolderIcon.FolderIcon.regionname:
-                    shutil.copy(other.path, self.path)
+                if other.regionname != FolderBubble.regionname:
+                    if other.regionname != FolderIcon.FolderIcon.regionname:
+                        shutil.copy(other.path, self.path)
+                    else:
+                        if not pathlib.Path(self.path + "/" + other.entryname).exists():
+                            shutil.copytree(other.path, self.path + "/" + other.entryname)
+
                     new_path = self.handle_duplicate_renaming(other)
                     kwargs = {}
                     kwargs["parent"] = self
@@ -452,39 +461,16 @@ class FolderBubble(Folder):
                         other.parent.linked_content.append(other)
                     other.move(other.last_position_x - other.absolute_x_pos(), other.last_position_y - other.absolute_y_pos())
                     other.parent.expand()
-                    self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
-                    return
 
-                if other.regionname == FolderIcon.FolderIcon.regionname and not other.is_initial:
-                    new_path = self.handle_duplicate_renaming(other)
-                    kwargs = {}
-                    kwargs["parent"] = self
-                    kwargs["path"] = new_path
-                    kwargs["parent_level"] = self.parent_level + 1
-                    kwargs["root_path"] = self.root_path
-                    kwargs["copy"] = True
-                    x, y = self.aabb[0].x + self.x, self.aabb[0].y + self.y
-                    if other in other.parent.linked_content:
-                        other.parent.linked_content.remove(other)
-                    other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
-                    other.parent = other.previous_parent
-                    other.parent.parent_to(other)
-                    if other not in other.parent.linked_content:
-                        other.parent.linked_content.append(other)
-                    other.move(other.last_position_x - other.absolute_x_pos(), other.last_position_y - other.absolute_y_pos())
-                    other.parent.expand()
-                    self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
-
-                    try:
-                        shutil.copytree(other.path, self.path + "/" + other.entryname)
-                    except:
-                        pass
-
+                    if other.regionname != FolderIcon.FolderIcon.regionname:
+                        self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
+                    else:
+                        if self != other.parent:
+                            self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
                     return
 
             if other.regionname == FolderIcon.FolderIcon.regionname:
                 other.is_initial = False
-
 
             new_path = self.handle_duplicate_renaming(other)
             os.rename(other.path, new_path)

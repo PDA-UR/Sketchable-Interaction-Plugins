@@ -16,7 +16,8 @@ class InteractionPriorization(PositionLinkable, SIEffect):
 
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", kwargs: dict = {}) -> None:
         super(InteractionPriorization, self).__init__(shape, uuid, "", InteractionPriorization.regiontype, InteractionPriorization.regionname, kwargs)
-        self.color = PySI.Color(255, 255, 0, 255)
+        # self.color = PySI.Color(255, 255, 0, 255)
+        self.color = PySI.Color(255, 255, 0, 0)
         self.with_border = False
         self.parent = kwargs["parent"]
         self.parent.prio = self
