@@ -1,4 +1,5 @@
 import QtQuick 2.7
+import QtQuick.Controls 2.7
 
 Item {
 	function updateData(data) {
@@ -38,22 +39,26 @@ Item {
         visible: true
     }
 
-	TextEdit {
+	TextField {
         id: te
-        text: "TEST"
+        text: "search"
         font.family: "Helvetica"
         font.pointSize: 20
-        color: "black"
+        color: "grey"
         focus: true
         anchors.top: parent.top
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         anchors.left: texture.right
-        anchors.topMargin: 5
-        anchors.bottomMargin: 5
-        anchors.leftMargin: 5
-        anchors.rightMargin: 5
         onTextChanged: REGION.set_data({text: te.text});
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                te.text = "";
+                te.color = "black";
+            }
+        }
 
         Keys.onReturnPressed: {
             textChanged();

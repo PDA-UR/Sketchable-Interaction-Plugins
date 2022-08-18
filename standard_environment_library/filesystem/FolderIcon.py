@@ -1,3 +1,4 @@
+
 from libPySI import PySI
 
 from plugins.standard_environment_library._standard_behaviour_mixins.Transportable import Transportable
@@ -8,6 +9,8 @@ from plugins.standard_environment_library.filesystem import InteractionPriorizat
 from plugins.E import E
 import os
 from iteration_utilities import flatten
+import shutil
+
 
 class FolderIcon(Transportable, Folder):
     regiontype = PySI.EffectType.SI_CUSTOM
@@ -32,6 +35,19 @@ class FolderIcon(Transportable, Folder):
         x, y = self.absolute_x_pos(), self.absolute_y_pos()
         self.create_region_via_class([[x, y], [x, y + 4], [x + 4, y + 4], [x + 4, y]], InteractionPriorization, {"parent": self})
         self.prio = None
+
+        is_drawn = True if "DRAWN" in kwargs and kwargs["DRAWN"] else False
+
+        if self.path == "" and is_drawn:
+            self.path = self.desktop_path + "/untitled_folder"
+
+            while os.path.exists(self.path):
+                self.path += "_other"
+
+            os.mkdir(self.path)
+            self.entryname = self.path[self.path.rfind("/") + 1:]
+
+            self.set_QML_data("name", self.entryname, PySI.DataType.STRING)
 
     @SIEffect.on_enter("__HIGHLIGHT_ADDITION__", SIEffect.EMISSION)
     def on_highlight_addition_enter_emit(self, other):
@@ -131,6 +147,22 @@ class FolderIcon(Transportable, Folder):
                     new_path = self.path[:self.path.rfind("/") + 1] + fname
                     os.rename(self.path, new_path)
                     self.path = new_path
+
+        colls = [k for i, k in self.present_collisions()]
+
+        if self.is_ready and self.was_moved() and "__ FolderIcon __" not in colls and "__ FolderBubble __" not in colls and self.path != self.root_path:
+            new_path = self.desktop_path + "/" + self.entryname
+            if self.path != new_path:
+                shutil.move(self.path, new_path)
+                self.path = new_path
+
+                self.set_QML_data("name", self.entryname, PySI.DataType.STRING)
+
+                if self.parent is not None:
+                    if self in self.parent.linked_content:
+                        self.parent.linked_content.remove(self)
+
+                self.parent = None
 
     @SIEffect.on_enter("__MATCH_ENTRIES__", SIEffect.RECEPTION)
     def on_match_entries_enter_recv(self, entry_search):

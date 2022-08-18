@@ -245,7 +245,7 @@ class FolderBubble(Folder):
                 if t.regionname == FolderBubble.regionname:
                     t.emit_linking_action(t._uuid, PySI.LinkingCapability.POSITION, t.position())
 
-            self.shape = PySI.PointVector(self.round_edge(self.explode(grid_pts, 1.05)))
+            self.shape = PySI.PointVector(self.round_edge(self.explode(grid_pts, 1.035)))
             self.set_QML_data("widget_width", int(self.aabb[3].x - self.aabb[0].x), PySI.DataType.FLOAT)
             self.set_QML_data("height", int(self.aabb[1].y - self.aabb[0].y), PySI.DataType.INT)
             self.width = int(self.aabb[3].x - self.aabb[0].x)
@@ -415,7 +415,48 @@ class FolderBubble(Folder):
             if os.path.commonprefix([self.path, other.path]) != self.path:
                 if not other.enveloped_by(self):
                     if other.regionname != FolderBubble.regionname and other.regionname != FolderIcon.FolderIcon.regionname:
-                        shutil.copy(other.path, self.path)
+                        if self.desktop_path in other.path:
+                            shutil.move(other.path, self.path)
+                        else:
+                            shutil.copy(other.path, self.path)
+
+                        new_path = self.handle_duplicate_renaming(other)
+                        kwargs = {}
+                        kwargs["parent"] = self
+                        kwargs["path"] = new_path
+                        kwargs["parent_level"] = self.parent_level + 1
+                        kwargs["root_path"] = self.root_path
+                        kwargs["copy"] = True
+                        x, y = self.aabb[0].x + self.x, self.aabb[0].y + self.y
+                        if other in other.parent.linked_content:
+                            other.parent.linked_content.remove(other)
+                        other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+
+                        if other.previous_parent is not None:
+                            other.parent = other.previous_parent
+
+                        other.parent.parent_to(other)
+                        if other not in other.parent.linked_content:
+                            other.parent.linked_content.append(other)
+
+                        other.move(other.last_position_x - other.absolute_x_pos(), other.last_position_y - other.absolute_y_pos())
+                        other.parent.expand()
+
+                        if self.desktop_path not in other.path:
+                            self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
+                        return
+
+                if not other.enveloped_by(self):
+                    if other.regionname != FolderBubble.regionname:
+                        if other.regionname != FolderIcon.FolderIcon.regionname:
+                            shutil.copy(other.path, self.path)
+                        else:
+                            if not pathlib.Path(self.path + "/" + other.entryname).exists():
+                                if self.desktop_path in other.path:
+                                    shutil.move(other.path, self.path + "/" + other.entryname)
+                                else:
+                                    shutil.copytree(other.path, self.path + "/" + other.entryname)
+
                         new_path = self.handle_duplicate_renaming(other)
                         kwargs = {}
                         kwargs["parent"] = self
@@ -428,46 +469,30 @@ class FolderBubble(Folder):
                             other.parent.linked_content.remove(other)
                         other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
                         other.parent = other.previous_parent
+
+                        if other.previous_parent is not None:
+                            other.parent = other.previous_parent
+
+                        if other.parent is None:
+                            other.parent = self
+
                         other.parent.parent_to(other)
+
+                        if other.parent == self:
+                            other.path = self.path + "/" + other.entryname
+
                         if other not in other.parent.linked_content:
                             other.parent.linked_content.append(other)
+
                         other.move(other.last_position_x - other.absolute_x_pos(), other.last_position_y - other.absolute_y_pos())
                         other.parent.expand()
-                        self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
-                        return
 
-            if not other.enveloped_by(self):
-                if other.regionname != FolderBubble.regionname:
-                    if other.regionname != FolderIcon.FolderIcon.regionname:
-                        shutil.copy(other.path, self.path)
-                    else:
-                        if not pathlib.Path(self.path + "/" + other.entryname).exists():
-                            shutil.copytree(other.path, self.path + "/" + other.entryname)
-
-                    new_path = self.handle_duplicate_renaming(other)
-                    kwargs = {}
-                    kwargs["parent"] = self
-                    kwargs["path"] = new_path
-                    kwargs["parent_level"] = self.parent_level + 1
-                    kwargs["root_path"] = self.root_path
-                    kwargs["copy"] = True
-                    x, y = self.aabb[0].x + self.x, self.aabb[0].y + self.y
-                    if other in other.parent.linked_content:
-                        other.parent.linked_content.remove(other)
-                    other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
-                    other.parent = other.previous_parent
-                    other.parent.parent_to(other)
-                    if other not in other.parent.linked_content:
-                        other.parent.linked_content.append(other)
-                    other.move(other.last_position_x - other.absolute_x_pos(), other.last_position_y - other.absolute_y_pos())
-                    other.parent.expand()
-
-                    if other.regionname != FolderIcon.FolderIcon.regionname:
-                        self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
-                    else:
-                        if self != other.parent:
+                        if other.regionname != FolderIcon.FolderIcon.regionname:
                             self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
-                    return
+                        else:
+                            if self != other.parent:
+                                self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
+                        return
 
             if other.regionname == FolderIcon.FolderIcon.regionname:
                 other.is_initial = False
@@ -480,6 +505,7 @@ class FolderBubble(Folder):
                 other.adjust_linked_content_paths()
 
             self.parent_to(other)
+
 
     def regionname_to_class(self, regionname):
         if regionname == ImageFile.ImageFile.regionname:
@@ -497,7 +523,8 @@ class FolderBubble(Folder):
         if other in other.parent.linked_content:
             other.parent.linked_content.remove(other)
             other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
-            other.parent = None
+
+        other.parent = None
 
     def add(self, other):
         if not other.flagged_for_deletion:
@@ -511,7 +538,7 @@ class FolderBubble(Folder):
                     if other.path == "":
                         self.prepare_drawn_entry_addition(other)
                         self.parent_to(other)
-                        self.expand()
+                        # self.expand()
                     else:
                         if hasattr(other, "prio"):
                             collisions = [uuid for uuid, name in other.present_collisions()]
@@ -531,38 +558,37 @@ class FolderBubble(Folder):
                 if not self.is_under_user_control and other.is_under_user_control:
                     self.prepare_existing_entry_inner_addition(other)
 
+
     @SIEffect.on_continuous("ADD_TO_FOLDERBUBBLE", SIEffect.EMISSION)
     def on_add_to_folder_continuous_emit(self, other):
         cursor = [r for r in self.current_regions() if r.regionname == PySI.EffectName.SI_STD_NAME_MOUSE_CURSOR][0]
 
-        # if hasattr(other, "path") and other.path == "":
-        #     if other in cursor.ctrl_selected and other == cursor.ctrl_selected[0] and not cursor.ctrl_pressed and not other.is_under_user_control:
-        #         print("HIT")
-        #
-        #         cursor.ctrl_selected = []
-
         if other in cursor.ctrl_selected and other == cursor.ctrl_selected[0] and not cursor.ctrl_pressed and not other.is_under_user_control:
             for r in cursor.ctrl_selected:
                 r.remove_link(cursor._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
-                if r.parent is not None:
-                    r.remove_link(r.parent._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
-                    r.parent.linked_content.remove(r)
-                r.move(other.absolute_x_pos() - r.absolute_x_pos() + r.x, other.absolute_y_pos() - r.absolute_y_pos() + r.y)
-                r.is_under_user_control = False
-                r.is_blocked = False
-                r.is_ready = True
-                self.linked_content.append(r)
-                self.parent_to(r)
-                new_path = self.handle_duplicate_renaming(r)
-                if r.path == "":
-                    if r.regionname == FolderIcon.FolderIcon.regionname:
-                        os.mkdir(new_path)
-                    else:
-                        open(new_path, 'w').close()
-                else:
-                    os.rename(r.path, new_path)
 
-                r.path = new_path
+                if r.parent != self:
+                    if r.parent is not None:
+                        r.remove_link(r.parent._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
+                        r.parent.linked_content.remove(r)
+
+                    r.move(other.absolute_x_pos() - r.absolute_x_pos() + r.x, other.absolute_y_pos() - r.absolute_y_pos() + r.y)
+                    r.is_under_user_control = False
+                    r.is_blocked = False
+                    r.is_ready = True
+                    self.linked_content.append(r)
+                    self.parent_to(r)
+
+                    new_path = self.handle_duplicate_renaming(r)
+                    if r.path == "":
+                        if r.regionname == FolderIcon.FolderIcon.regionname:
+                            os.mkdir(new_path)
+                        else:
+                            open(new_path, 'w').close()
+                    else:
+                        os.rename(r.path, new_path)
+
+                    r.path = new_path
 
             self.expand()
             cursor.ctrl_selected = []
@@ -593,9 +619,11 @@ class FolderBubble(Folder):
 
         folders = [(r, r.parent_level) for r in self.current_regions() if r.regionname == FolderBubble.regionname]
         folders.sort(key=lambda tup: tup[1], reverse=True)
+
         collisions = [r[0] for r in other.present_collisions() if r[1] == FolderBubble.regionname]
 
         uid = self.target_uuid(folders, collisions)
+
         self.unhighlight_non_self_folders(folders, uid)
 
         if self._uuid == uid:

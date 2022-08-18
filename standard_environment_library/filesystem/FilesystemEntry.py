@@ -3,7 +3,8 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
-import os, time
+import os, time, shutil
+
 
 class FilesystemEntry(Movable, Deletable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
@@ -13,7 +14,8 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", texture_path="", regiontype=PySI.EffectType.SI_CUSTOM_NON_DRAWABLE, regionname="__ FilesystemEntry __", kwargs: dict = {}) -> None:
         super(FilesystemEntry, self).__init__(shape, uuid, texture_path, regiontype, regionname, kwargs)
 
-        self.root_path = "/home/juergen/Desktop/test" if "root_path" not in kwargs else kwargs["root_path"]
+        self.root_path = "/home/juergen/Desktop/si_test/test" if "root_path" not in kwargs else kwargs["root_path"]
+        self.desktop_path = "/home/juergen/Desktop/si_test/Desktop"
         self.path = "" if "path" not in kwargs.keys() else kwargs["path"]
         self.entryname = "" if self.path == "" else self.path[self.path.rfind("/") + 1:]
         self.parent = None if "parent" not in kwargs else kwargs["parent"]
@@ -33,6 +35,7 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
         self.is_ready = False
         self.with_border = False
         self.default_with_border = False
+
         if self.parent is not None and self.path != "":
             self.create_link(self.parent._uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
         self.set_QML_data("icon_width", self.icon_width, PySI.DataType.INT)
@@ -46,6 +49,7 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
         # if self.path != "":
         #     self.creation_time = time.ctime(os.path.getctime(self.path))
         #     self.modification_time = time.ctime(os.path.getmtime(self.path))
+
 
     @SIEffect.on_continuous("__PARENT_CANVAS__", SIEffect.RECEPTION)
     def on_canvas_continuous_recv(self, canvas_uuid: str) -> None:

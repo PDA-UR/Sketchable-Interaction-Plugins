@@ -43,6 +43,8 @@ Item
 
 
         if(data.edit_view) {
+            overlay.visible = false;
+
             texture.visible = false;
             filename.visible = false;
             edit_filename.visible = true;

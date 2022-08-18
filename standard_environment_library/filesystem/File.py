@@ -1,3 +1,5 @@
+import shutil
+
 from libPySI import PySI
 
 from plugins.standard_environment_library.SIEffect import SIEffect
@@ -69,6 +71,22 @@ class File(Transportable, FilesystemEntry):
                     new_path = self.path[:self.path.rfind("/") + 1] + fname
                     os.rename(self.path, new_path)
                     self.path = new_path
+
+        colls = [k for i, k in self.present_collisions()]
+
+        if self.is_ready and self.was_moved() and "__ FolderIcon __" not in colls and "__ FolderBubble __" not in colls and self.path != self.root_path:
+            new_path = self.desktop_path + "/" + self.entryname
+            if self.path != new_path:
+                shutil.move(self.path, new_path)
+                self.path = new_path
+
+                self.set_QML_data("name", self.entryname, PySI.DataType.STRING)
+
+                if self.parent is not None:
+                    if self in self.parent.linked_content:
+                        self.parent.linked_content.remove(self)
+
+                self.parent = None
 
     def remove(self):
         self.prio.delete()

@@ -37,6 +37,19 @@ Item {
         visible: true
     }
 
+    Rectangle {
+        id: bg
+        color: "white"
+        width: filename.paintedWidth + 20
+        height: filename.paintedHeight
+        anchors.bottom: container.bottom
+        anchors.horizontalCenter: container.horizontalCenter;
+        anchors.bottomMargin: 40
+        border.color: "black"
+        border.width: 1
+        visible: true
+    }
+
     TextArea {
         id: filename
         width: container.width
@@ -44,11 +57,13 @@ Item {
         text: "hello world"
         font.pixelSize: parent.texturePointSize
         color: "black"
-        anchors.bottom: container.bottom;
+        anchors.bottom: container.bottom
+        anchors.bottomMargin: 35
         anchors.horizontalCenter: container.horizontalCenter;
         wrapMode: TextEdit.Wrap
         onEditingFinished: REGION.set_data({text: filename.text});
         horizontalAlignment: TextArea.AlignHCenter
+
 
         Keys.onPressed: {
             container.height = container.initial_height + filename.paintedHeight + container.texturePointSize;

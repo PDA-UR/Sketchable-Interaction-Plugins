@@ -4,6 +4,7 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library.filesystem.File import File
 from plugins.standard_environment_library.filesystem import InteractionPriorization
 from plugins.E import E
+import os
 
 
 class TextFile(File):
@@ -24,14 +25,33 @@ class TextFile(File):
         self.is_text: SIEffect.SI_CONDITION = True
 
         if self.path != "":
-            f = open(self.path, "r")
-            text = f.read()
-            f.close()
-            self.text = text
-            self.set_QML_data("content", self.text, PySI.DataType.STRING)
+            try:
+                f = open(self.path, "r")
+                text = f.read()
+                f.close()
+                self.text = text
+                self.set_QML_data("content", self.text, PySI.DataType.STRING)
+            except:
+                pass
 
+        is_drawn = True if "DRAWN" in kwargs and kwargs["DRAWN"] else False
+
+        if self.path == "" and is_drawn:
+            self.path = self.desktop_path + "/new_file.txt"
+            self.path = self.handle_duplicate_renaming(self.path)
+            self.entryname = self.path[self.path.rfind("/") + 1:]
+
+            open(self.path, 'w').close()
+
+            self.set_QML_data("name", self.entryname, PySI.DataType.STRING)
         self.set_QML_data("icon_view", self.is_in_icon_view, PySI.DataType.BOOL)
         self.set_QML_data("edit_view", self.is_in_edit_view, PySI.DataType.BOOL)
+
+    def handle_duplicate_renaming(self, path):
+        while os.path.exists(path):
+            path = path[:path.rfind(f".txt")] + "_other" + f".text"
+
+        return path
 
     @SIEffect.on_continuous("ADD_TO_FOLDERBUBBLE", SIEffect.RECEPTION)
     def on_add_to_folder_continuous_recv(self):
