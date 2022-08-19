@@ -245,7 +245,7 @@ class FolderBubble(Folder):
                 if t.regionname == FolderBubble.regionname:
                     t.emit_linking_action(t._uuid, PySI.LinkingCapability.POSITION, t.position())
 
-            self.shape = PySI.PointVector(self.round_edge(self.explode(grid_pts, 1.035)))
+            self.shape = PySI.PointVector(self.round_edge(self.explode(grid_pts, 1.05)))
             self.set_QML_data("widget_width", int(self.aabb[3].x - self.aabb[0].x), PySI.DataType.FLOAT)
             self.set_QML_data("height", int(self.aabb[1].y - self.aabb[0].y), PySI.DataType.INT)
             self.width = int(self.aabb[3].x - self.aabb[0].x)
@@ -273,7 +273,7 @@ class FolderBubble(Folder):
 
         return points
 
-    def grid_dimensions(self, n, max_cols=4):
+    def grid_dimensions(self, n, max_cols=5):
         rows = int(n / max_cols) + 1 if n % max_cols != 0 else int(n / max_cols)
         rows = rows if rows != 0 else 1
         cols = n / rows
@@ -326,7 +326,7 @@ class FolderBubble(Folder):
 
     def add_entry(self, other):
         if not self.is_under_user_control and not other.is_under_user_control:
-            other.parenting_time = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            self.parent_to(other)
             self.linked_content.append(other)
             other.parent_level = self.parent_level + 1
             if other.regionname == InboxItem.InboxItem.regionname:
@@ -340,9 +340,6 @@ class FolderBubble(Folder):
                 f.close()
 
             if len(self.linked_content) == len(self.content):
-                self.expand()
-
-            if other.is_copy:
                 self.expand()
 
     def prepare_drawn_entry_addition(self, other):
@@ -498,13 +495,17 @@ class FolderBubble(Folder):
                 other.is_initial = False
 
             new_path = self.handle_duplicate_renaming(other)
-            os.rename(other.path, new_path)
-            other.path = new_path
+            try:
+                os.rename(other.path, new_path)
 
-            if other.regionname == FolderBubble.regionname:
-                other.adjust_linked_content_paths()
+                other.path = new_path
 
-            self.parent_to(other)
+                if other.regionname == FolderBubble.regionname:
+                    other.adjust_linked_content_paths()
+
+                self.parent_to(other)
+            except:
+                pass
 
 
     def regionname_to_class(self, regionname):
@@ -564,6 +565,8 @@ class FolderBubble(Folder):
         cursor = [r for r in self.current_regions() if r.regionname == PySI.EffectName.SI_STD_NAME_MOUSE_CURSOR][0]
 
         if other in cursor.ctrl_selected and other == cursor.ctrl_selected[0] and not cursor.ctrl_pressed and not other.is_under_user_control:
+            other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+
             for r in cursor.ctrl_selected:
                 r.remove_link(cursor._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
 
@@ -571,6 +574,11 @@ class FolderBubble(Folder):
                     if r.parent is not None:
                         r.remove_link(r.parent._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
                         r.parent.linked_content.remove(r)
+                    else:
+                        if r.previous_parent is not None:
+                            r.remove_link(r.previous_parent._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
+                            if r in r.previous_parent.linked_content:
+                                r.previous_parent.linked_content.remove(r)
 
                     r.move(other.absolute_x_pos() - r.absolute_x_pos() + r.x, other.absolute_y_pos() - r.absolute_y_pos() + r.y)
                     r.is_under_user_control = False
@@ -586,11 +594,11 @@ class FolderBubble(Folder):
                         else:
                             open(new_path, 'w').close()
                     else:
-                        os.rename(r.path, new_path)
+                        shutil.move(r.path, new_path)
 
                     r.path = new_path
-
             self.expand()
+
             cursor.ctrl_selected = []
         else:
             if other.regionname != "__ InteractionPriorization __":
