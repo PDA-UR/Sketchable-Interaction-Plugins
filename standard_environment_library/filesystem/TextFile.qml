@@ -9,8 +9,8 @@ Item
     id: container
     function updateData(data)
     {
-        if(data.is_overlay_visible !== undefined)
-            overlay.visible = data.is_overlay_visible;
+        //if(data.is_overlay_visible !== undefined)
+        //    overlay.visible = data.is_overlay_visible;
 
         if(data.icon_view) {
             if(data.is_greyed_out) {
@@ -43,7 +43,7 @@ Item
 
 
         if(data.edit_view) {
-            overlay.visible = false;
+            //overlay.visible = false;
 
             texture.visible = false;
             filename.visible = false;
@@ -58,24 +58,22 @@ Item
 
     visible: true
 
-    TextArea {
+    Text {
         id: edit_filename
         anchors.top: parent.top
         anchors.left: parent.left
         font.family: "Helvetica"
         font.pointSize: 14
         color: "black"
-        onEditingFinished: REGION.set_data({text: edit_filename.text});
-        Keys.onReturnPressed: {
-            focus = false;
-            editingFinished();
-        }
+        //onEditingFinished: REGION.set_data({text: edit_filename.text});
+        //Keys.onReturnPressed: {
+        //    focus = false;
+        //    editingFinished();
+        //}
 
-        Keys.onPressed: {
-        }
+        //Keys.onPressed: {
+        //}
     }
-
-
 
     Shortcut {
         sequence: "Ctrl+S"
@@ -91,6 +89,10 @@ Item
         anchors.bottom: parent.bottom
         anchors.topMargin: edit_filename.height + 10
         font.pointSize: 12
+
+        Keys.onPressed: (event)=> {
+            REGION.set_data({te_content: edit_textedit.text + event.text});
+        }
     }
 
     Image {

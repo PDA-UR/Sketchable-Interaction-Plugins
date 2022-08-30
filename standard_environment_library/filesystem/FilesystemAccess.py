@@ -6,6 +6,7 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Deletable i
 from plugins.standard_environment_library.filesystem.FolderBubble import FolderBubble
 from plugins.standard_environment_library.filesystem.FolderIcon import FolderIcon
 from plugins.E import E
+from pathlib import Path
 
 
 class FilesystemAccess(Movable, SIEffect):

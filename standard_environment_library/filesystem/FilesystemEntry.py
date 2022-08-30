@@ -4,6 +4,7 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 import os, time, shutil
+from pathlib import Path
 
 
 class FilesystemEntry(Movable, Deletable, SIEffect):

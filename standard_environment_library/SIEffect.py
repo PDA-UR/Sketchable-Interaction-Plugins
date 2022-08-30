@@ -144,6 +144,8 @@ class SIEffect(PySI.Effect):
         self.with_border = True
         self.border_color = PySI.Color(0, 0, 0, 255)
         self.__enveloped_by__ = []
+        self.context_width, self.context_height = self.context_dimensions()
+        self.border_width = 4
 
         tmp = sys.modules[self.__class__.__module__].__file__
         texture_path = tmp[0:tmp.rindex("/") + 1] + texture_path
@@ -752,6 +754,21 @@ class SIEffect(PySI.Effect):
     #
     # @return None
     def move(self, x, y) -> None:
+        aabb_x = self.aabb[0].x
+        aabb_y = self.aabb[0].y
+
+        if aabb_x + x < self.border_width:
+            x = -aabb_x + self.border_width# + 5
+
+        if aabb_y + y < self.border_width:
+            y = -aabb_y + self.border_width# + 5
+
+        if aabb_x + self.width + x > self.context_width - self.border_width:
+            x = x - ((aabb_x + self.width + x) - (self.context_width - self.border_width))# - 5
+
+        if aabb_y + self.height + y > self.context_height - self.border_width:
+            y = y - ((aabb_y + self.height + y) - (self.context_height - self.border_width))# - 5
+
         self.x = x
         self.y = y
 

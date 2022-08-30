@@ -10,6 +10,7 @@ from plugins.E import E
 import os
 from iteration_utilities import flatten
 import shutil
+from plugins.standard_environment_library.canvas.Tooltip import Tooltip
 
 
 class FolderIcon(Transportable, Folder):
@@ -49,9 +50,12 @@ class FolderIcon(Transportable, Folder):
 
             self.set_QML_data("name", self.entryname, PySI.DataType.STRING)
 
+        self.tooltip = [r for r in self.current_regions() if r.regionname == Tooltip.regionname][0]
+
     @SIEffect.on_enter("__HIGHLIGHT_ADDITION__", SIEffect.EMISSION)
     def on_highlight_addition_enter_emit(self, other):
         if not self.is_under_user_control and other.is_under_user_control:
+            self.tooltip.update("Move Item to Destination", Tooltip.FILE_MOVE)
             self.set_QML_data("is_highlighted", True, PySI.DataType.BOOL)
 
     @SIEffect.on_leave("__HIGHLIGHT_ADDITION__", SIEffect.EMISSION)

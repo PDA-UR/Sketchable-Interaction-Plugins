@@ -5,6 +5,7 @@ from plugins.E import E
 
 from plugins.standard_environment_library.__UndoStack import UndoStack
 from plugins.standard_environment_library.canvas.FPS_Counter import FPS_Counter
+from plugins.standard_environment_library.canvas.Tooltip import Tooltip
 
 
 class Canvas(SIEffect):
@@ -14,6 +15,8 @@ class Canvas(SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super().__init__(shape, uuid, "", Canvas.regiontype, Canvas.regionname, kwargs)
 
+        w, h = self.context_dimensions()
+
         self.color = PySI.Color(*kwargs["rgba"]) if "rgba" in kwargs else E.color.canvas_color
         self.old_color = self.color
         self.with_border = False
@@ -21,7 +24,7 @@ class Canvas(SIEffect):
         self.ustack = UndoStack()
         self.can_undo = False
 
-        self.create_region_via_name(PySI.PointVector([[10, 10], [10, 35], [110, 35], [110, 10]]), FPS_Counter.regionname, kwargs=kwargs)
+        self.create_region_via_name(PySI.PointVector([[w - 110, 10], [w - 110, 35], [w - 10, 35], [w - 10, 10]]), FPS_Counter.regionname, kwargs=kwargs)
 
     @SIEffect.on_enter(PySI.CollisionCapability.SKETCH, SIEffect.RECEPTION)
     def on_sketch_enter_recv(self, x, y, cursor_id):

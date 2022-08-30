@@ -1,0 +1,7 @@
+
+mouse-left-button.png <a href="https://www.flaticon.com/free-icons/mouse-clicker" title="mouse clicker icons">Mouse clicker icons created by Freepik - Flaticon</a>
+right-click-of-the-mouse.png <a href="https://www.flaticon.com/free-icons/right-click" title="right click icons">Right click icons created by Freepik - Flaticon</a>
+middle-mouse-click.png <a href="http://www.onlinewebfonts.com">oNline Web Fonts</a>
+copy.png <a href="https://www.flaticon.com/free-icons/copy" title="copy icons">Copy icons created by Freepik - Flaticon</a>
+move.png <a href="https://www.flaticon.com/free-icons/folder" title="folder icons">Folder icons created by Tanah Basah - Flaticon</a>
+mouse_move.png <a href="https://www.flaticon.com/free-icons/arrows" title="arrows icons">Arrows icons created by Freepik - Flaticon</a>

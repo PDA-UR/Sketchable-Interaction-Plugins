@@ -4,10 +4,9 @@ from plugins.standard_environment_library.paint_test.Painter import Painter
 from plugins.standard_environment_library.palette.RadialPalette import RadialPalette
 from plugins.standard_environment_library.email.InboxItem import InboxItem
 from plugins.standard_environment_library.canvas.Clear import Clear
+from plugins.standard_environment_library.canvas.Tooltip import Tooltip
 from plugins.E import E
-import re
 import math
-
 from plugins.standard_environment_library.filesystem import Folder, FolderIcon, FolderBubble, TextFile, ImageFile, ZIPFile, PDFFile
 
 
@@ -22,8 +21,8 @@ class Cursor(SIEffect):
 
         self.kwargs = kwargs
         self.qml_path = self.set_QML_path(E.id.cursor_qml_path)
-        # self.color = E.color.cursor_color
-        self.color = PySI.Color(255, 0, 0, 255)
+        self.color = E.color.cursor_color
+        # self.color = PySI.Color(255, 0, 0, 255)
         self.assigned_effect = ""
         self.is_drawing_blocked = False
         self.width = int(Cursor.region_width)
@@ -56,8 +55,10 @@ class Cursor(SIEffect):
         self.paint_tool = None
         self.temp = []
         self.ctrl_selected = []
-
         self.ctrl_pressed = False
+
+        self.tooltip = [r for r in self.current_regions() if r.regionname == Tooltip.regionname][0]
+        self.tooltip.update("Hold Left Mouse Button to Show Effects", Tooltip.MOUSE_BUTTON_LEFT)
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
@@ -70,25 +71,23 @@ class Cursor(SIEffect):
 
     @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION)
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
-        # somehow is not called at all
-        pass
-    #     if len(self.present_collisions_names()) == 1 and self.present_collisions_names()[0] == PySI.EffectName.SI_STD_NAME_CANVAS:
-    #         self.set_QML_data("visible", True, PySI.DataType.BOOL)
-    #     else:
-    #         tr = re.compile(r'__SI_CANVAS_NAME__|__SI_PALETTE_NAME__|Selector for (A-Za-z0-9)*')
-    #
-    #         is_valid = True
-    #         for t in self.present_collisions_names():
-    #             is_valid &= tr.search(t) is not None
-    #
-    #         if not is_valid:
-    #             self.set_QML_data("visible", False, PySI.DataType.BOOL)
-    #
-    #     self.last_x = self.x
-    #     self.last_y = self.y
-    #
-    #     self.move(abs_x, abs_y)
-    #
+        if len(self.present_collisions()) == 1 and self.assigned_effect == "" and not self.left_mouse_active:
+            self.tooltip.update("Hold Left Mouse Button to Show Effects", Tooltip.MOUSE_BUTTON_LEFT)
+        elif len(self.present_collisions()) == 1 and self.left_mouse_active:
+            self.tooltip.update("Choose an Effect", Tooltip.MOUSE_MOVE)
+        elif len(self.present_collisions()) == 1 and not self.left_mouse_active:
+            self.tooltip.update(f"Hold Right Mouse Button to Draw", Tooltip.MOUSE_BUTTON_RIGHT)
+        elif len(self.present_collisions()) > 1 and not self.left_mouse_active:
+            self.tooltip.update(f"Hold Left Mouse Button to Move", Tooltip.MOUSE_BUTTON_LEFT)
+        elif len(self.present_collisions()) > 1 and self.left_mouse_active and not self.has_palette_active:
+            if self.move_target is not None:
+                if self.move_target.regionname not in self.double_clickables and self.move_target.regionname not in self.ctrl_pressables:
+                    self.tooltip.update("Move Mouse to Move Item", Tooltip.MOUSE_MOVE)
+                elif self.move_target.regionname in self.double_clickables or self.move_target.regionname in self.ctrl_pressables:
+                    colls = self.move_target.present_collisions_names()
+
+                    if FolderIcon.FolderIcon.regionname not in colls and FolderBubble.FolderBubble.regionname not in colls:
+                        self.tooltip.update("Move Mouse to Move Item", Tooltip.MOUSE_MOVE)
 
     def on_ctrl_pressed(self, is_active):
         self.ctrl_pressed = is_active
@@ -152,12 +151,22 @@ class Cursor(SIEffect):
     def on_middle_mouse_click(self, is_active):
         self.middle_mouse_active = is_active
 
+        # if is_active:
+        #     if E.capability.cursor_enlarge not in self.cap_emit.keys():
+        #         self.enable_effect(E.capability.cursor_enlarge, True, self.on_enlarge_enter_emit, None, None)
+        # else:
+        #     if E.capability.cursor_enlarge in self.cap_emit.keys():
+        #         self.disable_effect(E.capability.cursor_enlarge, True)
+
         if is_active:
-            if E.capability.cursor_enlarge not in self.cap_emit.keys():
-                self.enable_effect(E.capability.cursor_enlarge, True, self.on_enlarge_enter_emit, None, None)
-        else:
-            if E.capability.cursor_enlarge in self.cap_emit.keys():
-                self.disable_effect(E.capability.cursor_enlarge, True)
+            mc_accepted = False
+
+            fs = [uuid for uuid, name in self.present_collisions() if name == "__ FolderBubble __"]
+            fs = [r for r in self.current_regions() if r._uuid in fs]
+            fs.sort(key=lambda x: x.parent_level, reverse=True)
+
+            if len(fs) > 0 and not mc_accepted:
+                mc_accepted = fs[0].on_middle_click()
 
     def on_double_click(self, is_active):
         if is_active:
@@ -235,7 +244,8 @@ class Cursor(SIEffect):
                     r.is_ready = True
                     r.is_under_user_control = False
                     r.is_blocked = False
-                self.ctrl_selected = []
+            self.ctrl_selected.clear()
+            self.ctrl_selected = []
 
     def on_left_mouse_click(self, is_active):
         self.left_mouse_active = is_active

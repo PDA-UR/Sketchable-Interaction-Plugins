@@ -17,6 +17,7 @@ from shapely import geometry
 import glob
 import os
 from datetime import datetime
+from plugins.standard_environment_library.canvas.Tooltip import Tooltip
 
 
 class FolderBubble(Folder):
@@ -65,6 +66,7 @@ class FolderBubble(Folder):
         self.last_recv_sort_mode = -1
         self.last_used_sort_criteria = FolderBubble.SORTING_CRITERIA_DEFAULT
         self.last_used_sort_criteria_mode = FolderBubble.SORTING_MODE_DEFAULT
+        self.tooltip = [r for r in self.current_regions() if r.regionname == Tooltip.regionname][0]
 
     def adjust_color(self):
         self.parent_level = 0 if self.parent is None else self.num_parents()
@@ -198,6 +200,10 @@ class FolderBubble(Folder):
         self.morph()
         return True
 
+    def on_middle_click(self):
+        self.expand()
+        return True
+
     def remove(self, recurse=True):
         self.delete()
         self.is_removed = True
@@ -273,7 +279,7 @@ class FolderBubble(Folder):
 
         return points
 
-    def grid_dimensions(self, n, max_cols=5):
+    def grid_dimensions(self, n, max_cols=3):
         rows = int(n / max_cols) + 1 if n % max_cols != 0 else int(n / max_cols)
         rows = rows if rows != 0 else 1
         cols = n / rows
@@ -326,6 +332,11 @@ class FolderBubble(Folder):
 
     def add_entry(self, other):
         if not self.is_under_user_control and not other.is_under_user_control:
+            if other.parent is not None:
+                if other in other.parent.linked_content:
+                    other.parent.linked_content.remove(other)
+                other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+
             self.parent_to(other)
             self.linked_content.append(other)
             other.parent_level = self.parent_level + 1
@@ -443,70 +454,80 @@ class FolderBubble(Folder):
                             self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
                         return
 
-                if not other.enveloped_by(self):
-                    if other.regionname != FolderBubble.regionname:
-                        if other.regionname != FolderIcon.FolderIcon.regionname:
-                            shutil.copy(other.path, self.path)
-                        else:
-                            if not pathlib.Path(self.path + "/" + other.entryname).exists():
-                                if self.desktop_path in other.path:
-                                    shutil.move(other.path, self.path + "/" + other.entryname)
-                                else:
-                                    shutil.copytree(other.path, self.path + "/" + other.entryname)
+            if not other.enveloped_by(self):
+                if other.regionname != FolderBubble.regionname:
+                    if other.regionname != FolderIcon.FolderIcon.regionname:
+                        shutil.copy(other.path, self.path)
+                    else:
+                        if not pathlib.Path(self.path + "/" + other.entryname).exists():
+                            if self.desktop_path in other.path:
+                                shutil.move(other.path, self.path + "/" + other.entryname)
+                            else:
+                                shutil.copytree(other.path, self.path + "/" + other.entryname)
 
-                        new_path = self.handle_duplicate_renaming(other)
-                        kwargs = {}
-                        kwargs["parent"] = self
-                        kwargs["path"] = new_path
-                        kwargs["parent_level"] = self.parent_level + 1
-                        kwargs["root_path"] = self.root_path
-                        kwargs["copy"] = True
-                        x, y = self.aabb[0].x + self.x, self.aabb[0].y + self.y
-                        if other in other.parent.linked_content:
-                            other.parent.linked_content.remove(other)
-                        other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+                    new_path = self.handle_duplicate_renaming(other)
+                    kwargs = {}
+                    kwargs["parent"] = self
+                    kwargs["path"] = new_path
+                    kwargs["parent_level"] = self.parent_level + 1
+                    kwargs["root_path"] = self.root_path
+                    kwargs["copy"] = True
+                    x, y = self.aabb[0].x + self.x, self.aabb[0].y + self.y
+                    if other in other.parent.linked_content:
+                        other.parent.linked_content.remove(other)
+                    other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+                    other.parent = other.previous_parent
+
+                    if other.previous_parent is not None:
                         other.parent = other.previous_parent
 
-                        if other.previous_parent is not None:
-                            other.parent = other.previous_parent
+                    if other.parent is None:
+                        other.parent = self
 
-                        if other.parent is None:
-                            other.parent = self
+                    other.parent.parent_to(other)
 
-                        other.parent.parent_to(other)
+                    if other.parent == self:
+                        other.path = self.path + "/" + other.entryname
 
-                        if other.parent == self:
-                            other.path = self.path + "/" + other.entryname
+                    if other not in other.parent.linked_content:
+                        other.parent.linked_content.append(other)
 
-                        if other not in other.parent.linked_content:
-                            other.parent.linked_content.append(other)
+                    other.move(other.last_position_x - other.absolute_x_pos(), other.last_position_y - other.absolute_y_pos())
+                    other.parent.expand()
 
-                        other.move(other.last_position_x - other.absolute_x_pos(), other.last_position_y - other.absolute_y_pos())
-                        other.parent.expand()
-
-                        if other.regionname != FolderIcon.FolderIcon.regionname:
+                    if other.regionname != FolderIcon.FolderIcon.regionname:
+                        self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
+                    else:
+                        if self != other.parent:
                             self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
-                        else:
-                            if self != other.parent:
-                                self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
-                        return
+                    return
 
             if other.regionname == FolderIcon.FolderIcon.regionname:
                 other.is_initial = False
 
+            if other.previous_parent is not None:
+                if other in other.previous_parent.linked_content:
+                    other.previous_parent.linked_content.remove(other)
+                other.remove_link(other.previous_parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+
+            if other.parent is not None:
+                if other in other.parent.linked_content:
+                    other.parent.linked_content.remove(other)
+                other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+
             new_path = self.handle_duplicate_renaming(other)
-            try:
-                os.rename(other.path, new_path)
 
-                other.path = new_path
+            shutil.move(other.path, new_path)
+            other.path = new_path
 
-                if other.regionname == FolderBubble.regionname:
-                    other.adjust_linked_content_paths()
+            if other.regionname == FolderBubble.regionname:
+                other.adjust_linked_content_paths()
 
-                self.parent_to(other)
-            except:
-                pass
+            self.parent_to(other)
+            if other not in other.parent.linked_content:
+                other.parent.linked_content.append(other)
 
+            self.expand()
 
     def regionname_to_class(self, regionname):
         if regionname == ImageFile.ImageFile.regionname:
@@ -524,7 +545,6 @@ class FolderBubble(Folder):
         if other in other.parent.linked_content:
             other.parent.linked_content.remove(other)
             other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
-
         other.parent = None
 
     def add(self, other):
@@ -565,8 +585,6 @@ class FolderBubble(Folder):
         cursor = [r for r in self.current_regions() if r.regionname == PySI.EffectName.SI_STD_NAME_MOUSE_CURSOR][0]
 
         if other in cursor.ctrl_selected and other == cursor.ctrl_selected[0] and not cursor.ctrl_pressed and not other.is_under_user_control:
-            other.remove_link(other.parent._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
-
             for r in cursor.ctrl_selected:
                 r.remove_link(cursor._uuid, PySI.LinkingCapability.POSITION, r._uuid, PySI.LinkingCapability.POSITION)
 
@@ -597,6 +615,10 @@ class FolderBubble(Folder):
                         shutil.move(r.path, new_path)
 
                     r.path = new_path
+                else:
+                    r.is_under_user_control = False
+                    r.is_blocked = False
+                    r.is_ready = True
             self.expand()
 
             cursor.ctrl_selected = []
@@ -649,9 +671,11 @@ class FolderBubble(Folder):
         if other.enveloped_by(self):
             self.color = self.highlight_color
             self.border_color = self.default_border_color
+            self.tooltip.update("Move Item to Destination", Tooltip.FILE_MOVE)
         else:
             self.border_color = self.highlight_color
             self.color = self.default_color
+            self.tooltip.update("Copy Item to Destination", Tooltip.FILE_COPY)
 
     def unhighlight_non_self_folders(self, folders, uid):
         for f in folders:
