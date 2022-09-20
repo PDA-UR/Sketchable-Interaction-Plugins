@@ -89,6 +89,7 @@ class File(Transportable, FilesystemEntry):
                 self.parent = None
 
     def remove(self):
-        self.prio.delete()
-        self.prio.remove_link(self._uuid, PySI.LinkingCapability.POSITION, self.prio._uuid, PySI.LinkingCapability.POSITION)
+        if self.prio is not None:
+            self.prio.delete()
+            self.prio.remove_link(self._uuid, PySI.LinkingCapability.POSITION, self.prio._uuid, PySI.LinkingCapability.POSITION)
         super().remove()

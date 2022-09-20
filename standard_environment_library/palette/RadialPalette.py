@@ -4,6 +4,8 @@ from plugins.E import E
 import cmath
 import math
 from shapely import geometry
+import threading
+
 
 class RadialPalette(SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
@@ -84,6 +86,7 @@ class RadialPalette(SIEffect):
             l, r = coords[i - 1], coords[i % len(self.available_plugins)]
             shape, middle, perp_vector = self.calculate_inner_segmentation_coordinates((l, r), cx, cy)
             self.create_region_via_name(PySI.PointVector(shape), self.available_plugins[i - 1], self.as_selector, {"parent": self, "middle": middle, "perp_vector": perp_vector})
+            # threading.Thread(target=lambda: self.create_region_via_name(PySI.PointVector(shape), self.available_plugins[i - 1], self.as_selector, {"parent": self, "middle": middle, "perp_vector": perp_vector})).start()
 
     def remove(self):
         for s in self.selectors:

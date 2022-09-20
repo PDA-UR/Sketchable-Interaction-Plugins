@@ -189,9 +189,11 @@ class FolderBubble(Folder):
                 }
                 f.close()
 
-            self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], c[1], kwargs)
+            if self.is_morphed or self.path == self.root_path:
+                self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], c[1], kwargs)
 
         self.set_QML_data("img_path", "", PySI.DataType.STRING)
+        self.is_morphed = False
 
     def __fetch_contents__(self) -> list:
         return [(entry, FolderIcon if os.path.isdir(entry) else ZIPFile if entry[entry.rfind("."):] == self.zip_file_extension else PDFFile if entry[entry.rfind("."):] == self.pdf_file_extension else TextFile if entry[entry.rfind("."):] in self.text_file_extensions else ImageFile if entry[entry.rfind("."):] in self.image_file_extensions else InboxItem if entry[entry.rfind("/") + 1:entry.rfind(":")+1] in self.mail_file_extensions else TextFile) for entry in glob.glob(self.path + "/*")]
@@ -279,7 +281,7 @@ class FolderBubble(Folder):
 
         return points
 
-    def grid_dimensions(self, n, max_cols=3):
+    def grid_dimensions(self, n, max_cols=4):
         rows = int(n / max_cols) + 1 if n % max_cols != 0 else int(n / max_cols)
         rows = rows if rows != 0 else 1
         cols = n / rows
@@ -451,6 +453,7 @@ class FolderBubble(Folder):
                         other.parent.expand()
 
                         if self.desktop_path not in other.path:
+                            print("desktop path")
                             self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
                         return
 
@@ -496,9 +499,11 @@ class FolderBubble(Folder):
                     other.parent.expand()
 
                     if other.regionname != FolderIcon.FolderIcon.regionname:
+                        print("unenveloped file")
                         self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
                     else:
                         if self != other.parent:
+                            print("unenveloped folder icon")
                             self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], self.regionname_to_class(other.regionname), kwargs)
                     return
 

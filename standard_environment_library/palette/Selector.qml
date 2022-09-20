@@ -35,42 +35,43 @@ Item {
         anchors.fill: parent
         sourceComponent: component
         asynchronous: true
-      }
+        visible: status == Loader.Ready
 
-    Component {
-        id: component
+        Component {
+                id: component
 
-        Item {
-            property alias texture: tex
-            property alias hover_text: hov_text
+                Item {
+                    property alias texture: tex
+                    property alias hover_text: hov_text
 
-            Text {
-                NumberAnimation on opacity {
-                    id: createAnimation
-                    from: 0
-                    to: 1
-                    duration: 350
+                    Text {
+                        NumberAnimation on opacity {
+                            id: createAnimation
+                            from: 0
+                            to: 1
+                            duration: 350
+                        }
+
+                        id: hov_text
+                        visible: false
+
+                        fontSizeMode: Text.Wrap
+                        font.pixelSize: 18
+                        color: "black"
+                        horizontalAlignment: Text.AlignHCenter
+                        anchors.top: parent.top
+
+                        anchors.topMargin: hover_text.height / 2 + hover_text.height / 12
+
+                        wrapMode: Text.Wrap
+                    }
+
+                    Image {
+                        id: tex
+                        asynchronous: true
+                        visible: true
+                    }
                 }
-
-                id: hov_text
-                visible: false
-
-                fontSizeMode: Text.Wrap
-                font.pixelSize: 18
-                color: "black"
-                horizontalAlignment: Text.AlignHCenter
-                anchors.top: parent.top
-
-                anchors.topMargin: hover_text.height / 2 + hover_text.height / 12
-
-                wrapMode: Text.Wrap
-            }
-
-            Image {
-                id: tex
-                asynchronous: true
-                visible: true
-            }
         }
-    }
+     }
 }

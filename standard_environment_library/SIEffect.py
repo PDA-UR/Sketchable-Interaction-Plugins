@@ -676,7 +676,8 @@ class SIEffect(PySI.Effect):
     #
     # @return None
     def create_region_via_name(self, shape: PySI.PointVector, effect_name: str, as_selector=False, kwargs={}) -> None:
-        self.__create_region__(shape, effect_name, as_selector, kwargs)
+        # self.__create_region__(shape, effect_name, as_selector, kwargs)
+        threading.Thread(target=lambda: self.__create_region__(shape, effect_name, as_selector, kwargs)).start()
 
     ## member function for creating a new region
     #
@@ -686,7 +687,8 @@ class SIEffect(PySI.Effect):
     #
     # @return None
     def create_region_via_id(self, shape: PySI.PointVector, effect_type: str, kwargs={}) -> None:
-        self.__create_region__(shape, effect_type, kwargs)
+        # self.__create_region__(shape, effect_type, kwargs)
+        threading.Thread(target=lambda: self.__create_region__(shape, effect_type, kwargs)).start()
 
     ## member function for creating a new region
     #
@@ -696,7 +698,8 @@ class SIEffect(PySI.Effect):
     #
     # @return None
     def create_region_via_class(self, shape: list, clazz: object, kwargs={}) -> None:
-        self.__create_region__(shape, clazz, kwargs)
+        # self.__create_region__(shape, clazz, kwargs)
+        threading.Thread(target=lambda: self.__create_region__(shape, clazz, kwargs)).start()
 
     ## member function for retrieving the plugins which are available for sketching as a dict of names.
     # This list of names contains regionname attributes

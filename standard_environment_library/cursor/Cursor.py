@@ -235,7 +235,6 @@ class Cursor(SIEffect):
                         r.move(self.x - r.absolute_x_pos() - r.width // 2 + r.x + x_offset, self.y - r.absolute_y_pos() - r.height // 4 + r.y + y_offset)
                         self.ctrl_selected.append(r)
                         r.is_blocked = True
-                        break
 
         else:
             if len(self.ctrl_selected) > 0:
@@ -309,6 +308,10 @@ class Cursor(SIEffect):
         elif PySI.CollisionCapability.MOVE in self.cap_emit.keys():
             self.disable_effect(PySI.CollisionCapability.MOVE, True)
             if self.move_target is not None:
+                if len(self.ctrl_selected) == 0:
+                    for i in range(sum([1 for lr in self.move_target.link_relations if lr.sender == self._uuid])):
+                        self.move_target.remove_link(self._uuid, PySI.LinkingCapability.POSITION, self.move_target._uuid, PySI.LinkingCapability.POSITION)
+
                 self.move_target.on_move_leave_recv(*self.on_move_leave_emit(self.move_target))
 
     @SIEffect.on_continuous(PySI.CollisionCapability.ASSIGN, SIEffect.RECEPTION)
