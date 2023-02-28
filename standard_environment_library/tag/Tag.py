@@ -19,10 +19,17 @@ class Tag(Deletable, Movable, Rotateable, UnRedoable, SIEffect):
 
 		self.qml_path = self.set_QML_path(E.id.tag_qml_file_name)
 		self.color = E.color.tag_color
-
 		self.text = "Hello World"
 
 	# @UnRedoable.action
 	@SIEffect.on_enter(E.capability.tag_tagging, SIEffect.EMISSION)
 	def on_tag_enter_emit(self, other):
 		text = self.get_QML_data(E.id.tag_text_from_qml, PySI.DataType.STRING)
+
+	@SIEffect.on_enter("__ON_TAGGING__", SIEffect.EMISSION)
+	def on_tagging_enter_emit(self, other):
+		return self.color, self.get_QML_data(E.id.tag_text_from_qml, PySI.DataType.STRING)
+
+	@SIEffect.on_continuous("__RECOLOR__", SIEffect.RECEPTION)
+	def on_recolor_continuous_recv(self, r, g, b):
+		self.color = PySI.Color(r, g, b, 255)

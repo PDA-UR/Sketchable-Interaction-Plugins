@@ -11,7 +11,7 @@ Item {
 	}
 
 	id: container
-    visible: true
+		visible: true
 
 	Image {
 		id: texture
@@ -27,7 +27,7 @@ Item {
         width: 240
         horizontalAlignment: TextEdit.AlignHCenter
         verticalAlignment: TextEdit.AlignVCenter
-        text: ""
+        text: "PROMPT HERE"
         font.family: "Helvetica"
         font.pointSize: 20
         color: "black"

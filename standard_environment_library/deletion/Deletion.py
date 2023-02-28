@@ -3,7 +3,7 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
-
+import sys
 from plugins.E import E
 
 

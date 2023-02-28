@@ -20,10 +20,6 @@ class FPS_Counter(Movable, Deletable, SIEffect):
 
         self.set_QML_data("text", f"{self.fps} FPS", PySI.DataType.STRING)
 
-    @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
-    def on_canvas_enter_recv(self, canvas_uuid: str) -> None:
-        pass
-
     def __update_fps__(self, actual, target):
         self.fps = actual
 

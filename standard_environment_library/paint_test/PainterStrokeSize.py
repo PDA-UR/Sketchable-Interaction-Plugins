@@ -19,9 +19,9 @@ class PainterStrokeSize(Movable, Deletable, SIEffect):
 
     @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid: str) -> None:
-        pass
-        x, y = self.relative_x_pos(), self.relative_y_pos() + self.height + 20
-        slider_shape = [[x, y], [x, y + 30], [x + 300, y + 30], [x + 300, y]]
+        cw, ch = self.context_dimensions()
+        x, y = self.relative_x_pos(), self.relative_y_pos() + self.height + (20 * cw / 1920)
+        slider_shape = [[x, y], [x, y + (30 * cw / 1920)], [x + (300 * cw / 1920), y + (30 * cw / 1920)], [x + (300 * cw / 1920), y]]
 
         self.create_region_via_name(slider_shape, PainterStrokeSizeSelectionSlider.regionname, False)
         self.delete()

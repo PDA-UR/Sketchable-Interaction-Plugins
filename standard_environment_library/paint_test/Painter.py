@@ -2,21 +2,23 @@ from libPySI import PySI
 
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
+from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 import math
 
-class Painter(Movable, SIEffect):
+class Painter(Movable, Deletable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
     regionname = "__ Painter __"
     region_display_name = "Painter"
 
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", kwargs: dict = {}) -> None:
         super().__init__(shape, uuid, "res/painter.png", Painter.regiontype, Painter.regionname, kwargs)
-        self.qml_path = ""
+        cw, ch = self.context_dimensions()
         self.color = PySI.Color(0, 255, 0, 255)
         self.link_partner = None
         self.with_border = False
-        self.stroke_width = 14
+        self.stroke_width = 14 * cw / 1920
         self.to_radians = math.pi / 180
+        self.is_tool = False
 
         if "is_selector" in kwargs and kwargs["is_selector"]:
             self.delete()
@@ -27,8 +29,11 @@ class Painter(Movable, SIEffect):
             self.create_link(self.link_partner._uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
             self.color = kwargs["color"]
             self.link_partner.paint_tool = self
+
             self.original_tlc_x = self.aabb[0].x
             self.original_tlc_y = self.aabb[0].y
+            self.is_tool = True
+            self.move(self.x + self.stroke_width / 2, self.y + self.stroke_width / 2)
         else:
             self.enable_effect(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION, self.on_deletion_enter_recv, None, None)
             self.color = kwargs["color"]
@@ -36,32 +41,43 @@ class Painter(Movable, SIEffect):
             self.orig_shape = [p for p in self.shape]
             self.transportation_path = []
             self.rebuild_shape()
+            self.is_tool = False
 
     @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid: str) -> None:
         pass
 
+    @SIEffect.on_enter(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
     def on_deletion_enter_recv(self):
-        pass
+        if not self.is_tool:
+            super().on_deletion_enter_recv()
+
+    @SIEffect.on_continuous(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
+    def on_deletion_continuous_recv(self):
+        if not self.is_tool:
+            super().on_deletion_enter_recv()
+
+    @SIEffect.on_continuous("__RECOLOR__", SIEffect.RECEPTION)
+    def on_recolor_continuous_emit(self, r, g, b):
+        self.color = PySI.Color(r, g, b, 255)
 
     @SIEffect.on_continuous("__ SET_PAINTER_STROKE_WIDTH __", SIEffect.RECEPTION)
     def on_set_painter_stroke_width_continuous_recv(self, w, is_controlled):
         if self.link_partner is not None:
             if w != self.stroke_width and is_controlled:
-                self.color = PySI.Color(255, 0, 0, 255)
                 shape = []
                 cx, cy = self.absolute_x_pos() + (self.aabb[3].x - self.aabb[0].x) / 2, self.absolute_y_pos() + (self.aabb[1].y - self.aabb[0].y) / 2
 
                 for i in range(360):
                     x, y = w / 2 * math.cos(i * self.to_radians) + cx, w / 2 * math.sin(i * self.to_radians) + cy
-                    shape.append([x, y])
+                    shape.append([x + self.width / 2, y + self.height / 2])
 
                 self.shape = PySI.PointVector(shape)
                 self.width = int(self.aabb[3].x - self.aabb[0].x)
                 self.height = int(self.aabb[1].y - self.aabb[0].y)
                 self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)
                 self.set_QML_data("widget_height", self.height, PySI.DataType.FLOAT)
-                ncx, ncy = self.absolute_x_pos() + (self.aabb[3].x - self.aabb[0].x) / 2, self.absolute_y_pos() + (self.aabb[1].y - self.aabb[0].y) / 2
+                ncx, ncy = self.absolute_x_pos() + self.width / 2, self.absolute_y_pos() + self.height / 2
                 self.move(self.x - (ncx - cx), self.y - (ncy - cy))
                 self.stroke_width = w
 
@@ -92,12 +108,6 @@ class Painter(Movable, SIEffect):
             qp = self.normalize_vector((p[0] - q[0], p[1] - q[1]))
 
             self.transportation_path.insert(0, (p[0] + qp[0] * self.stroke_width / 2, p[1] + qp[1] * self.stroke_width / 2))
-
-            q = self.transportation_path[-1]
-            p = self.transportation_path[-2]
-            pq = self.normalize_vector((q[0] - p[0], q[1] - p[1]))
-
-            # self.transportation_path.append((q[0] + pq[0] * self.stroke_width, q[1] + pq[1] * self.stroke_width))
 
             p = self.transportation_path[0]
             for i in range(1, len(self.transportation_path)):

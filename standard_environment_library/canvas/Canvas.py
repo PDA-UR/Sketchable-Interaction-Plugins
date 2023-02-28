@@ -11,6 +11,7 @@ from plugins.standard_environment_library.canvas.Tooltip import Tooltip
 class Canvas(SIEffect):
     regiontype = PySI.EffectType.SI_CANVAS
     regionname = PySI.EffectName.SI_STD_NAME_CANVAS
+    resampling_enabled = True
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super().__init__(shape, uuid, "", Canvas.regiontype, Canvas.regionname, kwargs)
@@ -69,6 +70,10 @@ class Canvas(SIEffect):
     @SIEffect.on_continuous(E.capability.canvas_parent, SIEffect.EMISSION)
     def on_canvas_continuous_emit(self, other):
         return self._uuid
+
+    # @SIEffect.on_continuous("__PARENT_GRAVITY__", SIEffect.EMISSION)
+    # def on_gravity_continuous_emit(self, other):
+    #     return self._uuid
 
     @SIEffect.on_leave(E.capability.canvas_parent, SIEffect.EMISSION)
     def on_canvas_leave_emit(self, other):

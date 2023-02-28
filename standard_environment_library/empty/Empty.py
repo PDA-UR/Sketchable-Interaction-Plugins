@@ -10,4 +10,3 @@ class Empty(SIEffect):
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", kwargs: dict = {}) -> None:
         super().__init__(shape, uuid, "res/empty.png", Empty.regiontype, Empty.regionname, kwargs)
         self.qml_path = self.set_QML_path("Empty.qml")
-        # self.color = PySI.Color(128, 128, 128, 255)

@@ -5,6 +5,7 @@ import cmath
 import math
 from shapely import geometry
 import threading
+import datetime
 
 
 class RadialPalette(SIEffect):
@@ -80,6 +81,7 @@ class RadialPalette(SIEffect):
         return self.round_edge([[lx, ly], [nlx, nly], [nrx, nry], [rx, ry]]), (svx, svy), perpendicular_rl
 
     def spawn_selectors(self):
+        # now = datetime.datetime.now()
         cx, cy = self.aabb[0].x, self.aabb[0].y
         coords = list(self.calculate_radial_segmentation(len(self.available_plugins), self.radius, cx, cy))
         for i in range(1, len(coords) + 1):
@@ -87,6 +89,8 @@ class RadialPalette(SIEffect):
             shape, middle, perp_vector = self.calculate_inner_segmentation_coordinates((l, r), cx, cy)
             self.create_region_via_name(PySI.PointVector(shape), self.available_plugins[i - 1], self.as_selector, {"parent": self, "middle": middle, "perp_vector": perp_vector})
             # threading.Thread(target=lambda: self.create_region_via_name(PySI.PointVector(shape), self.available_plugins[i - 1], self.as_selector, {"parent": self, "middle": middle, "perp_vector": perp_vector})).start()
+
+        # duration = datetime.datetime.now() - now
 
     def remove(self):
         for s in self.selectors:

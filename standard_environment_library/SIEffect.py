@@ -4,6 +4,7 @@ from libPySI import PySI
 import inspect
 import os
 import threading
+from shapely import geometry
 
 ## @package SIEffect
 # Documentation for this module / class
@@ -35,6 +36,8 @@ class SIEffect(PySI.Effect):
     #
     # Usage self.<identifier>: SIEffect.SI_CONDITION = <bool value>
     SI_CONDITION = None
+
+    resampling_enabled = True
 
     ## Decorator for registering on_enter collision events
     #
@@ -139,7 +142,7 @@ class SIEffect(PySI.Effect):
     def __init__(self, shape: PySI.PointVector, uuid: str, texture_path: str, regiontype: int, regionname: str, kwargs: dict, __source__: str="custom") -> None:
         kwargs["__name__"] = regionname
         super().__init__(shape, uuid, texture_path, kwargs)
-
+        self.is_resampling_enabled = self.resampling_enabled
         ## member attribute variable serving as a rendering hint for showing a regions border
         self.with_border = True
         self.border_color = PySI.Color(0, 0, 0, 255)
@@ -827,6 +830,9 @@ class SIEffect(PySI.Effect):
 
     def set_cursor_stroke_color_by_cursorid(self, cursor_id: str, color: PySI.Color) -> None:
         self.__set_cursor_stroke_color_by_cursorid__(cursor_id, color)
+
+    def round_edge(self, pts):
+        return [[t[0], t[1]] for t in list(geometry.Polygon(pts).buffer(10, single_sided=True, join_style=geometry.JOIN_STYLE.round, cap_style=geometry.CAP_STYLE.round).exterior.coords)]
 
     ## member function for generally handling exceptions which may occur in constructors of plugins
     # @author Robert Fent (as part of his Bachelor's Thesis)

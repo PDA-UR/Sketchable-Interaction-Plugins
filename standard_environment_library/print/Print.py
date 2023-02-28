@@ -13,7 +13,7 @@ from subprocess import Popen, PIPE
 
 
 class Print(Movable, Deletable, SIEffect):
-    regiontype = PySI.EffectType.SI_CUSTOM
+    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = E.id.print_regionname
     region_display_name = E.id.print_region_display_name
 
