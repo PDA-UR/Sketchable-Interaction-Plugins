@@ -20,7 +20,7 @@ Item
         horizontalAlignment: TextEdit.AlignHCenter
         verticalAlignment: TextEdit.AlignVCenter
         id: content
-        font.pixelSize: Math.min(content.width, content.height) / 1.5
+        font.pixelSize: Math.min(content.width, content.height) / 4
         text: ""
         placeholderText: "PostIt"
         font.family: "Helvetica"

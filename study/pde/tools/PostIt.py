@@ -76,7 +76,7 @@ class PostIt(Movable, Deletable, SIEffect):
             [self.handles[3].aabb[3].x + self.handles[3].x, self.handles[3].y + self.handles[3].aabb[0].y]
         ]))
 
-        w = self.width / 4
+        w = self.width / 8
         h = self.height / 10
 
         tags_per_row = self.width // (self.tag_offset_x + w)
@@ -148,7 +148,7 @@ class PostIt(Movable, Deletable, SIEffect):
 
     @SIEffect.on_enter("__ON_TAGGING__", SIEffect.RECEPTION)
     def on_tagging_enter_recv(self, color, text):
-        w = self.width / 4
+        w = self.width / 8
         h = self.height / 10
 
         tags_per_row = self.width // (self.tag_offset_x + w)
@@ -185,13 +185,21 @@ class PostIt(Movable, Deletable, SIEffect):
             if other in self.tags:
                 self.tags.remove(other)
 
-            w = self.width / 4
+            w = self.width / 8
             h = self.height / 10
             tags_per_row = self.width // (self.tag_offset_x + w)
 
             self.current_height = self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
 
             self.set_QML_data("height", float(self.current_height), PySI.DataType.FLOAT)
+
+    @SIEffect.on_enter("__ON_VISUAL_LINK__", SIEffect.RECEPTION)
+    def on_visual_link_enter_recv(self):
+        pass
+
+    @SIEffect.on_continuous("__ON_VISUAL_LINK__", SIEffect.RECEPTION)
+    def on_visual_link_continuous_recv(self):
+        pass
 
     @SIEffect.on_enter(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
     def on_deletion_enter_recv(self):
