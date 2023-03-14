@@ -23,7 +23,7 @@ class Tip(Movable, Deletable, SIEffect):
         self.id = kwargs["id"]
         self.context_width, self.context_height = self.context_dimensions()
         self.with_border = False
-        self.double_click_time_ms = 0.35
+        self.double_click_time_ms = 0.5
         self.current_time = time.time()
         self.last_click_time = time.time()
         self.max_distance_movement_for_click = 15 # px
@@ -87,7 +87,7 @@ class Tip(Movable, Deletable, SIEffect):
         if self.has_dbl_clicked:
             return
 
-        self.perorm_dragging(x, y)
+        self.perform_dragging(x, y)
         self.input_history.clear()
 
     def handle_hover_data(self):
@@ -113,14 +113,17 @@ class Tip(Movable, Deletable, SIEffect):
     def distance(self, x1, y1, x2, y2):
         return math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2)
 
-    def perorm_dragging(self, x, y):
-        print(f"Dragging at ({x}, {y})")
+    def perform_dragging(self, x, y):
+        self.move(x, y)
+        # print(f"Dragging at ({x}, {y})")
 
     def perform_click(self, x, y):
-        print(f"Click at ({x}, {y})")
+        self.move(x, y)
+        self.__click_mouse__(self.absolute_x_pos(), self.absolute_y_pos())
 
     def perform_dbl_click(self, x, y):
-        print(f"Dbl_Click at ({x}, {y})")
+        self.move(x, y)
+        self.__dbl_click_mouse__(self.absolute_x_pos(), self.absolute_y_pos())
 
     @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid: str) -> None:
