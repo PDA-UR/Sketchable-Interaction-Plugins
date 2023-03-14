@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 
-DEBUG = False
+DEBUG = True
 
 def get_rgb(event,x,y,flags,param):
     if event == cv2.EVENT_MOUSEMOVE:
@@ -202,30 +202,67 @@ def draw(contour, color):
     cv2.drawContours(frame, [box], -1, color, 2)
 
 
-def associate_pen_tip(tips, pen_contour):
-    distance = math.inf
-    idx = -1
-    for i, wc in enumerate(tips):
-        rect = cv2.minAreaRect(wc)
-        wbox = cv2.boxPoints(rect)
-        wbox = np.int0(wbox)
+# def associate_pen_tip(tips, pen_contour, ignored):
+#     distance = math.inf
+#     idx = 9999
+#     for i, wc in enumerate(tips):
+#         if i in ignored:
+#             continue
+#
+#         rect = cv2.minAreaRect(wc)
+#         wbox = cv2.boxPoints(rect)
+#         wbox = np.int0(wbox)
+#
+#         if pen_contour is not None and pen_contour.any():
+#             rect = cv2.minAreaRect(pen_contour)
+#             box = cv2.boxPoints(rect)
+#             box = np.int0(box)
+#
+#             distances = []
+#             for p1 in wbox:
+#                 for p2 in box:
+#                     dist = np.linalg.norm(p1 - p2)
+#                     distances.append(dist)
+#
+#             if min(distances) < distance:
+#                 distance = min(distances)
+#                 idx = i
+#     return idx
 
-        if pen_contour is not None and pen_contour.any():
-            rect = cv2.minAreaRect(pen_contour)
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
 
-            distances = []
-            for p1 in wbox:
-                for p2 in box:
-                    dist = np.linalg.norm(p1 - p2)
-                    distances.append(dist)
+def associate_pens_tips(tips, r, g, b):
+    pens = {0: 9999, 1: 9999, 2: 9999}
 
-            if min(distances) < distance:
-                distance = min(distances)
-                idx = i
+    for k, pen_contour in enumerate([r, g, b]):
+        distance = math.inf
+        idx = 9999
+        cidx = 9999
+        for i, wc in enumerate(tips):
+            rect = cv2.minAreaRect(wc)
+            wbox = cv2.boxPoints(rect)
+            wbox = np.int0(wbox)
 
-    return idx
+            if pen_contour is not None and pen_contour.any():
+                rect = cv2.minAreaRect(pen_contour)
+                box = cv2.boxPoints(rect)
+                box = np.int0(box)
+
+                distances = []
+                for p1 in wbox:
+                    for p2 in box:
+                        dist = np.linalg.norm(p1 - p2)
+                        distances.append(dist)
+
+                if min(distances) < distance and min(distances) < 6:
+                    distance = min(distances)
+                    idx = i
+                    cidx = k
+
+        pens[cidx] = idx
+
+    if 9999 in pens:
+        del pens[9999]
+    return pens[0], pens[1], pens[2]
 
 
 def get_pen_tip_association_line(pen_contour, tip_contour):
@@ -249,13 +286,13 @@ def draw_pen_tip_association(pen_contour, tip_contour):
 
 
 def draw_pen_tip_associations(r, g, b, tips, wc_i_r, wc_i_g, wc_i_b):
-    if r is not None and r.any() and tips_contours and len(tips) > wc_i_r:
+    if r is not None and r.any() and tips_contours and len(tips) > wc_i_r and wc_i_r != 9999:
         draw_pen_tip_association(r, tips[wc_i_r])
 
-    if g is not None and g.any() and tips_contours and len(tips) > wc_i_g:
+    if g is not None and g.any() and tips_contours and len(tips) > wc_i_g and wc_i_g != 9999:
         draw_pen_tip_association(g, tips[wc_i_g])
 
-    if b is not None and b.any() and tips_contours and len(tips) > wc_i_b:
+    if b is not None and b.any() and tips_contours and len(tips) > wc_i_b and wc_i_b != 9999:
         draw_pen_tip_association(b, tips[wc_i_b])
 
 
@@ -272,15 +309,15 @@ def draw_combined(r, g, b):
 
 def determine_approx_lines_of_pens(r, g, b, tips_contours, wc_i_r, wc_i_g, wc_i_b):
     pens = {}
-    if r is not None and r.any() and tips_contours and len(tips_contours) > wc_i_r:
+    if r is not None and r.any() and tips_contours and len(tips_contours) > wc_i_r and wc_i_r != 9999:
         red_pen_box_center, red_pen_tip_center = get_pen_tip_association_line(r, tips_contours[wc_i_r])
         pens["r"] = {"pen": red_pen_box_center, "tip": red_pen_tip_center}
 
-    if g is not None and g.any() and tips_contours and len(tips_contours) > wc_i_g:
+    if g is not None and g.any() and tips_contours and len(tips_contours) > wc_i_g and wc_i_g != 9999:
         green_pen_box_center, green_pen_tip_center = get_pen_tip_association_line(g, tips_contours[wc_i_g])
         pens["g"] = {"pen": green_pen_box_center, "tip": green_pen_tip_center}
 
-    if b is not None and b.any() and tips_contours and len(tips_contours) > wc_i_b:
+    if b is not None and b.any() and tips_contours and len(tips_contours) > wc_i_b and wc_i_b != 9999:
         blue_pen_box_center, blue_pen_tip_center = get_pen_tip_association_line(b, tips_contours[wc_i_b])
         pens["b"] = {"pen": blue_pen_box_center, "tip": blue_pen_tip_center}
 
@@ -301,9 +338,7 @@ while True:
         for wc in tips_contours:
             draw(wc, (255, 255, 255))
 
-    wc_i_r = associate_pen_tip(tips_contours, combined_r_contour)
-    wc_i_g = associate_pen_tip(tips_contours, combined_g_contour)
-    wc_i_b = associate_pen_tip(tips_contours, combined_b_contour)
+    wc_i_r, wc_i_g, wc_i_b = associate_pens_tips(tips_contours, combined_r_contour, combined_g_contour, combined_b_contour)
 
     if DEBUG:
         draw_pen_tip_associations(combined_r_contour, combined_g_contour, combined_b_contour, tips_contours, wc_i_r, wc_i_g, wc_i_b)
