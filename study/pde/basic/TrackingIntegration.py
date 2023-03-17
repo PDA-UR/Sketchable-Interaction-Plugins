@@ -39,9 +39,17 @@ class TrackingIntegration(SIEffect):
 
         while self.is_running:
             data = conn.recv(1024).decode()
-            if data[0] == "l":
-                _id, r, g, b, x, y, state = data.split(" ")[1:]
-                self.tips[int(_id)].__update__(float(x), float(y), self.to_SI_state(int(state)))
+            if data[0] != "l":
+                continue
+
+            r, g, b, x, y, state = data.split(" ")[2:]
+
+            _id = 0 if int(r) > 0 else 1 if int(g) > 0 else 2 if int(b) > 0 else -1
+
+            if _id == -1:
+                continue
+
+            self.tips[int(_id)].__update__(float(x), float(y), self.to_SI_state(int(state)))
 
         server_socket.close()
 
