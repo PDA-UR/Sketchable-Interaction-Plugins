@@ -13,11 +13,11 @@ class FilesystemAccess(Movable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
     regionname = "__ FilesystemAccess __"
     region_display_name = "FilesystemAccess"
-    root_path = "/home/juergen/Desktop/si_test/test"
+    root_path = PySI.Startup.file_system_root_folder()
 
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", kwargs: dict = {}) -> None:
         super(FilesystemAccess, self).__init__(shape, uuid, "res/file_manager.png", FilesystemAccess.regiontype, FilesystemAccess.regionname, kwargs)
-        self.path = FilesystemAccess.root_path
+        self.path = PySI.Startup.file_system_root_folder()
         self.color = PySI.Color(164, 216, 216, 255)
         self.qml_path = self.set_QML_path("FilesystemAccess.qml")
 

@@ -15,8 +15,9 @@ class FilesystemEntry(Movable, Deletable, SIEffect):
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", texture_path="", regiontype=PySI.EffectType.SI_CUSTOM_NON_DRAWABLE, regionname="__ FilesystemEntry __", kwargs: dict = {}) -> None:
         super(FilesystemEntry, self).__init__(shape, uuid, texture_path, regiontype, regionname, kwargs)
 
-        self.root_path = "/home/juergen/Desktop/si_test/test" if "root_path" not in kwargs else kwargs["root_path"]
-        self.desktop_path = "/home/juergen/Desktop/si_test/Desktop"
+        self.root_path = PySI.Startup.file_system_root_folder() if "root_path" not in kwargs else kwargs["root_path"]
+        self.desktop_path = PySI.Startup.file_system_desktop_folder()
+
         self.path = "" if "path" not in kwargs.keys() else kwargs["path"]
         self.entryname = "" if self.path == "" else self.path[self.path.rfind("/") + 1:]
         self.parent = None if "parent" not in kwargs else kwargs["parent"]

@@ -115,15 +115,17 @@ class FolderIcon(Transportable, Folder):
 
         if container_width != 0 and container_height != 0:
             if self.is_new([container_width, container_height], ["container_width", "container_height"]):
+                width = self.icon_width * 3 if container_width < self.icon_width else container_width
+
                 self.shape = PySI.PointVector(
                     [[self.aabb[0].x, self.aabb[0].y],
                      [self.aabb[0].x, self.aabb[0].y + container_height],
-                     [self.aabb[0].x + container_width, self.aabb[0].y + container_height],
-                     [self.aabb[0].x + container_width, self.aabb[0].y]
+                     [self.aabb[0].x + width, self.aabb[0].y + container_height],
+                     [self.aabb[0].x + width, self.aabb[0].y]
                      ]
                 )
 
-                self.width = int(container_width)
+                self.width = int(width)
                 self.height = int(container_height)
 
                 self.set_QML_data("widget_width", self.width, PySI.DataType.FLOAT)

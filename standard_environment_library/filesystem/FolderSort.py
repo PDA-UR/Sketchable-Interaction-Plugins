@@ -8,7 +8,7 @@ from plugins.E import E
 
 
 class FolderSort(Movable, Deletable, SIEffect):
-    regiontype = PySI.EffectType.SI_CUSTOM
+    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__ FolderSort __"
     region_display_name = "FolderSort"
 

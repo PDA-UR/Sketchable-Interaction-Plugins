@@ -12,7 +12,7 @@ import splines
 import numpy as np
 
 class FolderSplit(Movable, Deletable, SIEffect):
-    regiontype = PySI.EffectType.SI_CUSTOM
+    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__ FolderSplit __"
     region_display_name = "FolderSplit"
 

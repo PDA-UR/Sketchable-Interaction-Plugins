@@ -6,6 +6,8 @@ from plugins.standard_environment_library.email.InboxItem import InboxItem
 from plugins.standard_environment_library.canvas.Clear import Clear
 from plugins.standard_environment_library.canvas.Tooltip import Tooltip
 from plugins.E import E
+from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
+
 import math
 from plugins.standard_environment_library.filesystem import Folder, FolderIcon, FolderBubble, TextFile, ImageFile, ZIPFile, PDFFile
 
@@ -21,8 +23,8 @@ class Cursor(SIEffect):
 
         self.kwargs = kwargs
         self.qml_path = self.set_QML_path(E.id.cursor_qml_path)
-        self.color = E.color.cursor_color
-        # self.color = PySI.Color(255, 0, 0, 255)
+        # self.color = E.color.cursor_color
+        self.color = PySI.Color(255, 0, 0, 255)
         self.assigned_effect = ""
         self.is_drawing_blocked = False
         self.width = int(Cursor.region_width)
@@ -71,6 +73,7 @@ class Cursor(SIEffect):
 
     @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION)
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
+        # print(abs_x, abs_y)
         if len(self.present_collisions()) == 1 and self.assigned_effect == "" and not self.left_mouse_active:
             self.tooltip.update("Hold Left Mouse Button to Show Effects", Tooltip.MOUSE_BUTTON_LEFT)
         elif len(self.present_collisions()) == 1 and self.left_mouse_active:
@@ -251,7 +254,10 @@ class Cursor(SIEffect):
         self.is_draw_canceled = False
 
         if self.kwargs["draw"] == "RMB":
-            if len(self.present_collisions()) == 1 and is_active:
+            collisions = [uuid for uuid, name in self.present_collisions()]
+            regions = [r for r in self.current_regions() if r._uuid in collisions and isinstance(r, Movable)]
+
+            if (len(regions) == 0 and is_active) or (is_active and len(regions) == 1 and regions[0].regionname == "__ Painter __"):
                 sorts = [s.is_popup_shown for s in self.current_regions() if s.regionname == "__ FolderSort __"]
                 if not any(sorts):
                     self.show_radial_palette()

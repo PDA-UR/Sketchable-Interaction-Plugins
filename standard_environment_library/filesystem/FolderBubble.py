@@ -190,7 +190,7 @@ class FolderBubble(Folder):
                 f.close()
 
             if self.is_morphed or self.path == self.root_path:
-                self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 2, y + self.icon_height], [x + self.icon_width * 2, y]], c[1], kwargs)
+                self.create_region_via_class([[x, y], [x, y + self.icon_height], [x + self.icon_width * 3, y + self.icon_height], [x + self.icon_width * 3, y]], c[1], kwargs)
 
         self.set_QML_data("img_path", "", PySI.DataType.STRING)
         self.is_morphed = False
@@ -265,9 +265,6 @@ class FolderBubble(Folder):
 
         if self.parent is not None:
             self.parent.expand()
-
-    def round_edge(self, pts):
-        return [[t[0], t[1]] for t in list(geometry.Polygon(pts).buffer(10, single_sided=True, join_style=geometry.JOIN_STYLE.round, cap_style=geometry.CAP_STYLE.round).exterior.coords)]
 
     def compute_center(self, points):
         return sum([p[0] for p in points]) / len(points), sum([p[1] for p in points]) / len(points)

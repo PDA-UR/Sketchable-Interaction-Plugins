@@ -7,7 +7,7 @@ from PIL import Image
 
 
 class ImageFile(File):
-    regiontype = PySI.EffectType.SI_CUSTOM
+    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
     regionname = "__ ImageFile __"
     region_display_name = "ImageFile"
 

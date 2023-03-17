@@ -49,16 +49,18 @@ class TextFile(File):
 
     def handle_duplicate_renaming(self, path):
         while os.path.exists(path):
-            path = path[:path.rfind(f".txt")] + "_other" + f".text"
+            path = path[:path.rfind(f".txt")] + "_other" + f".txt"
 
         return path
 
     @SIEffect.on_continuous("ADD_TO_FOLDERBUBBLE", SIEffect.RECEPTION)
     def on_add_to_folder_continuous_recv(self):
+        return
         self.set_QML_data("is_overlay_visible", False, PySI.DataType.BOOL)
 
     @SIEffect.on_leave("ADD_TO_FOLDERBUBBLE", SIEffect.RECEPTION)
     def on_add_to_folder_leave_recv(self):
+        return
         self.set_QML_data("is_overlay_visible", True, PySI.DataType.BOOL)
 
     def to_edit_view(self):
@@ -121,4 +123,26 @@ class TextFile(File):
             return True
 
         return False
+
+    @SIEffect.on_enter("__ON_DALLE_PROMPT__", SIEffect.EMISSION)
+    def on_dalle_prompt_enter(self, other):
+        lines = []
+        with open(self.path, "r") as f:
+            lines = f.readlines()
+
+        self.prompt = " ".join(lines)
+        print(self.prompt)
+
+        return self.prompt
+
+    @SIEffect.on_leave("__ON_DALLE_PROMPT__", SIEffect.EMISSION)
+    def on_dalle_prompt_leave(self, other):
+        lines = []
+        with open(self.path, "r") as f:
+            lines = f.readlines()
+
+        self.prompt = " ".join(lines)
+        print(self.prompt)
+
+        return self.prompt
 
