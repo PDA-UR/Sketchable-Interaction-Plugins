@@ -7,18 +7,28 @@ Item {
         texture.source = data.img_path;
         texture.anchors.leftMargin = data.widget_width / 2 - texture.width / 2;
         texture.anchors.topMargin = data.widget_height / 2 - texture.height / 2;
+
+        if(data.rotation !== undefined) {
+            texture.rotation = -data.rotation;
+        }
     }
     id: container
     visible: true
+    Image {
+        id: texture
+        anchors.left: parent.left
+        anchors.top: parent.top
+        asynchronous: true
 
-   Item {
-       id: iconcontainer
-       visible: true
-       Image {
-           id: texture
-           anchors.left: parent.left
-           anchors.top: parent.top
-           visible: true
-       }
+        transformOrigin: Image.Center
+        rotation: 90
+
+        visible: true
     }
 }
+
+
+
+
+
+

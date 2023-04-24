@@ -64,10 +64,10 @@ class Cursor(SIEffect):
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
-        if not self.left_mouse_active:
-            for r in self.current_regions():
-                if r.regionname == "__SI_SELECTOR_NAME__":
-                    r.delete()
+        # if not self.left_mouse_active:
+        #     for r in self.current_regions():
+        #         if r.regionname == "__SI_SELECTOR_NAME__":
+        #             r.delete()
 
         return self.x - self.last_x, self.y - self.last_y, self.x, self.y
 

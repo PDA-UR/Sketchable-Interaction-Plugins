@@ -16,7 +16,7 @@ class Painter(Movable, Deletable, SIEffect):
         self.color = PySI.Color(0, 255, 0, 255)
         self.link_partner = None
         self.with_border = False
-        self.stroke_width = 14 * cw / 1920
+        self.stroke_width = 2 * cw / 1920
         self.to_radians = math.pi / 180
         self.is_tool = False
 

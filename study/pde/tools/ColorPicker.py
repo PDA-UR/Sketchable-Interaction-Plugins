@@ -34,8 +34,8 @@ class ColorPicker(Movable, Deletable, SIEffect):
             [self.aabb[0].x + self.target_width, self.aabb[0].y]
         ]))
 
-        self.width = int(self.aabb[3].x - self.aabb[0].x)
-        self.height = int(self.aabb[1].y - self.aabb[0].y)
+        # self.width = int(self.aabb[3].x - self.aabb[0].x)
+        # self.height = int(self.aabb[1].y - self.aabb[0].y)
 
         self.set_QML_data("width", float(self.width), PySI.DataType.FLOAT)
         self.set_QML_data("height", float(self.height), PySI.DataType.FLOAT)

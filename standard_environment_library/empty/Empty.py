@@ -1,9 +1,8 @@
 from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 
-
 class Empty(SIEffect):
-    regiontype = PySI.EffectType.SI_CUSTOM_NON_DRAWABLE
+    regiontype = PySI.EffectType.SI_CUSTOM
     regionname = "__ Empty __"
     region_display_name = "Empty"
 

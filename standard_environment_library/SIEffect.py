@@ -15,6 +15,17 @@ from shapely import geometry
 #
 # This Class itself is derived from PySI written in C++ which is documented separately within SIGRun
 class SIEffect(PySI.Effect):
+    def print_calling_info(func):
+        def wrapper(*args, **kwargs):
+            previous_frame = inspect.currentframe().f_back
+            calling_method = previous_frame.f_code.co_name
+            calling_object = previous_frame.f_locals.get('self', None)
+
+            print(f"Object {calling_object}, Method {calling_method}")
+            return func(*args, **kwargs)
+
+        return wrapper
+
     ## member constant to mark an effect or link emittable
     EMISSION = True
 

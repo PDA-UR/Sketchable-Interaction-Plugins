@@ -34,7 +34,10 @@ class FolderIcon(Transportable, Folder):
             self.shape = PySI.PointVector([[x, y], [x, y + self.icon_height], [x + self.icon_width, y + self.icon_height], [x + self.icon_width, y]])
 
         x, y = self.absolute_x_pos(), self.absolute_y_pos()
-        self.create_region_via_class([[x, y], [x, y + 4], [x + 4, y + 4], [x + 4, y]], InteractionPriorization, {"parent": self})
+
+        if not kwargs["is_selector"]:
+            self.create_region_via_class([[x, y], [x, y + 4], [x + 4, y + 4], [x + 4, y]], InteractionPriorization, {"parent": self})
+
         self.prio = None
 
         is_drawn = True if "DRAWN" in kwargs and kwargs["DRAWN"] else False

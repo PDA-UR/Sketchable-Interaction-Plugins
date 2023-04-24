@@ -8,17 +8,15 @@ Item {
         texture.anchors.leftMargin = data.widget_width / 2 - texture.width / 2;
         texture.anchors.topMargin = data.widget_height / 2 - texture.height / 2;
     }
+
     id: container
     visible: true
+    Image {
+        id: texture
+        anchors.left: parent.left
+        anchors.top: parent.top
+        asynchronous: true
 
-   Item {
-       id: iconcontainer
-       visible: true
-       Image {
-           id: texture
-           anchors.left: parent.left
-           anchors.top: parent.top
-           visible: true
-       }
+        visible: true
     }
 }

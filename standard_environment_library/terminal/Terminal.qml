@@ -9,7 +9,8 @@ Item {
 		texture.anchors.leftMargin = data.widget_width / 2 - texture.width / 2;
 		texture.anchors.topMargin = data.widget_height / 2 - texture.height / 2;
 
-        texture.visible = data.visible;
+        if(data.visible !== undefined)
+            texture.visible = data.visible;
 
         container.width = data.width;
         container.height = data.height;

@@ -18,7 +18,9 @@ class File(Transportable, FilesystemEntry):
         super().__init__(shape, uuid, texture_path, regiontype, regionname, kwargs)
         self.prio = None
         x, y = self.absolute_x_pos(), self.absolute_y_pos()
-        self.create_region_via_class([[x, y], [x, y + 4], [x + 4, y + 4], [x + 4, y]], InteractionPriorization, {"parent": self})
+
+        if not kwargs["is_selector"]:
+            self.create_region_via_class([[x, y], [x, y + 4], [x + 4, y + 4], [x + 4, y]], InteractionPriorization, {"parent": self})
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
