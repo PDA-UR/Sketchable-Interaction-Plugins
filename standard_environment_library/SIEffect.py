@@ -15,6 +15,12 @@ from shapely import geometry
 #
 # This Class itself is derived from PySI written in C++ which is documented separately within SIGRun
 class SIEffect(PySI.Effect):
+
+    ## decorator function for printing which object called the the given function func
+    #
+    # @param func the function that will be executed and it will be printed which object did call it
+    #
+    # @return the wrapper function of the decorator
     def print_calling_info(func):
         def wrapper(*args, **kwargs):
             previous_frame = inspect.currentframe().f_back
@@ -328,7 +334,10 @@ class SIEffect(PySI.Effect):
     def current_regions(self) -> list:
         return self.__current_regions__()
 
-    def was_moved(self):
+    ## member function for retrieving whether a region was moved the frame before
+    #
+    # @return the bool if the region was moved or not
+    def was_moved(self) -> bool:
         b = self.was_under_user_control
         self.was_under_user_control = False
 
@@ -630,6 +639,11 @@ class SIEffect(PySI.Effect):
             self.__registered_regions__.append(cursor_id)
             self.__registered_regions_kwargs__.append(kwargs)
 
+    ## member function for canceling the current drawing of a region
+    #
+    # @param cursor_id the uuid of the mouse cursor which is currently used for drawing for which the drawing is to be cancelled
+    #
+    # @return None
     def cancel_region_drawing(self, cursor_id: str) -> None:
         self.__partial_regions__[cursor_id] = PySI.PointVector([[0, 0]])
         self.__registered_regions__.append(cursor_id)
@@ -676,10 +690,18 @@ class SIEffect(PySI.Effect):
         else:
             self.__signal_deletion_by_uuid__(uuid)
 
-    def is_flagged_for_deletion(self):
+    ## member function which provides whether the region self is flagged for deletion, i.e. will be deleted next frame
+    #
+    # @return a bool representing if the region self is flagged for deletion or not
+    def is_flagged_for_deletion(self) -> bool:
         return self.__is_flagged_for_deletion__
 
-    def enveloped_by(self, other):
+    ## member function which provides whether a given region is fully enveloped by this region
+    #
+    # @param other a colliding effect which is checked if it is fully enveloped by self
+    #
+    # @return a bool representing if the region self is flagged for deletion or not
+    def enveloped_by(self, other: object) -> bool:
         return other._uuid in self.__enveloped_by__
 
     ## member function for creating a new region
@@ -820,29 +842,78 @@ class SIEffect(PySI.Effect):
 
     ## member function which provides a list of region uuids which are currently overlapping with the region self
     #
-    # @return a list which contains the uuids of colliding regions
+    # @return a list which contains the uuids and names of colliding regions
     def present_collisions(self) -> list:
         return [[uuid, name] for uuid, name in self.current_collisions]
 
+    ## member function which provides a list of region names which are currently overlapping with the region self
+    #
+    # @return a list which contains the names of the colliding regions
     def present_collisions_names(self) -> list:
         return [name for uuid, name in self.current_collisions]
 
+    ## member function which provides a list of region names which are currently overlapping with the region self
+    #
+    # @return a list which contains the uuids of the colliding regions
     def present_collisions_uuids(self) -> list:
         return [uuid for uuid, name in self.current_collisions]
 
+    ## member function which provides the regionnames of current cursors
+    #
+    # @return dictionary in which cursor ids are keys and the selected effects regionname as value
     def selected_effects_by_cursor_id(self) -> dict:
         return self.__selected_effects_by_cursor_id__()
 
-    def si_print(self, *args):
+    ## member function which is used by SIGRun during the python interpreter embedding step, in order to substitute the builtin print function with this one
+    #
+    # @detail
+    # the corresponding call in SIGRun (C++):
+    #   bp::exec((std::string("import builtins\nimport os\n\n") +
+    #            "os.remove(\".TEST.TXT\")\n" +
+    #            "open(\".TEST.TXT\", 'x').close()\n" +
+    #            "def si_print(filename):\n"
+    #            "    def wrap(func):\n" +
+    #            "        def wrapped_func(*args, **kwargs):\n" +
+    #            "            with open(filename, \'a\') as outputfile:\n" +
+    #            "                out = str(args).replace(chr(0), '')\n" +
+    #            "                outputfile.write(out)\n" +
+    #            "                outputfile.write('\\n')\n" +
+    #            "            return func(\"PySI:\", *args, **kwargs)\n" +
+    #            "        return wrapped_func\n" +
+    #            "    return wrap\n\n" +
+    #            "builtins.print = si_print(\".TEST.TXT\")(builtins.print)\n"
+    #            ).c_str(), d_globals);
+    #
+    # @param args an arbitrary amount if non-keyword parameters passed as a tuple which is forwarded to builtin print
+    #
+    # @return None
+    def si_print(self, *args: tuple) -> None:
         print(type(self).__name__, *args)
 
+    ## member function which is used to control the stroke width with which a cursor can draw
+    #
+    # @param cursor_id the uuid of the cursor
+    # @param stroke_with the integer with which the width of the stroke of the drawing on the canvas is defined
+    #
+    # @return None
     def set_cursor_stroke_width_by_cursorid(self, cursor_id: str, stroke_width: int) -> None:
         self.__set_cursor_stroke_width_by_cursorid__(cursor_id, int(stroke_width))
 
+    ## member function which is used to control the color with which a cursor can draw
+    #
+    # @param cursor_id the uuid of the cursor
+    # @param color the PySI.Color with which the color of the stroke of the drawing on the canvas is defined
+    #
+    # @return None
     def set_cursor_stroke_color_by_cursorid(self, cursor_id: str, color: PySI.Color) -> None:
         self.__set_cursor_stroke_color_by_cursorid__(cursor_id, color)
 
-    def round_edge(self, pts):
+    ## member function which is used when a rectangular regions is created in order to rounds the corners of the rectangular region
+    #
+    # @param pts a list of lists containing the coordinates of the points
+    #
+    # @return the list of list containing the new coordinates of the points
+    def round_edge(self, pts: list) -> list:
         return [[t[0], t[1]] for t in list(geometry.Polygon(pts).buffer(10, single_sided=True, join_style=geometry.JOIN_STYLE.round, cap_style=geometry.CAP_STYLE.round).exterior.coords)]
 
     ## member function for generally handling exceptions which may occur in constructors of plugins
