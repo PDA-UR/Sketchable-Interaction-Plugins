@@ -35,7 +35,7 @@ class FolderIcon(Transportable, Folder):
 
         x, y = self.absolute_x_pos(), self.absolute_y_pos()
 
-        if not kwargs["is_selector"]:
+        if "is_selector" not in kwargs or not kwargs["is_selector"]:
             self.create_region_via_class([[x, y], [x, y + 4], [x + 4, y + 4], [x + 4, y]], InteractionPriorization, {"parent": self})
 
         self.prio = None
@@ -138,7 +138,10 @@ class FolderIcon(Transportable, Folder):
 
                 if self.parent is not None and self.path != "":
                     centerx, centery = self.parent.aabb[0].x + (self.parent.aabb[3].x - self.parent.aabb[0].x) / 2, self.parent.aabb[0].y + (self.parent.aabb[1].y - self.parent.aabb[0].y) / 2
-                    self.prio.move(self.absolute_x_pos() - self.prio.absolute_x_pos(), self.absolute_y_pos() - self.prio.absolute_y_pos())
+
+                    if hasattr(self, "prio"):
+                        if self.prio is not None:
+                            self.prio.move(self.absolute_x_pos() - self.prio.absolute_x_pos(), self.absolute_y_pos() - self.prio.absolute_y_pos())
                     self.move(self.parent.x + centerx - self.aabb[0].x - self.width / 2, centery - self.aabb[0].y - self.height / 2 + self.parent.y)
         else:
             self.width = int(self.icon_width * 2)

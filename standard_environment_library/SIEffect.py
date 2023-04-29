@@ -171,13 +171,13 @@ class SIEffect(PySI.Effect):
         texture_path = tmp[0:tmp.rindex("/") + 1] + texture_path
 
         ## member attribute variable containing the shape (contour) of a drawn region as a PySI.PointVector
-        self.shape
+        self.shape: PySI.PointVector
 
         ## member attribute variable containing the axis-aligned bounding-box (aabb) of a drawn region as a PySI.PointVector
         #
         # This variable is automatically computed when shape is changed.
         # It is recommended to use this variable read-only.
-        self.aabb
+        self.aabb: PySI.PointVector
 
         ## member variable containing the maximum width of the region
         #
@@ -274,7 +274,7 @@ class SIEffect(PySI.Effect):
         # self.cap_emit["CAPABILITY"] = {PySI.ON_ENTER: self.<function_enter>, PySI:ON_CONTINUOUS: self.<function_continuous>, PySI.ON_LEAVE: self.<function_leave>
         #
         # Therefore, this example allows a region to emit an effect of CAPABILITY once a collision event occurred
-        self.cap_emit = PySI.String2String2FunctionMapMap()
+        self.cap_emit: PySI.String2String2FunctionMapMap
 
         ## member attribute variable storing keys to functions which are called when collision events occur for receiving data from emitting regions
         #
@@ -286,7 +286,7 @@ class SIEffect(PySI.Effect):
         # self.cap_recv["CAPABILITY"] = {PySI.ON_ENTER: self.<function_enter>, PySI:ON_CONTINUOUS: self.<function_continuous>, PySI.ON_LEAVE: self.<function_leave>
         #
         # Therefore, this example allows a region to receive an effect of CAPABILITY once a collision event occurred
-        self.cap_recv = PySI.String2String2FunctionMapMap()
+        self.cap_recv: PySI.String2String2FunctionMapMap
 
         ## member attribute variable storing keys to functions which are called when linking events occur for emitting data to receiving regions
         #
@@ -299,7 +299,7 @@ class SIEffect(PySI.Effect):
         # Example with custom capability for linking:
         # self.cap_link_emit[<name of capability>] = self.<corresponding function>
         # Therefore, this example emits some data of the region to a linked region based on the capability
-        self.cap_link_emit = PySI.String2FunctionMap()
+        self.cap_link_emit: PySI.String2FunctionMap
 
         ## member attribute variable storing keys to functions which are called when linking events occur for emitting data to receiving regions
         #
@@ -317,7 +317,7 @@ class SIEffect(PySI.Effect):
         # Example with custom capability for linking:
         # self.cap_link_recv[<name of emission capability>][<name of reception capability>] = self.<corresponding function>
         # Therefore, this example receives some data of a linked region and can apply this data to other categories of data according to the linking relationship .
-        self.cap_link_recv = PySI.String2String2FunctionMapMap()
+        self.cap_link_recv: PySI.String2String2FunctionMapMap
 
         ## member attribute variable storing the x position of the mouse cursor
         self.mouse_x = 0
