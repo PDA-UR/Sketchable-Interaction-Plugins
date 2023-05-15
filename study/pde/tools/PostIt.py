@@ -17,6 +17,7 @@ class PostIt(Movable, Deletable, SIEffect):
         super(PostIt, self).__init__(shape, uuid, "res/postit.png", PostIt.regiontype, PostIt.regionname, kwargs)
         self.qml_path = self.set_QML_path("PostIt.qml")
         self.color = PySI.Color(122, 252, 255, 255)
+
         cw, ch = self.context_dimensions()
         self.tag_offset_x = 15 * cw / 1920
         self.tag_offset_y = 5 * cw / 1080

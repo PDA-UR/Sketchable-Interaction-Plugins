@@ -48,6 +48,18 @@ class VisualLink(Movable, Deletable, SIEffect):
         if not self.is_visually_linked:
             if len(self.targets) > 1:
                 targets = self.targets[0], self.targets[-1]
+
+                p = [[q.x, q.y] for q in self.shape[:1]][0]
+
+                q = self.targets[0].absolute_x_pos() + self.targets[0].width / 2, self.targets[0].absolute_y_pos() + self.targets[0].height / 2
+                r = self.targets[1].absolute_x_pos() + self.targets[1].width / 2, self.targets[1].absolute_y_pos() + self.targets[1].height / 2
+
+                pq = [q[0] - p[0], q[1] - p[1]]
+                pr = [r[0] - p[0], r[1] - p[1]]
+
+                if self.vector_norm(pq) > self.vector_norm(pr):
+                    targets = self.targets[-1], self.targets[0]
+
                 self.create_region_via_name(self.shape, VisualLink.regionname, False, {"linked": True, "targets": targets})
                 self.targets = []
                 self.delete()
@@ -138,49 +150,34 @@ class VisualLink(Movable, Deletable, SIEffect):
         return x, y
 
     def rebuild_shape(self):
-        self.build_transportation_path()
         self.shape = PySI.PointVector(self.build_shape())
         self.width, self.height = self.get_region_width(), self.get_region_height()
 
-    def build_transportation_path(self):
-        self.transportation_path = []
-        line = [(p.x + self.x, p.y + self.y) for p in self.orig_shape]
-        prev_i = 0
-        self.transportation_path.append((int(line[0][0]), int(line[0][1])))
-        for i in range(len(line)):
-            dx = line[i][0] - line[prev_i][0]
-            dy = line[i][1] - line[prev_i][1]
-            if math.sqrt(dx * dx + dy * dy) > 15:
-                self.transportation_path.append((int(line[i][0]), int(line[i][1])))
-                prev_i = i
-        self.transportation_path.append((int(line[-1][0]), int(line[-1][1])))
-
     def build_shape(self):
-        shape, shape_part_one, shape_part_two = [], [], []
+        p = [self.orig_shape[0].x, self.orig_shape[0].y]
+        q = [self.orig_shape[1].x, self.orig_shape[1].y]
 
-        if len(self.transportation_path) != 0:
-            p = self.transportation_path[0]
-            q = self.transportation_path[1]
-            qp = self.normalize_vector((p[0] - q[0], p[1] - q[1]))
+        qp = [q[0] - p[0], q[1] - p[1]]
 
-            self.transportation_path.insert(0, (p[0] + qp[0] * self.stroke_width / 2, p[1] + qp[1] * self.stroke_width / 2))
+        nqp = self.normalize_vector(qp)
 
-            p = self.transportation_path[0]
-            for i in range(1, len(self.transportation_path)):
-                q = self.transportation_path[i]
-                pq = self.normalize_vector(self.perpendicular_vector((q[0] - p[0], q[1] - p[1])))
-                shape_part_one.append([p[0] - pq[0] * (self.stroke_width / 2), p[1] - pq[1] * (self.stroke_width / 2)])
-                shape_part_two.append([p[0] + pq[0] * (self.stroke_width / 2), p[1] + pq[1] * (self.stroke_width / 2)])
-                p = q
+        pnqp = self.perpendicular_vector(self.normalize_vector(qp))
 
-            shape_part_one = self.compute_spline_points(shape_part_one)
-            shape_part_two = self.compute_spline_points(shape_part_two)
+        arrow_start1 = [p[0] - (pnqp[0] * (self.stroke_width / 2)), p[1] - (pnqp[1] * (self.stroke_width / 2))]
+        arrow_start2 = [p[0] + (pnqp[0] * (self.stroke_width / 2)), p[1] + (pnqp[1] * (self.stroke_width / 2))]
 
-            for s in shape_part_one:
-                shape.append(s)
+        length = self.vector_norm(qp) * 0.90
+        arrow_head_origin_point = [p[0] + nqp[0] * length, p[1] + nqp[1] * length]
 
-            for s in reversed(shape_part_two):
-                shape.append(s)
+        arrow_head_inner1 = [arrow_head_origin_point[0] - (pnqp[0] * self.stroke_width / 2), arrow_head_origin_point[1] - (pnqp[1] * self.stroke_width / 2)]
+        arrow_head_inner2 = [arrow_head_origin_point[0] + (pnqp[0] * self.stroke_width / 2), arrow_head_origin_point[1] + (pnqp[1] * self.stroke_width / 2)]
+
+        arrow_head_outer1 = [arrow_head_origin_point[0] - (pnqp[0] * 10), arrow_head_origin_point[1] - (pnqp[1] * 10)]
+        arrow_head_outer2 = [arrow_head_origin_point[0] + (pnqp[0] * 10), arrow_head_origin_point[1] + (pnqp[1] * 10)]
+
+        arrow_tip = q
+
+        shape = [arrow_start1, arrow_head_inner1, arrow_head_outer1, arrow_tip, arrow_head_outer2, arrow_head_inner2, arrow_start2]
 
         return shape
 
@@ -196,31 +193,3 @@ class VisualLink(Movable, Deletable, SIEffect):
 
     def dot(self, u, v):
         return sum((a * b) for a, b in zip(u, v))
-
-    def compute_spline_points(self, points: list) -> list:
-        import splines
-        import numpy as np
-        spline = splines.CatmullRom(points)
-        dots_per_second = 20
-        total_duration = spline.grid[-1] - spline.grid[0]
-        dots = int(total_duration * dots_per_second) + 1
-        times = spline.grid[0] + np.arange(dots) / dots_per_second
-        result = spline.evaluate(times).T
-
-        return [[result[0][i], result[1][i]] for i in range(len(result[0]))]
-
-    def interpolate(self, pts):
-        import numpy as np
-        from scipy.interpolate import splprep, splev
-
-        X = np.array([p[0] for p in pts])
-        Y = np.array([p[1] for p in pts])
-        pts = np.vstack((X, Y))
-        # Find the B-spline representation of an N-dimensional curve
-        tck, u = splprep(pts, s=0.0)
-        u_new = np.linspace(u.min(), u.max(), 1000)
-        x_new, y_new = splev(u_new, tck)
-
-        return [[x, y] for x, y in zip(x_new, y_new)]
-
-

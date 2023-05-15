@@ -100,6 +100,12 @@ class Painter(Movable, Deletable, SIEffect):
         self.transportation_path.append((int(line[-1][0]), int(line[-1][1])))
 
     def build_shape(self):
+        if self.shape_recognition != "":
+            shape = [[p.x, p.y] for p in self.orig_shape]
+
+            return shape
+
+
         shape, shape_part_one, shape_part_two = [], [], []
 
         if len(self.transportation_path) != 0:

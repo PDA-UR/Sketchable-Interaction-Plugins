@@ -257,7 +257,7 @@ class Cursor(SIEffect):
             collisions = [uuid for uuid, name in self.present_collisions()]
             regions = [r for r in self.current_regions() if r._uuid in collisions and isinstance(r, Movable)]
 
-            if (len(regions) == 0 and is_active) or (is_active and len(regions) == 1 and regions[0].regionname == "__ Painter __"):
+            if (len(regions) == 0 and is_active) or (is_active and len(regions) == 1 and regions[0].regionname == "__ Painter __" and regions[0] == self.paint_tool):
                 sorts = [s.is_popup_shown for s in self.current_regions() if s.regionname == "__ FolderSort __"]
                 if not any(sorts):
                     self.show_radial_palette()
