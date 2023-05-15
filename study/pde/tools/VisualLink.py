@@ -67,7 +67,7 @@ class VisualLink(Movable, Deletable, SIEffect):
     @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION)
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y, kwargs={}):
         super().set_position_from_position(rel_x, rel_y, abs_x, abs_y)
-        if (rel_x > 0 or rel_y > 0) or self.initial_reshape:
+        if (rel_x != 0 or rel_y != 0) or self.initial_reshape:
             self.reshape()
             self.initial_reshape = False
 

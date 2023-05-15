@@ -22,7 +22,7 @@ Item
         id: content
         font.pixelSize: Math.min(content.width, content.height) / 4
         text: ""
-        placeholderText: "PostIt"
+        placeholderText: ""
         font.family: "Helvetica"
         wrapMode: TextEdit.Fit | TextEdit.Wrap
         color: "black"

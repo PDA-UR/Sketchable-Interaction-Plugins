@@ -19,8 +19,8 @@ class PostIt(Movable, Deletable, SIEffect):
         self.color = PySI.Color(122, 252, 255, 255)
 
         cw, ch = self.context_dimensions()
-        self.tag_offset_x = 15 * cw / 1920
-        self.tag_offset_y = 5 * cw / 1080
+        self.tag_offset_x = 20 * cw / 1920
+        self.tag_offset_y = 10 * cw / 1080
         self.handle_width = 20 * cw / 1920
         self.current_height = self.height
 
@@ -82,18 +82,41 @@ class PostIt(Movable, Deletable, SIEffect):
 
         tags_per_row = self.width // (self.tag_offset_x + w)
         for i, t in enumerate(self.tags):
-            x = self.aabb[0].x + self.tag_offset_x * (i % tags_per_row + 1) + w * (i % tags_per_row) + self.handle_width
-            y = self.aabb[0].y + self.height - h * (i // tags_per_row + 1) - self.tag_offset_y * (i // tags_per_row + 1)
+            x1 = self.absolute_x_pos() + self.tag_offset_x * (i % tags_per_row + 1) + w * (i % tags_per_row) + self.handle_width
+            y1 = self.absolute_y_pos() + self.height - h * (i // tags_per_row + 1) - self.tag_offset_y * (i // tags_per_row + 1)
 
-            self.set_QML_data("height", float(self.current_height), PySI.DataType.FLOAT)
+            y_max = max(t.shape, key=lambda p: p.y).y
+            y_min = min(t.shape, key=lambda p: p.y).y
+            curr_h = y_max - y_min
 
-            t.shape = PySI.PointVector([
-                [x, y],
-                [x, y + h],
-                [x + w, y + h],
-                [x + w, y]
-            ])
+            scale = h / curr_h
 
+            tcenter = t.absolute_x_pos() + t.width / 2, t.absolute_y_pos() + t.height / 2
+
+            scaled_contour = []
+            for x, y in [[p.x, p.y] for p in t.shape]:
+                x_scaled = (x - tcenter[0]) * scale + tcenter[0] + t.x
+                y_scaled = (y - tcenter[1]) * scale + tcenter[1] + t.y
+                scaled_contour.append([x_scaled, y_scaled])
+
+            offset = scaled_contour[0]
+            offset_x, offset_y = x1 - offset[0], y1 - offset[1]
+
+            x_max = max(scaled_contour, key=lambda p: p[0])[0]
+            x_min = min(scaled_contour, key=lambda p: p[0])[0]
+            y_max = max(scaled_contour, key=lambda p: p[1])[1]
+            y_min = min(scaled_contour, key=lambda p: p[1])[1]
+            width = x_max - x_min
+            height = y_max - y_min
+
+            if t.shape_rec == "Circle":
+                scaled_contour = [[p[0] + offset_x + width / 2, p[1] + offset_y] for p in scaled_contour]
+            elif t.shape_rec == "Rectangle":
+                scaled_contour = [[p[0] + offset_x - width / 2, p[1] + offset_y - height / 2] for p in scaled_contour]
+            else:
+                scaled_contour = [[p[0] + offset_x - width / 2, p[1] + offset_y + height / 2] for p in scaled_contour]
+
+            t.shape = PySI.PointVector(scaled_contour)
             t.width = int(t.aabb[3].x - t.aabb[0].x)
             t.height = int(t.aabb[1].y - t.aabb[0].y)
 
@@ -113,7 +136,6 @@ class PostIt(Movable, Deletable, SIEffect):
         self.width = int(self.aabb[3].x - self.aabb[0].x)
         self.height = int(self.aabb[1].y - self.aabb[0].y)
         self.current_height = self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
-
     def get_affected_corners(self, source):
         if source == 0: #tlc
             return 1, 3
@@ -223,3 +245,52 @@ class PostIt(Movable, Deletable, SIEffect):
             t.flagged_for_deletion = True
             t.delete()
         super().on_deletion_enter_recv()
+
+    @SIEffect.on_enter("__ SHAPE_TAG __", SIEffect.RECEPTION)
+    def on_shape_tag_enter_recv(self, tag_shape, tag_center, tag_color, tag_x, tag_y, tag_shape_recognition):
+        if tag_shape is None:
+            return
+
+        w = self.width / 8
+        h = self.height / 10
+
+        tags_per_row = self.width // (self.tag_offset_x + w)
+
+        x1 = self.absolute_x_pos() + self.tag_offset_x * (len(self.tags) % tags_per_row + 1) + w * (len(self.tags) % tags_per_row) + self.handle_width
+        y1 = self.absolute_y_pos() + self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
+
+        self.current_height = self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
+
+        self.set_QML_data("height", float(self.current_height), PySI.DataType.FLOAT)
+
+        y_max = max(tag_shape, key=lambda p: p.y).y
+        y_min = min(tag_shape, key=lambda p: p.y).y
+        curr_h = y_max - y_min
+
+        scale = h / curr_h
+
+        scaled_contour = []
+        for x, y in [[p.x, p.y] for p in tag_shape]:
+            x_scaled = (x - tag_center[0]) * scale + tag_center[0] + tag_x
+            y_scaled = (y - tag_center[1]) * scale + tag_center[1] + tag_y
+            scaled_contour.append([x_scaled, y_scaled])
+
+        offset = scaled_contour[0]
+        offset_x, offset_y = x1 - offset[0], y1 - offset[1]
+
+        x_max = max(scaled_contour, key=lambda p: p[0])[0]
+        x_min = min(scaled_contour, key=lambda p: p[0])[0]
+        y_max = max(scaled_contour, key=lambda p: p[1])[1]
+        y_min = min(scaled_contour, key=lambda p: p[1])[1]
+        width = x_max - x_min
+        height = y_max - y_min
+
+        if tag_shape_recognition == "Circle":
+            scaled_contour = [[p[0] + offset_x + width / 2, p[1] + offset_y] for p in scaled_contour]
+        elif tag_shape_recognition == "Rectangle":
+            scaled_contour = [[p[0] + offset_x - width / 2, p[1] + offset_y - height / 2] for p in scaled_contour]
+        else:
+            tag_shape_recognition = "Triangle"
+            scaled_contour = [[p[0] + offset_x - width / 2, p[1] + offset_y + height / 2] for p in scaled_contour]
+
+        self.create_region_via_name(scaled_contour, Label.regionname, False, {"parent": self, "color": tag_color, "text": "", "shape_recognition": tag_shape_recognition})

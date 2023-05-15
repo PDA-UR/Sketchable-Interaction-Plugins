@@ -4,6 +4,9 @@ from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 import math
+from scipy.interpolate import splprep, splev
+import splines
+import numpy as np
 
 class Painter(Movable, Deletable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
@@ -58,7 +61,7 @@ class Painter(Movable, Deletable, SIEffect):
             super().on_deletion_enter_recv()
 
     @SIEffect.on_continuous("__RECOLOR__", SIEffect.RECEPTION)
-    def on_recolor_continuous_emit(self, r, g, b):
+    def on_recolor_continuous_recv(self, r, g, b):
         self.color = PySI.Color(r, g, b, 255)
 
     @SIEffect.on_continuous("__ SET_PAINTER_STROKE_WIDTH __", SIEffect.RECEPTION)
@@ -148,8 +151,6 @@ class Painter(Movable, Deletable, SIEffect):
         return sum((a * b) for a, b in zip(u, v))
 
     def compute_spline_points(self, points: list) -> list:
-        import splines
-        import numpy as np
         spline = splines.CatmullRom(points)
         dots_per_second = 20
         total_duration = spline.grid[-1] - spline.grid[0]
@@ -159,17 +160,13 @@ class Painter(Movable, Deletable, SIEffect):
 
         return [[result[0][i], result[1][i]] for i in range(len(result[0]))]
 
-    def interpolate(self, pts):
-        import numpy as np
-        from scipy.interpolate import splprep, splev
+    @SIEffect.on_enter("__ SHAPE_TAG __", SIEffect.EMISSION)
+    def on_shape_tag_enter_emit(self, other):
+        if self.is_tool or self.shape_recognition == "":
+            return None, None, None, None, None, None
 
-        X = np.array([p[0] for p in pts])
-        Y = np.array([p[1] for p in pts])
-        pts = np.vstack((X, Y))
-        # Find the B-spline representation of an N-dimensional curve
-        tck, u = splprep(pts, s=0.0)
-        u_new = np.linspace(u.min(), u.max(), 1000)
-        x_new, y_new = splev(u_new, tck)
+        return self.shape, (self.absolute_x_pos() + self.width / 2, self.absolute_y_pos() + self.height / 2), self.color, self.x, self.y, self.shape_recognition
 
-        return [[x, y] for x, y in zip(x_new, y_new)]
-
+    @SIEffect.on_continuous("__RECOLOR__", SIEffect.EMISSION)
+    def on_recolor_enter_emit(self, other):
+        return self.color.r, self.color.g, self.color.b
