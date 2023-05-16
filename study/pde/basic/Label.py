@@ -33,24 +33,6 @@ class Label(Movable, Deletable, SIEffect):
     def on_canvas_enter_recv(self, canvas_uuid: str) -> None:
         pass
 
-    # @SIEffect.on_link(SIEffect.RECEPTION, "__ON_RESIZED__", "__ON_RESIZED__")
-    # def on_resized_recv(self, resized, kwargs={}):
-    #     if not resized.is_under_user_control and not resized.was_moved():
-    #         w = self.parent.width / 4
-    #         h = self.parent.height / 10
-    #         x = self.parent.absolute_x_pos() + self.parent.tag_offset_x + self.parent.handle_width
-    #         y = self.parent.absolute_y_pos() + self.parent.height - h - self.parent.tag_offset_y
-    #
-    #         self.shape = PySI.PointVector([
-    #             [x, y],
-    #             [x, y + h],
-    #             [x + w, y + h],
-    #             [x + w, y]
-    #         ])
-    #
-    #         self.set_QML_data("width", float(self.width), PySI.DataType.FLOAT)
-    #         self.set_QML_data("height", float(self.height), PySI.DataType.FLOAT)
-
     @SIEffect.on_enter("__ON_TAGGING_LABEL__", SIEffect.EMISSION)
     def on_tagging_enter_emit(self, other):
         return self

@@ -88,7 +88,7 @@ class Frame(Movable, Deletable, SIEffect):
             v = self.normalize_vector(v)
             v = v[0] * vl, v[1] * vl
             c.in_pile = True
-            c.move(c.x + v[0], c.y + v[1])
+            c.move_alt(v[0], v[1])
 
         self.reshape_to_content(*self.content_dimensions())
 
@@ -104,7 +104,7 @@ class Frame(Movable, Deletable, SIEffect):
             v = v[0] * vl, v[1] * vl
 
             if c.in_pile:
-                c.move(c.x + v[0], c.y + v[1])
+                c.move_alt(v[0], v[1])
             c.in_pile = False
 
         self.reshape_to_content(*self.content_dimensions())

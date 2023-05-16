@@ -798,16 +798,16 @@ class SIEffect(PySI.Effect):
         aabb_y = self.aabb[0].y
 
         if aabb_x + x < self.border_width:
-            x = -aabb_x + self.border_width# + 5
+            x = -aabb_x + self.border_width
 
         if aabb_y + y < self.border_width:
-            y = -aabb_y + self.border_width# + 5
+            y = -aabb_y + self.border_width
 
         if aabb_x + self.width + x > self.context_width - self.border_width:
-            x = x - ((aabb_x + self.width + x) - (self.context_width - self.border_width))# - 5
+            x = x - ((aabb_x + self.width + x) - (self.context_width - self.border_width))
 
         if aabb_y + self.height + y > self.context_height - self.border_width:
-            y = y - ((aabb_y + self.height + y) - (self.context_height - self.border_width))# - 5
+            y = y - ((aabb_y + self.height + y) - (self.context_height - self.border_width))
 
         self.x = x
         self.y = y

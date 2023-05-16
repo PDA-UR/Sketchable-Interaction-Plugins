@@ -70,6 +70,10 @@ class PostIt(Movable, Deletable, SIEffect):
 
         self.emit_linking_action(self._uuid, "__ON_RESIZED__", self.on_resized_emit())
 
+    def move_alt(self, x, y):
+        self.move(self.x + x, self.y + y)
+        # self.emit_linking_action(self._uuid, PySI.LinkingCapability.POSITION, self.position())
+
     def reshape_according_to_resize(self):
         self.shape = PySI.PointVector(self.round_edge([
             [self.handles[0].aabb[0].x + self.handles[0].x, self.handles[0].y + self.handles[0].aabb[0].y],
@@ -205,27 +209,29 @@ class PostIt(Movable, Deletable, SIEffect):
 
     @SIEffect.on_enter("__ON_TAGGING_LABEL__", SIEffect.RECEPTION)
     def on_tagging_label_enter_recv(self, other):
-        if not self.is_linked(self._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION):
-            self.create_link(self._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+        if other.parent is self:
+            if not self.is_linked(self._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION):
+                self.create_link(self._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
 
-        if other not in self.tags:
-            self.tags.append(other)
+            if other not in self.tags:
+                self.tags.append(other)
 
     @SIEffect.on_leave("__ON_TAGGING_LABEL__", SIEffect.RECEPTION)
     def on_tagging_label_leave_recv(self, other):
-        if other.is_under_user_control:
-            self.remove_link(self._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
+        if other.parent is self:
+            if other.is_under_user_control:
+                self.remove_link(self._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
 
-            if other in self.tags:
-                self.tags.remove(other)
+                if other in self.tags:
+                    self.tags.remove(other)
 
-            w = self.width / 8
-            h = self.height / 10
-            tags_per_row = self.width // (self.tag_offset_x + w)
+                w = self.width / 8
+                h = self.height / 10
+                tags_per_row = self.width // (self.tag_offset_x + w)
 
-            self.current_height = self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
+                self.current_height = self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
 
-            self.set_QML_data("height", float(self.current_height), PySI.DataType.FLOAT)
+                self.set_QML_data("height", float(self.current_height), PySI.DataType.FLOAT)
 
     @SIEffect.on_enter("__ON_VISUAL_LINK__", SIEffect.RECEPTION)
     def on_visual_link_enter_recv(self):
