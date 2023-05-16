@@ -5,7 +5,7 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Movable imp
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
 from plugins.standard_environment_library._standard_behaviour_mixins.UnRedoable import UnRedoable
 from plugins.E import E
-
+import math
 
 class Frame(Movable, Deletable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
@@ -29,7 +29,12 @@ class Frame(Movable, Deletable, SIEffect):
             [self.aabb[3].x, self.aabb[3].y]
         ]))
 
+        self.pile_factor = 0.95
+        self.scatter_factor = 1 // (1 - 0.95)
+        self.unpiled_center = (0, 0)
+
         self.content = []
+        self.is_piled = False
 
         self.set_QML_data("width", float(self.width), PySI.DataType.FLOAT)
         self.set_QML_data("height", float(self.title_offset), PySI.DataType.FLOAT)
@@ -58,6 +63,51 @@ class Frame(Movable, Deletable, SIEffect):
 
         if other in self.content:
             self.content.remove(other)
+
+    def on_double_clicked(self):
+        if len(self.content) == 0:
+            self.is_piled = False
+            return
+
+        if self.is_piled == False:
+            self.pile()
+        else:
+            self.scatter()
+
+        self.is_piled = not self.is_piled
+
+    def pile(self):
+        scenterx, scentery = self.absolute_x_pos() + self.width / 2, self.absolute_y_pos() + self.height / 2 + self.title_offset
+        self.unpiled_center = scenterx, scentery
+
+        for c in self.content:
+            centerx, centery = c.absolute_x_pos() + c.width / 2, c.absolute_y_pos() + c.height / 2
+
+            v = scenterx - centerx, scentery - centery
+            vl = self.vector_norm(v) * self.pile_factor
+            v = self.normalize_vector(v)
+            v = v[0] * vl, v[1] * vl
+            c.in_pile = True
+            c.move(c.x + v[0], c.y + v[1])
+
+        self.reshape_to_content(*self.content_dimensions())
+
+    def scatter(self):
+        scenterx, scentery = self.unpiled_center[0], self.unpiled_center[1]
+
+        for c in self.content:
+            centerx, centery = c.absolute_x_pos() + c.width / 2, c.absolute_y_pos() + c.height / 2
+
+            v = centerx - scenterx, centery - scentery
+            vl = self.vector_norm(v) * self.scatter_factor
+            v = self.normalize_vector(v)
+            v = v[0] * vl, v[1] * vl
+
+            if c.in_pile:
+                c.move(c.x + v[0], c.y + v[1])
+            c.in_pile = False
+
+        self.reshape_to_content(*self.content_dimensions())
 
     def content_dimensions(self):
         if len(self.content) > 0:
@@ -122,18 +172,32 @@ class Frame(Movable, Deletable, SIEffect):
         ctlc, cblc, cbrc, ctrc = self.content_dimensions()
 
         cleftx = min(ctlc[0], cblc[0])
-        crightx = min(ctrc[0], cbrc[0])
+        crightx = max(ctrc[0], cbrc[0])
 
+        ctopy = min(ctlc[1], ctrc[1])
+        cbottomy = max(cblc[1], cbrc[1])
 
         stlcx, stlcy = self.absolute_x_pos(), self.absolute_y_pos()
         stlc, sblc, sbrc, strc = (stlcx, stlcy), (stlcx, stlcy + self.height), (stlcx + self.width, stlcy + self.height), (stlcx + self.width, stlcy)
 
-        leftx = stlcx if stlcx < ctlc[0] else ctlc[0]
-        topy = stlcy if stlcy < ctlc[1] else ctlc[1]
+        leftx = stlcx if stlcx < cleftx else cleftx
+        topy = stlcy if stlcy < ctopy else ctopy
+        rightx = strc[0] if strc[0] > crightx else crightx
+        bottomy = sblc[1] if sblc[1] > cbottomy else cbottomy
 
-        rightx = strc[0] if strc[0] > ctrc[0] else ctrc[0]
-        bottomy = sblc[1] if sblc[1] > cblc[1] else cblc[1]
-
-        tlc, blc, brc, trc = (leftx, topy), (leftx, bottomy), (rightx, bottomy), (rightx, topy)
+        tlc, blc, brc, trc = (leftx + self.edge_round_value, topy + self.edge_round_value + self.title_offset), (leftx + self.edge_round_value, bottomy - self.edge_round_value), (rightx - self.edge_round_value, bottomy - self.edge_round_value), (rightx - self.edge_round_value, topy + self.edge_round_value + self.title_offset)
 
         self.reshape_to_content(tlc, blc, brc, trc)
+
+    def perpendicular_vector(self, v):
+        return -v[1], v[0]
+
+    def normalize_vector(self, v):
+        n = float(self.vector_norm(v))
+        return [float(v[i]) / n for i in range(len(v))] if n != 0 else [-1 for i in range(len(v))]
+
+    def vector_norm(self, v):
+        return math.sqrt(self.dot(v, v))
+
+    def dot(self, u, v):
+        return sum((a * b) for a, b in zip(u, v))

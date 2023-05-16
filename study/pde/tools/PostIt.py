@@ -38,6 +38,7 @@ class PostIt(Movable, Deletable, SIEffect):
 
         self.handles = []
         self.tags = []
+        self.in_pile = False
 
         if "is_selector" not in kwargs or ("is_selector" in kwargs and not kwargs["is_selector"]):
             for i, c in enumerate(corners):

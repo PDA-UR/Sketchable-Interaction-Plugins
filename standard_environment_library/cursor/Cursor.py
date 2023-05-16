@@ -7,6 +7,7 @@ from plugins.standard_environment_library.canvas.Clear import Clear
 from plugins.standard_environment_library.canvas.Tooltip import Tooltip
 from plugins.E import E
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
+from plugins.study.pde.tools import Frame
 
 import math
 from plugins.standard_environment_library.filesystem import Folder, FolderIcon, FolderBubble, TextFile, ImageFile, ZIPFile, PDFFile
@@ -40,7 +41,7 @@ class Cursor(SIEffect):
         self.image_editor_tooltype = None
         self.has_palette_active = False
         self.palette = None
-        self.double_clickables = [Clear.regionname, FolderBubble.FolderBubble.regionname, FolderIcon.FolderIcon.regionname, InboxItem.regionname, ImageFile.ImageFile.regionname, TextFile.TextFile.regionname]
+        self.double_clickables = [Clear.regionname, FolderBubble.FolderBubble.regionname, FolderIcon.FolderIcon.regionname, InboxItem.regionname, ImageFile.ImageFile.regionname, TextFile.TextFile.regionname, Frame.Frame.regionname]
         self.ctrl_pressables = [FolderIcon.FolderIcon.regionname, InboxItem.regionname, ImageFile.ImageFile.regionname, TextFile.TextFile.regionname, ZIPFile.ZIPFile.regionname, PDFFile.PDFFile.regionname]
 
         self.left_mouse_active = False
@@ -193,6 +194,7 @@ class Cursor(SIEffect):
             textfiles = [r for r in regions if r.regionname == TextFile.TextFile.regionname]
             imagefiles = [r for r in regions if r.regionname == ImageFile.ImageFile.regionname]
             clearbtns = [r for r in regions if r.regionname == Clear.regionname]
+            frames = [r for r in regions if r.regionname == Frame.Frame.regionname]
 
             if len(inbox_items) > 0 and not accecpted:
                 accecpted = inbox_items[0].on_double_clicked()
@@ -205,6 +207,9 @@ class Cursor(SIEffect):
 
             if len(clearbtns) and not accecpted:
                 accecpted = clearbtns[0].on_double_clicked()
+
+            if len(frames) and not accecpted:
+                accecpted = frames[0].on_double_clicked()
 
     def on_enlarge_enter_emit(self, other):
         pass

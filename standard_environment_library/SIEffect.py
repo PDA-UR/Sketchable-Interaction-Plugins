@@ -166,6 +166,7 @@ class SIEffect(PySI.Effect):
         self.__enveloped_by__ = []
         self.context_width, self.context_height = self.context_dimensions()
         self.border_width = 4
+        self.edge_round_value = 10
 
         tmp = sys.modules[self.__class__.__module__].__file__
         texture_path = tmp[0:tmp.rindex("/") + 1] + texture_path
@@ -914,7 +915,7 @@ class SIEffect(PySI.Effect):
     #
     # @return the list of list containing the new coordinates of the points
     def round_edge(self, pts: list) -> list:
-        return [[t[0], t[1]] for t in list(geometry.Polygon(pts).buffer(10, single_sided=True, join_style=geometry.JOIN_STYLE.round, cap_style=geometry.CAP_STYLE.round).exterior.coords)]
+        return [[t[0], t[1]] for t in list(geometry.Polygon(pts).buffer(self.edge_round_value, single_sided=True, join_style=geometry.JOIN_STYLE.round, cap_style=geometry.CAP_STYLE.round).exterior.coords)]
 
     ## member function for generally handling exceptions which may occur in constructors of plugins
     # @author Robert Fent (as part of his Bachelor's Thesis)

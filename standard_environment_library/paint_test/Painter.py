@@ -66,6 +66,9 @@ class Painter(Movable, Deletable, SIEffect):
 
     @SIEffect.on_enter("__RECOLOR__", SIEffect.RECEPTION)
     def on_recolor_enter_recv(self, r, g, b):
+        if r is None:
+            return
+
         self.color = PySI.Color(r, g, b, 255)
 
     @SIEffect.on_continuous("__ SET_PAINTER_STROKE_WIDTH __", SIEffect.RECEPTION)
