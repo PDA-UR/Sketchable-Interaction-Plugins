@@ -161,6 +161,16 @@ class PostIt(Movable, Deletable, SIEffect):
 
         self.color = PySI.Color(r, g, b, 255)
 
+    @SIEffect.on_enter("__RECOLOR__", SIEffect.RECEPTION)
+    def on_recolor_enter_recv(self, r, g, b):
+        if r is None:
+            return
+
+        if self.color.r == r and self.color.g == g and self.color.b == b:
+            return
+
+        self.color = PySI.Color(r, g, b, 255)
+
     @SIEffect.on_continuous("__PARENT_FRAME__", SIEffect.RECEPTION)
     def on_parent_frame_continuous_recv(self):
         pass

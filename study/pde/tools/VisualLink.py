@@ -116,7 +116,16 @@ class VisualLink(Movable, Deletable, SIEffect):
     @SIEffect.on_continuous("__RECOLOR__", SIEffect.RECEPTION)
     def on_recolor_continuous_emit(self, r, g, b):
         self.color = PySI.Color(r, g, b, 255)
-        self.border_color = PySI.Color(r, g, b, 255)
+
+    @SIEffect.on_enter("__RECOLOR__", SIEffect.RECEPTION)
+    def on_recolor_enter_recv(self, r, g, b):
+        if r is None:
+            return
+
+        if self.color.r == r and self.color.g == g and self.color.b == b:
+            return
+
+        self.color = PySI.Color(r, g, b, 255)
 
     def line_intersection(self, line1, line2):
         x1, y1 = line1[0]

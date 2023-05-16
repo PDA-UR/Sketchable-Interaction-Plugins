@@ -51,8 +51,6 @@ class Frame(Movable, Deletable, SIEffect):
                 other.create_link(other._uuid, "__ON_RESIZED__", self._uuid, "__ON_RESIZED__")
                 self.create_link(self._uuid, PySI.LinkingCapability.POSITION, other._uuid, PySI.LinkingCapability.POSITION)
 
-            self.reshape_to_content(*self.content_dimensions())
-
     @SIEffect.on_leave("__PARENT_FRAME__", SIEffect.EMISSION)
     def on_parent_frame_leave_emit(self, other):
         other.remove_link(other._uuid, "__ON_RESIZED__", self._uuid, "__ON_RESIZED__")
@@ -100,7 +98,42 @@ class Frame(Movable, Deletable, SIEffect):
 
         return x, y, self.x, self.y, {"moved_by_target": True}
 
-    @SIEffect.on_link(SIEffect.RECEPTION, "__ON_RESIZED__", "__ON_RESIZED__")
-    def on_resized_recv(self, resized, kwargs={}):
-        if not resized.is_under_user_control and not resized.was_moved():
-            self.reshape_to_content(*self.content_dimensions())
+    @SIEffect.on_continuous("__ FRAME_MERGE __", SIEffect.EMISSION)
+    def on_frame_merge_continuous_emit(self, other):
+        if self.was_moved():
+            self.delete()
+            return self._uuid, self.content
+
+        return self._uuid, None
+
+    @SIEffect.on_continuous("__ FRAME_MERGE __", SIEffect.RECEPTION)
+    def on_frame_merge_continuous_recv(self, other_uuid, other_tags=None):
+        if self.is_under_user_control or self.was_moved() or other_tags is None:
+            return
+
+        for c in other_tags:
+            c.remove_link(other_uuid, PySI.LinkingCapability.POSITION, c._uuid, PySI.LinkingCapability.POSITION)
+            c.remove_link(c._uuid, "__ON_RESIZED__", self._uuid, "__ON_RESIZED__")
+
+            self.content.append(c)
+            c.create_link(c._uuid, "__ON_RESIZED__", self._uuid, "__ON_RESIZED__")
+            self.create_link(self._uuid, PySI.LinkingCapability.POSITION, c._uuid, PySI.LinkingCapability.POSITION)
+
+        ctlc, cblc, cbrc, ctrc = self.content_dimensions()
+
+        cleftx = min(ctlc[0], cblc[0])
+        crightx = min(ctrc[0], cbrc[0])
+
+
+        stlcx, stlcy = self.absolute_x_pos(), self.absolute_y_pos()
+        stlc, sblc, sbrc, strc = (stlcx, stlcy), (stlcx, stlcy + self.height), (stlcx + self.width, stlcy + self.height), (stlcx + self.width, stlcy)
+
+        leftx = stlcx if stlcx < ctlc[0] else ctlc[0]
+        topy = stlcy if stlcy < ctlc[1] else ctlc[1]
+
+        rightx = strc[0] if strc[0] > ctrc[0] else ctrc[0]
+        bottomy = sblc[1] if sblc[1] > cblc[1] else cblc[1]
+
+        tlc, blc, brc, trc = (leftx, topy), (leftx, bottomy), (rightx, bottomy), (rightx, topy)
+
+        self.reshape_to_content(tlc, blc, brc, trc)

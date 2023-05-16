@@ -64,6 +64,10 @@ class Painter(Movable, Deletable, SIEffect):
     def on_recolor_continuous_recv(self, r, g, b):
         self.color = PySI.Color(r, g, b, 255)
 
+    @SIEffect.on_enter("__RECOLOR__", SIEffect.RECEPTION)
+    def on_recolor_enter_recv(self, r, g, b):
+        self.color = PySI.Color(r, g, b, 255)
+
     @SIEffect.on_continuous("__ SET_PAINTER_STROKE_WIDTH __", SIEffect.RECEPTION)
     def on_set_painter_stroke_width_continuous_recv(self, w, is_controlled):
         if self.link_partner is not None:
@@ -167,6 +171,9 @@ class Painter(Movable, Deletable, SIEffect):
 
         return self.shape, (self.absolute_x_pos() + self.width / 2, self.absolute_y_pos() + self.height / 2), self.color, self.x, self.y, self.shape_recognition
 
-    @SIEffect.on_continuous("__RECOLOR__", SIEffect.EMISSION)
+    @SIEffect.on_enter("__RECOLOR__", SIEffect.EMISSION)
     def on_recolor_enter_emit(self, other):
+        if not self.is_tool:
+            return None, None, None
+
         return self.color.r, self.color.g, self.color.b
