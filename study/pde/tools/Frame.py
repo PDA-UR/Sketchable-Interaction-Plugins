@@ -88,23 +88,15 @@ class Frame(Movable, Deletable, SIEffect):
             v = self.normalize_vector(v)
             v = v[0] * vl, v[1] * vl
             c.in_pile = True
-            c.move_alt(v[0], v[1])
+            c.pile_move = v
+            c.move(c.x + v[0], c.y + v[1])
 
         self.reshape_to_content(*self.content_dimensions())
 
     def scatter(self):
-        scenterx, scentery = self.unpiled_center[0], self.unpiled_center[1]
-
         for c in self.content:
-            centerx, centery = c.absolute_x_pos() + c.width / 2, c.absolute_y_pos() + c.height / 2
-
-            v = centerx - scenterx, centery - scentery
-            vl = self.vector_norm(v) * self.scatter_factor
-            v = self.normalize_vector(v)
-            v = v[0] * vl, v[1] * vl
-
             if c.in_pile:
-                c.move_alt(v[0], v[1])
+                c.move(c.x - c.pile_move[0], c.y - c.pile_move[1])
             c.in_pile = False
 
         self.reshape_to_content(*self.content_dimensions())

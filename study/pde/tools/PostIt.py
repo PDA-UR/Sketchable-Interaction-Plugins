@@ -70,9 +70,9 @@ class PostIt(Movable, Deletable, SIEffect):
 
         self.emit_linking_action(self._uuid, "__ON_RESIZED__", self.on_resized_emit())
 
-    def move_alt(self, x, y):
-        self.move(self.x + x, self.y + y)
-        # self.emit_linking_action(self._uuid, PySI.LinkingCapability.POSITION, self.position())
+    # def move_alt(self, x, y):
+    #     self.move(self.x + x, self.y + y)
+    #     # self.emit_linking_action(self._uuid, PySI.LinkingCapability.POSITION, self.position())
 
     def reshape_according_to_resize(self):
         self.shape = PySI.PointVector(self.round_edge([
