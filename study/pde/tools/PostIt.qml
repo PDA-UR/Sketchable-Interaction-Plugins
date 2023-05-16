@@ -5,6 +5,7 @@ Item {
 	function updateData(data) {
         container.width = data.width;
         container.height = data.height;
+        content.text = data.text;
 	}
 
 	id: container
@@ -17,7 +18,7 @@ Item {
         id: content
         font.pixelSize: Math.min(content.width, content.height) / 5
         text: ""
-        placeholderText: "PostIt"
+        placeholderText: ""
         font.family: "Helvetica"
         wrapMode: TextEdit.Fit | TextEdit.Wrap
         color: "black"
@@ -34,6 +35,8 @@ Item {
                     content.font.pixelSize = newPixelSize;
                 }
             }
+
+            REGION.set_data({text: content.text});
         }
 
         onTextChanged: {

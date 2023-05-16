@@ -6,6 +6,7 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Deletable i
 from plugins.study.pde.basic.Handle import Handle
 from plugins.study.pde.basic.Label import Label
 from plugins.E import E
+import inspect
 
 
 class PostIt(Movable, Deletable, SIEffect):
@@ -39,11 +40,28 @@ class PostIt(Movable, Deletable, SIEffect):
         self.handles = []
         self.tags = []
         self.in_pile = False
+        self.is_duplicate = False
+        self.duplicate_offset = (10, 10)
+
+        self.set_QML_data("text", "Post It", PySI.DataType.STRING)
+
+        self.handle_duplication(kwargs)
+
 
         if "is_selector" not in kwargs or ("is_selector" in kwargs and not kwargs["is_selector"]):
             for i, c in enumerate(corners):
                 corner = "tlc" if i == 0 else "blc" if i == 1 else "brc" if i == 2 else "trc"
                 self.create_region_via_name(c, Handle.regionname, False, {"parent": self, "num": i, "corner": corner})
+        pass
+
+    def handle_duplication(self, kwargs):
+        if "is_duplicate" in kwargs and kwargs["is_duplicate"]:
+            self.color = kwargs["target_data"]["color"]
+
+            self.is_duplicate = True
+
+            for e in kwargs["qml_data"]:
+                self.set_QML_data(*e)
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
@@ -69,10 +87,6 @@ class PostIt(Movable, Deletable, SIEffect):
         self.set_QML_data("height", float(self.current_height), PySI.DataType.FLOAT)
 
         self.emit_linking_action(self._uuid, "__ON_RESIZED__", self.on_resized_emit())
-
-    # def move_alt(self, x, y):
-    #     self.move(self.x + x, self.y + y)
-    #     # self.emit_linking_action(self._uuid, PySI.LinkingCapability.POSITION, self.position())
 
     def reshape_according_to_resize(self):
         self.shape = PySI.PointVector(self.round_edge([
@@ -311,3 +325,68 @@ class PostIt(Movable, Deletable, SIEffect):
             scaled_contour = [[p[0] + offset_x - width / 2, p[1] + offset_y + height / 2] for p in scaled_contour]
 
         self.create_region_via_name(scaled_contour, Label.regionname, False, {"parent": self, "color": tag_color, "text": "", "shape_recognition": tag_shape_recognition})
+
+    @SIEffect.on_enter("__ DUPLICATE __", SIEffect.RECEPTION)
+    def on_duplicate_enter_recv(self):
+        if self.is_duplicate:
+            return
+
+        target_data = {k: getattr(self, k) for k in dir(self)}
+        qml_data = self.__default_qml_calls__() + self.__qml_calls__(inspect.getsource(type(self)))
+
+        kwargs = {"is_duplicate": True, "target_data": target_data, "qml_data": qml_data}
+
+        x = self.absolute_x_pos() + self.edge_round_value + self.duplicate_offset[0]
+        y = self.absolute_y_pos() + self.edge_round_value + self.duplicate_offset[1]
+        w = self.width - self.edge_round_value * 2
+        h = self.height - self.edge_round_value * 2
+
+        shape = [[x, y], [x, y + h], [x + w, y + h], [x + w, y]]
+
+        self.create_region_via_name(shape, self.regionname, False, kwargs)
+
+    @SIEffect.on_leave("__ DUPLICATE __", SIEffect.RECEPTION)
+    def on_duplicate_leave_recv(self):
+        self.is_duplicate = False
+
+    def __qml_calls__(self, source):
+        ret = []
+        calls = self.__find_all_qml_occurrences__(source, "self.set_QML_data")
+
+        for call in calls:
+            s = source[call:source.find("\n", call)]
+            key = s[s.find("(") + 1:s.find(",")][1:-1]
+            dtype_str = s[s.rfind(",") + 1:s.rfind(")")].strip()
+
+            if dtype_str[0] != "P":
+                continue
+
+            dtype = eval(dtype_str)
+            value = self.get_QML_data(key, dtype)
+
+            ret.append([key, value, dtype])
+
+        return ret
+
+    def __default_qml_calls__(self):
+        ret = []
+        if self.texture_path != "":
+            # SIEffect standard
+            standard_qml = [{"img_width": PySI.DataType.INT},
+                            {"img_height": PySI.DataType.INT},
+                            {"img_path": PySI.DataType.STRING},
+                            {"widget_width": PySI.DataType.FLOAT},
+                            {"widget_height": PySI.DataType.FLOAT},
+                            {"uuid": PySI.DataType.STRING}
+                            ]
+
+            for d in standard_qml:
+                for key, dtype in d.items():
+                    value = self.get_QML_data(key, dtype)
+
+                    ret.append([key, value, dtype])
+
+        return ret
+
+    def __find_all_qml_occurrences__(self, s, sub):
+        return [i for i in range(len(s)) if s.startswith(sub, i)]

@@ -69,7 +69,7 @@ class Frame(Movable, Deletable, SIEffect):
             self.is_piled = False
             return
 
-        if self.is_piled == False:
+        if not self.is_piled:
             self.pile()
         else:
             self.scatter()
