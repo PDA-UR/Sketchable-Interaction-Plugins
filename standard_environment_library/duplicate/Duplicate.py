@@ -26,4 +26,4 @@ class Duplicate(Deletable, Movable, SIEffect):
 
     @SIEffect.on_leave("__ DUPLICATE __", SIEffect.EMISSION)
     def on_duplicate_leave_emit(self, other):
-        pass
+        other.is_duplicate = False

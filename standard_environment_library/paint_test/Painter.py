@@ -3,12 +3,13 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
+from plugins.standard_environment_library._standard_behaviour_mixins.Duplicatable import Duplicatable
 import math
 from scipy.interpolate import splprep, splev
 import splines
 import numpy as np
 
-class Painter(Movable, Deletable, SIEffect):
+class Painter(Movable, Deletable, Duplicatable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
     regionname = "__ Painter __"
     region_display_name = "Painter"
@@ -39,12 +40,39 @@ class Painter(Movable, Deletable, SIEffect):
             self.move(self.x + self.stroke_width / 2, self.y + self.stroke_width / 2)
         else:
             self.enable_effect(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION, self.on_deletion_enter_recv, None, None)
-            self.color = kwargs["color"]
+            self.is_tool = False
+
+            if "is_duplicate" in kwargs and kwargs["is_duplicate"]:
+                self.handle_duplication(kwargs)
+                return
+
             self.stroke_width = kwargs["stroke_width"]
+            self.color = kwargs["color"]
             self.orig_shape = [p for p in self.shape]
             self.transportation_path = []
             self.rebuild_shape()
-            self.is_tool = False
+        pass
+
+    def handle_duplication(self, kwargs):
+        if "is_duplicate" in kwargs and kwargs["is_duplicate"]:
+            self.color = kwargs["target_data"]["color"]
+
+            self.is_duplicate = True
+
+            for e in kwargs["qml_data"]:
+                self.set_QML_data(*e)
+
+    @SIEffect.on_enter("__ DUPLICATE __", SIEffect.RECEPTION)
+    def on_duplicate_enter_recv(self):
+        if self.is_duplicate:
+            return
+
+        target_data = self.target_data()
+        qml_data = self.qml_data(type(self))
+
+        kwargs = {"is_duplicate": True, "target_data": target_data, "qml_data": qml_data}
+
+        self.create_region_via_name([[p.x + self.x + self.duplicate_offset[0], p.y + self.y + self.duplicate_offset[1]] for p in self.shape], self.regionname, False, kwargs)
 
     @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid: str) -> None:
