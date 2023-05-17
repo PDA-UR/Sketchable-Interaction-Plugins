@@ -3,6 +3,8 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.standard_environment_library._standard_behaviour_mixins.Deletable import Deletable
+from plugins.study.pde.tools.Magnet import Magnet
+
 from plugins.E import E
 
 
@@ -23,6 +25,11 @@ class Label(Movable, Deletable, SIEffect):
         self.parent.tags.append(self)
 
         self.parent.create_link(self.parent._uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
+
+        Magnet.registered_colors.append(self.color)
+
+        if self.shape_rec != "":
+            Magnet.registered_shapes.append(self.shape_rec)
 
         self.set_QML_data("width", float(self.width), PySI.DataType.FLOAT)
         self.set_QML_data("height", float(self.height), PySI.DataType.FLOAT)

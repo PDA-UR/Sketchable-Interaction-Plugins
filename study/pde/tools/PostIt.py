@@ -6,9 +6,8 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Deletable i
 from plugins.standard_environment_library._standard_behaviour_mixins.Duplicatable import Duplicatable
 from plugins.study.pde.basic.Handle import Handle
 from plugins.study.pde.basic.Label import Label
+from plugins.study.pde.tools.Magnet import Magnet
 from plugins.E import E
-import inspect
-
 
 class PostIt(Movable, Deletable, Duplicatable, SIEffect):
     regiontype = PySI.EffectType.SI_CUSTOM
@@ -21,6 +20,7 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         self.color = PySI.Color(122, 252, 255, 255)
 
         cw, ch = self.context_dimensions()
+
         self.tag_offset_x = 20 * cw / 1920
         self.tag_offset_y = 10 * cw / 1080
         self.handle_width = 20 * cw / 1920
@@ -37,6 +37,9 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
             PySI.PointVector([[x2, y2], [x2, y2 + self.handle_width], [x2 + self.handle_width, y2 + self.handle_width], [x2 + self.handle_width, y2]]),
             PySI.PointVector([[x2, y1], [x2, y1 + self.handle_width], [x2 + self.handle_width, y1 + self.handle_width], [x2 + self.handle_width, y1]])
         ]
+
+        if "DRAWN" in kwargs and kwargs["DRAWN"]:
+            Magnet.registered_colors.append(self.color)
 
         self.handles = []
         self.tags = []
@@ -68,7 +71,6 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         y = self.y - self.last_y
         self.last_x = self.x
         self.last_y = self.y
-
         return x, y, self.x, self.y, {"moved_by_target": True}
 
     @SIEffect.on_link(SIEffect.RECEPTION, "__RESIZE__", "__RESIZE__")
@@ -81,10 +83,8 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         self.handles[affectedy].y = self.handles[num].y
 
         self.reshape_according_to_resize()
-
         self.set_QML_data("width", float(self.width), PySI.DataType.FLOAT)
         self.set_QML_data("height", float(self.current_height), PySI.DataType.FLOAT)
-
         self.emit_linking_action(self._uuid, "__ON_RESIZED__", self.on_resized_emit())
 
     def reshape_according_to_resize(self):
@@ -97,20 +97,15 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
 
         w = self.width / 8
         h = self.height / 10
-
         tags_per_row = self.width // (self.tag_offset_x + w)
         for i, t in enumerate(self.tags):
             x1 = self.absolute_x_pos() + self.tag_offset_x * (i % tags_per_row + 1) + w * (i % tags_per_row) + self.handle_width
             y1 = self.absolute_y_pos() + self.height - h * (i // tags_per_row + 1) - self.tag_offset_y * (i // tags_per_row + 1)
-
             y_max = max(t.shape, key=lambda p: p.y).y
             y_min = min(t.shape, key=lambda p: p.y).y
             curr_h = y_max - y_min
-
             scale = h / curr_h
-
             tcenter = t.absolute_x_pos() + t.width / 2, t.absolute_y_pos() + t.height / 2
-
             scaled_contour = []
             for x, y in [[p.x, p.y] for p in t.shape]:
                 x_scaled = (x - tcenter[0]) * scale + tcenter[0] + t.x
@@ -150,7 +145,6 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         self.y = 0
         self.last_x = 0
         self.last_y = 0
-
         self.width = int(self.aabb[3].x - self.aabb[0].x)
         self.height = int(self.aabb[1].y - self.aabb[0].y)
         self.current_height = self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
@@ -176,7 +170,6 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
     def on_recolor_continuous_recv(self, r, g, b):
         if self.color.r == r and self.color.g == g and self.color.b == b:
             return
-
         self.color = PySI.Color(r, g, b, 255)
 
     @SIEffect.on_enter("__RECOLOR__", SIEffect.RECEPTION)
@@ -186,7 +179,6 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
 
         if self.color.r == r and self.color.g == g and self.color.b == b:
             return
-
         self.color = PySI.Color(r, g, b, 255)
 
     @SIEffect.on_continuous("__PARENT_FRAME__", SIEffect.RECEPTION)
@@ -201,14 +193,11 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
     def on_tagging_enter_recv(self, color, text):
         w = self.width / 8
         h = self.height / 10
-
         tags_per_row = self.width // (self.tag_offset_x + w)
-
         x = self.absolute_x_pos() + self.tag_offset_x * (len(self.tags) % tags_per_row + 1) + w * (len(self.tags) % tags_per_row) + self.handle_width
         y = self.absolute_y_pos() + self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
 
         self.current_height = self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
-
         self.set_QML_data("height", float(self.current_height), PySI.DataType.FLOAT)
 
         s = PySI.PointVector([
@@ -243,7 +232,6 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
                 tags_per_row = self.width // (self.tag_offset_x + w)
 
                 self.current_height = self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
-
                 self.set_QML_data("height", float(self.current_height), PySI.DataType.FLOAT)
 
     @SIEffect.on_enter("__ON_VISUAL_LINK__", SIEffect.RECEPTION)
@@ -290,13 +278,11 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         y1 = self.absolute_y_pos() + self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
 
         self.current_height = self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
-
         self.set_QML_data("height", float(self.current_height), PySI.DataType.FLOAT)
 
         y_max = max(tag_shape, key=lambda p: p.y).y
         y_min = min(tag_shape, key=lambda p: p.y).y
         curr_h = y_max - y_min
-
         scale = h / curr_h
 
         scaled_contour = []
@@ -329,17 +315,28 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
     def on_duplicate_enter_recv(self):
         if self.is_duplicate:
             return
-
         target_data = self.target_data()
         qml_data = self.qml_data(type(self))
-
         kwargs = {"is_duplicate": True, "target_data": target_data, "qml_data": qml_data}
 
         x = self.absolute_x_pos() + self.edge_round_value + self.duplicate_offset[0]
         y = self.absolute_y_pos() + self.edge_round_value + self.duplicate_offset[1]
         w = self.width - self.edge_round_value * 2
         h = self.height - self.edge_round_value * 2
-
         shape = [[x, y], [x, y + h], [x + w, y + h], [x + w, y]]
-
         self.create_region_via_name(shape, self.regionname, False, kwargs)
+
+    @SIEffect.on_enter("__ MAGNET_PULL __", SIEffect.RECEPTION)
+    def on_magnet_pull_enter_recv(self, colors, shapes):
+        color = [self.color.r, self.color.g, self.color.b]
+
+        found = color in colors
+        if found:
+            print("FOUND1")
+            return
+        else:
+            for t in self.tags:
+                found |= t.shape_rec in shapes
+
+        if found:
+            print("FOUND2")

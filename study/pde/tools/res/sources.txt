@@ -2,3 +2,4 @@
 <a href="https://www.flaticon.com/free-icons/color-picker" title="color picker icons">Color picker icons created by kerismaker - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/frame" title="frame icons">Frame icons created by PLANBSTUDIO - Flaticon</a>
 <a href="https://www.flaticon.com/free-icons/back" title="back icons">Back icons created by Lyolya - Flaticon</a>
+<a href="https://www.flaticon.com/de/kostenlose-icons/magnet" title="magnet Icons">Magnet Icons erstellt von Kiranshastry - Flaticon</a>
