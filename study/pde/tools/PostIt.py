@@ -334,9 +334,9 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         if found:
             self.handle_found(magnet_uuid)
             return
-        else:
-            for t in self.tags:
-                found |= t.shape_rec in shapes
+
+        for t in self.tags:
+            found |= t.shape_rec in shapes
 
         if found:
             self.handle_found(magnet_uuid)

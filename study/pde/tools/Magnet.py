@@ -19,7 +19,7 @@ class Magnet(Deletable, Movable, SIEffect):
         self.qml_path = self.set_QML_path("Magnet.qml")
         self.color = PySI.Color(255, 0, 0, 255)
 
-        x, y, w, h = self.aabb[0].x, self.aabb[0].y, 300, 300
+        x, y, w, h = self.aabb[0].x, self.aabb[0].y, 250, 200
         self.shape = PySI.PointVector([[x, y], [x, y + h], [x + w, y + h], [x + w, y]])
 
         self.set_QML_data("width", w, PySI.DataType.FLOAT)

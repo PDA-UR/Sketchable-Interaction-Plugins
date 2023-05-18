@@ -13,6 +13,7 @@ class MagnetChoice(Movable, Deletable, SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super().__init__(shape, uuid, "", MagnetChoice.regiontype, MagnetChoice.regionname, kwargs)
         self.with_border = True
+        self.border_width = 1
         self.parent = None if "parent" not in kwargs else kwargs["parent"]
         self.parent.create_link(self.parent._uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
         self.color = kwargs["color"]
