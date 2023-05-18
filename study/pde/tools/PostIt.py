@@ -327,16 +327,18 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         self.create_region_via_name(shape, self.regionname, False, kwargs)
 
     @SIEffect.on_enter("__ MAGNET_PULL __", SIEffect.RECEPTION)
-    def on_magnet_pull_enter_recv(self, colors, shapes):
+    def on_magnet_pull_enter_recv(self, colors, shapes, magnet_uuid):
         color = [self.color.r, self.color.g, self.color.b]
 
         found = color in colors
         if found:
-            print("FOUND1")
+            self.handle_found(magnet_uuid)
             return
         else:
             for t in self.tags:
                 found |= t.shape_rec in shapes
 
         if found:
-            print("FOUND2")
+            self.handle_found(magnet_uuid)
+    def handle_found(self, magnet_uuid):
+        self.create_link(magnet_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)

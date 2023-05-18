@@ -28,6 +28,7 @@ class Magnet(Deletable, Movable, SIEffect):
         self.repository = None
         self.combinator = None
         self.choices = []
+        self.filtered = []
 
         if "DRAWN" in kwargs and kwargs["DRAWN"]:
             self.create_region_via_name([[x + w / 2, y], [x + w / 2, y + h], [x + w, y + h], [x + w, y]], Repository.regionname, False, {"parent": self})
@@ -42,7 +43,9 @@ class Magnet(Deletable, Movable, SIEffect):
         color_filter = self.combinator.color_filter
         shape_filter = self.combinator.shape_filter
 
-        return color_filter, shape_filter
+        self.filtered.append(other)
+
+        return color_filter, shape_filter, self._uuid
 
     @SIEffect.on_link(SIEffect.EMISSION, PySI.LinkingCapability.POSITION)
     def position(self):
@@ -66,3 +69,11 @@ class Magnet(Deletable, Movable, SIEffect):
                 c.delete()
 
             super().on_deletion_enter_recv()
+
+    def on_move_leave_recv(self, cursor_id, link_attrib):
+        super().on_move_leave_recv(cursor_id, link_attrib)
+
+        for f in self.filtered:
+            f.remove_link(self._uuid, PySI.LinkingCapability.POSITION, f._uuid, PySI.LinkingCapability.POSITION)
+
+        self.filtered = []
