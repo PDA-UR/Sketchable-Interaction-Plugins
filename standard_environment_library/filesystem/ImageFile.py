@@ -63,7 +63,7 @@ class ImageFile(File):
 
     @SIEffect.on_leave("ADD_TO_FOLDERBUBBLE", SIEffect.RECEPTION)
     def on_add_to_folder_leave_recv(self):
-        self.set_QML_data("is_overlay_visible", True, PySI.DataType.BOOL)
+        self.set_QML_data("is_overlay_visible", False, PySI.DataType.BOOL)
 
     @SIEffect.on_continuous("ADD_TO_FOLDERBUBBLE", SIEffect.RECEPTION)
     def on_add_to_folder_continuous_recv(self):
