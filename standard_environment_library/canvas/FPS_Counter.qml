@@ -1,29 +1,30 @@
-import QtQuick 2.7
+import QtQuick
 
-Item
-{
-    function updateData(data)
-    {
-        te.text = data["text"];
-    }
-
+Item {
     id: container
     visible: true
 
-   Item {
-       id: iconcontainer
-       visible: true
+    function updateData(data) {
+        te.text = data["text"];
+    }
 
-       Text {
-           id: te
-           width: 100
-           horizontalAlignment: TextEdit.AlignHCenter
-           verticalAlignment: TextEdit.AlignVCenter
-           text: "Hello World"
-           font.family: "Helvetica"
-           font.pointSize: 12
-           color: "black"
-           onTextChanged: REGION.set_data({text: te.text});
-       }
+    Item {
+        id: iconcontainer
+        visible: true
+
+        Text {
+            id: te
+            color: "black"
+            font.family: "Helvetica"
+            font.pointSize: 12
+            horizontalAlignment: TextEdit.AlignHCenter
+            text: "Hello World"
+            verticalAlignment: TextEdit.AlignVCenter
+            width: 100
+
+            onTextChanged: REGION.set_data({
+                    "text": te.text
+                })
+        }
     }
 }

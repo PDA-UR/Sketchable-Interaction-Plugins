@@ -1,5 +1,5 @@
-import QtQuick 2.7
-import QtQuick.Controls 2.7
+import QtQuick
+import QtQuick.Controls
 
 Item {
 	function updateData(data) {

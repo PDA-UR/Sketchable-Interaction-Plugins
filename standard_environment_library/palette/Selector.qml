@@ -1,4 +1,4 @@
-import QtQuick 2.7
+import QtQuick
 
 Item {
     function updateData(data)
@@ -34,7 +34,7 @@ Item {
         id: loader
         anchors.fill: parent
         sourceComponent: component
-        asynchronous: true
+        asynchronous: false
         visible: status == Loader.Ready
 
         Component {
@@ -68,7 +68,7 @@ Item {
 
                     Image {
                         id: tex
-                        asynchronous: true
+                        asynchronous: false
                         visible: true
                     }
                 }

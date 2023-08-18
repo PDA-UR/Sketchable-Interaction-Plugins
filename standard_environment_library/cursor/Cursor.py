@@ -173,22 +173,25 @@ class Cursor(SIEffect):
                 mc_accepted = fs[0].on_middle_click()
 
     def on_double_click(self, is_active):
+        target = None
         if is_active:
-            accecpted = False
+            accepted = False
 
             collisions = [uuid for uuid, name in self.present_collisions() if name in self.double_clickables]
             regions = [r for r in self.current_regions() if r._uuid in collisions]
 
             icons = [r for r in regions if r.regionname == FolderIcon.FolderIcon.regionname]
 
-            if len(icons) > 0 and not accecpted:
-                accecpted = icons[0].on_double_clicked()
+            if len(icons) > 0 and not accepted:
+                accepted = icons[0].on_double_clicked()
+                target = FolderIcon.FolderIcon.regionname
             else:
                 folders = [r for r in regions if r.regionname == FolderBubble.FolderBubble.regionname]
                 folders.sort(key=lambda x: x.parent_level, reverse=True)
 
-                if len(folders) > 0 and not accecpted:
-                    accecpted = folders[0].on_double_clicked()
+                if len(folders) > 0 and not accepted:
+                    target = FolderBubble.FolderBubble.regionname
+                    accepted = folders[0].on_double_clicked()
 
             inbox_items = [r for r in regions if r.regionname == InboxItem.regionname]
             textfiles = [r for r in regions if r.regionname == TextFile.TextFile.regionname]
@@ -196,20 +199,27 @@ class Cursor(SIEffect):
             clearbtns = [r for r in regions if r.regionname == Clear.regionname]
             frames = [r for r in regions if r.regionname == Frame.Frame.regionname]
 
-            if len(inbox_items) > 0 and not accecpted:
-                accecpted = inbox_items[0].on_double_clicked()
+            if len(inbox_items) > 0 and not accepted:
+                accepted = inbox_items[0].on_double_clicked()
+                target = InboxItem.regionname
 
-            if len(textfiles) > 0 and not accecpted:
-                accecpted = textfiles[0].on_double_clicked()
+            if len(textfiles) > 0 and not accepted:
+                accepted = textfiles[0].on_double_clicked()
+                target = TextFile.TextFile.regionname
 
-            if len(imagefiles) > 0 and not accecpted:
-                accecpted = imagefiles[0].on_double_clicked()
+            if len(imagefiles) > 0 and not accepted:
+                accepted = imagefiles[0].on_double_clicked()
+                target = ImageFile.ImageFile.regionname
 
-            if len(clearbtns) and not accecpted:
-                accecpted = clearbtns[0].on_double_clicked()
+            if len(clearbtns) and not accepted:
+                accepted = clearbtns[0].on_double_clicked()
+                target = Clear.regionname
 
-            if len(frames) and not accecpted:
-                accecpted = frames[0].on_double_clicked()
+            if len(frames) and not accepted:
+                accepted = frames[0].on_double_clicked()
+                target = Frame.Frame.regionname
+
+        return target
 
     def on_enlarge_enter_emit(self, other):
         pass
