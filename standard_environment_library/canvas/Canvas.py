@@ -44,6 +44,8 @@ class Canvas(SIEffect):
         if "ignore" in kwargs and kwargs["ignore"]:
             return
 
+        print("HERE", is_canceled)
+
         self.add_point_to_region_drawing(x, y, cursor_id)
         if not is_canceled:
             self.register_region_from_drawing(cursor_id, kwargs)

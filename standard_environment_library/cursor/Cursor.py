@@ -22,10 +22,11 @@ class Cursor(SIEffect):
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super().__init__(shape, uuid, "", Cursor.regiontype, Cursor.regionname, kwargs)
 
+        self.id = kwargs["id"]
         self.kwargs = kwargs
         self.qml_path = self.set_QML_path(E.id.cursor_qml_path)
         # self.color = E.color.cursor_color
-        self.color = PySI.Color(255, 0, 0, 255)
+        self.color = PySI.Color(0, 0, 0, 255)
         self.assigned_effect = ""
         self.is_drawing_blocked = False
         self.width = int(Cursor.region_width)
@@ -225,8 +226,9 @@ class Cursor(SIEffect):
         pass
 
     def show_radial_palette(self):
-        kwargs = {"source": self}
-        self.create_region_via_name(PySI.PointVector([[self.x, self.y], [self.x, self.y + 50], [self.x + 50, self.y + 50], [self.x + 50, self.y]]), RadialPalette.regionname, kwargs=kwargs)
+        if not self.has_palette_active:
+            kwargs = {"source": self}
+            self.create_region_via_name(PySI.PointVector([[self.x, self.y], [self.x, self.y + 50], [self.x + 50, self.y + 50], [self.x + 50, self.y]]), RadialPalette.regionname, kwargs=kwargs)
 
     def remove_radial_palette(self):
         if self.has_palette_active:
@@ -282,14 +284,14 @@ class Cursor(SIEffect):
 
                 self.handle_ctrl_press()
 
-            if self.right_mouse_active: # cancel
-                self.is_draw_canceled = True
-                if PySI.CollisionCapability.SKETCH in self.cap_emit.keys():
-                    self.disable_effect(PySI.CollisionCapability.SKETCH, True)
-
-                if self.parent_canvas is not None:
-                    self.parent_canvas.on_sketch_leave_recv(*self.on_sketch_leave_emit(self.parent_canvas))
-                self.parent_canvas = None
+            # if self.right_mouse_active: # cancel
+            #     self.is_draw_canceled = True
+            #     if PySI.CollisionCapability.SKETCH in self.cap_emit.keys():
+            #         self.disable_effect(PySI.CollisionCapability.SKETCH, True)
+            #
+            #     if self.parent_canvas is not None:
+            #         self.parent_canvas.on_sketch_leave_recv(*self.on_sketch_leave_emit(self.parent_canvas))
+            #     self.parent_canvas = None
         elif self.kwargs["draw"] == "LMB":
             self.handle_drawing_click(is_active)
 
