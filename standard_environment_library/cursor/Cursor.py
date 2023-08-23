@@ -1,13 +1,15 @@
-from libPySI import PySI
-from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library.paint_test.Painter import Painter
 from plugins.standard_environment_library.palette.RadialPalette import RadialPalette
 from plugins.standard_environment_library.email.InboxItem import InboxItem
 from plugins.standard_environment_library.canvas.Clear import Clear
 from plugins.standard_environment_library.canvas.Tooltip import Tooltip
 from plugins.E import E
-from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 from plugins.study.pde.tools import Frame
+
+from libPySI import PySI
+from plugins.standard_environment_library.SIEffect import SIEffect
+from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
+
 
 import math
 from plugins.standard_environment_library.filesystem import Folder, FolderIcon, FolderBubble, TextFile, ImageFile, ZIPFile, PDFFile
@@ -21,8 +23,15 @@ class Cursor(SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super().__init__(shape, uuid, "", Cursor.regiontype, Cursor.regionname, kwargs)
+        cw, ch = self.context_dimensions()
 
+        self.cursor_height = 32 / 1200 * ch
+        self.cursor_width_factor = 0.602090
+        self.visualization = None
         self.id = kwargs["id"]
+
+        self.create_region_via_name(PySI.PointVector([[self.x, self.y], [self.x, self.y + self.cursor_height], [self.x + self.cursor_height * self.cursor_width_factor, self.y + self.cursor_height], [self.x + self.cursor_height * self.cursor_width_factor, self.y]]), "__ Cursor Visualization __", kwargs={"parent": self, "width_factor": self.cursor_width_factor, "id": self.id})
+
         self.kwargs = kwargs
         self.qml_path = self.set_QML_path(E.id.cursor_qml_path)
         # self.color = E.color.cursor_color
@@ -55,9 +64,7 @@ class Cursor(SIEffect):
         self.set_QML_data("movement_texture", "res/movement.png", PySI.DataType.STRING)
         self.was_previously_active = False
 
-
         self.associated_keyboard_key = ""
-
 
         self.paint_color = PySI.Color(0, 0, 0, 255)
         self.paint_tool = None
@@ -121,6 +128,8 @@ class Cursor(SIEffect):
         return self.x, self.y, self._uuid, self.is_draw_canceled, kwargs
 
     def on_move_enter_emit(self, other):
+        self.visualization.trigger_move(True)
+
         if other.regionname == Painter.regionname and other == self.paint_tool:
             return "", ""
 
@@ -137,6 +146,7 @@ class Cursor(SIEffect):
 
     def on_move_leave_emit(self, other):
         if self.move_target is other:
+            self.visualization.trigger_move(False)
             self.move_target = None
             return self._uuid, PySI.LinkingCapability.POSITION
 
@@ -272,7 +282,7 @@ class Cursor(SIEffect):
 
     def on_left_mouse_click(self, is_active):
         self.left_mouse_active = is_active
-        self.is_draw_canceled = False
+        # self.is_draw_canceled = False
 
         if is_active and not self.was_previously_active:
             self.__click_mouse__(self.absolute_x_pos(), self.absolute_y_pos())
@@ -290,7 +300,7 @@ class Cursor(SIEffect):
             #         self.show_radial_palette()
             # else:
             #     self.remove_radial_palette()
-                self.handle_move(is_active)
+            self.handle_move(is_active)
 
                 # self.handle_ctrl_press()
 
