@@ -55,6 +55,10 @@ class Cursor(SIEffect):
         self.set_QML_data("movement_texture", "res/movement.png", PySI.DataType.STRING)
         self.was_previously_active = False
 
+
+        self.associated_keyboard_key = ""
+
+
         self.paint_color = PySI.Color(0, 0, 0, 255)
         self.paint_tool = None
         self.temp = []
@@ -270,6 +274,12 @@ class Cursor(SIEffect):
         self.left_mouse_active = is_active
         self.is_draw_canceled = False
 
+        if is_active and not self.was_previously_active:
+            self.__click_mouse__(self.absolute_x_pos(), self.absolute_y_pos())
+            self.was_previously_active = True
+        if not is_active:
+            self.was_previously_active = False
+
         if self.kwargs["draw"] == "RMB":
             collisions = [uuid for uuid, name in self.present_collisions()]
             regions = [r for r in self.current_regions() if r._uuid in collisions and isinstance(r, Movable)]
@@ -282,7 +292,7 @@ class Cursor(SIEffect):
                 self.remove_radial_palette()
                 self.handle_move(is_active)
 
-                self.handle_ctrl_press()
+                # self.handle_ctrl_press()
 
             # if self.right_mouse_active: # cancel
             #     self.is_draw_canceled = True
@@ -396,3 +406,11 @@ class Cursor(SIEffect):
     def on_hide_tool_leave_recv(self):
         for tool in self.image_editor_tool:
             tool.delete()
+
+    # @SIEffect.on_enter("__ TEXT __ ", SIEffect.EMISSION)
+    # def on_text_enter_emit(self, other):
+    #     return self.id
+    #
+    # @SIEffect.on_leave("__ TEXT __ ", SIEffect.EMISSION)
+    # def on_text_leave_emit(self, other):
+    #     pass

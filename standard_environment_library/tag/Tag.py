@@ -7,7 +7,7 @@ from plugins.standard_environment_library._standard_behaviour_mixins.Rotateable 
 from plugins.E import E
 
 
-class Tag(Deletable, Movable, Rotateable, UnRedoable, SIEffect):
+class Tag(Deletable, Movable, SIEffect):
 	regiontype = PySI.EffectType.SI_CUSTOM
 	regionname = E.id.tag_name
 	region_display_name = E.id.tag_display_name
@@ -20,6 +20,7 @@ class Tag(Deletable, Movable, Rotateable, UnRedoable, SIEffect):
 		self.qml_path = self.set_QML_path(E.id.tag_qml_file_name)
 		self.color = E.color.tag_color
 		self.text = "Hello World"
+		self.text_enterable_id = -1
 
 	# @UnRedoable.action
 	@SIEffect.on_enter(E.capability.tag_tagging, SIEffect.EMISSION)
@@ -33,3 +34,11 @@ class Tag(Deletable, Movable, Rotateable, UnRedoable, SIEffect):
 	@SIEffect.on_continuous("__RECOLOR__", SIEffect.RECEPTION)
 	def on_recolor_continuous_recv(self, r, g, b):
 		self.color = PySI.Color(r, g, b, 255)
+
+	# @SIEffect.on_enter("__ TEXT __ ", SIEffect.RECEPTION)
+	# def on_text_enter_emit(self, _id):
+	# 	self.text_enterable_id = _id
+	#
+	# @SIEffect.on_leave("__ TEXT __ ", SIEffect.RECEPTION)
+	# def on_text_leave_recv(self):
+	# 	pass
