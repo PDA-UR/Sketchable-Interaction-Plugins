@@ -30,12 +30,13 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         y1 = self.aabb[0].y
         x2 = self.aabb[2].x - self.handle_width
         y2 = self.aabb[2].y - self.handle_width
+        self.curser_id = ""
 
         corners = [
-            PySI.PointVector([[x1, y1], [x1, y1 + self.handle_width], [x1 + self.handle_width, y1 + self.handle_width], [x1 + self.handle_width, y1]]),
-            PySI.PointVector([[x1, y2], [x1, y2 + self.handle_width], [x1 + self.handle_width, y2 + self.handle_width], [x1 + self.handle_width, y2]]),
+            # PySI.PointVector([[x1, y1], [x1, y1 + self.handle_width], [x1 + self.handle_width, y1 + self.handle_width], [x1 + self.handle_width, y1]]),
+            # PySI.PointVector([[x1, y2], [x1, y2 + self.handle_width], [x1 + self.handle_width, y2 + self.handle_width], [x1 + self.handle_width, y2]]),
             PySI.PointVector([[x2, y2], [x2, y2 + self.handle_width], [x2 + self.handle_width, y2 + self.handle_width], [x2 + self.handle_width, y2]]),
-            PySI.PointVector([[x2, y1], [x2, y1 + self.handle_width], [x2 + self.handle_width, y1 + self.handle_width], [x2 + self.handle_width, y1]])
+            # PySI.PointVector([[x2, y1], [x2, y1 + self.handle_width], [x2 + self.handle_width, y1 + self.handle_width], [x2 + self.handle_width, y1]])
         ]
 
         if "DRAWN" in kwargs and kwargs["DRAWN"]:
@@ -44,6 +45,7 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         self.handles = []
         self.tags = []
         self.in_pile = False
+        self.visual_links = []
 
         self.set_QML_data("text", "Post It", PySI.DataType.STRING)
 
@@ -51,8 +53,10 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
 
         if "is_selector" not in kwargs or ("is_selector" in kwargs and not kwargs["is_selector"]):
             for i, c in enumerate(corners):
-                corner = "tlc" if i == 0 else "blc" if i == 1 else "brc" if i == 2 else "trc"
-                self.create_region_via_name(c, Handle.regionname, False, {"parent": self, "num": i, "corner": corner})
+                # corner = "tlc" if i == 0 else "blc" if i == 1 else "brc" if i == 2 else "trc"
+                corner = "blc"
+                # self.create_region_via_name(c, Handle.regionname, False, {"parent": self, "num": i, "corner": corner})
+                self.create_region_via_name(c, Handle.regionname, False, {"parent": self, "num": 0, "corner": corner})
 
         pass
 
@@ -71,16 +75,17 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         y = self.y - self.last_y
         self.last_x = self.x
         self.last_y = self.y
-        return x, y, self.x, self.y, {"moved_by_target": True}
+        return x, y, self.x, self.y, {"moved_by_target": True, "moved_by_postit": True}
 
     @SIEffect.on_link(SIEffect.RECEPTION, "__RESIZE__", "__RESIZE__")
     def resize(self, num, kwargs={}):
-        if len(self.handles) < 4:
+        # if len(self.handles) < 4:
+        if len(self.handles) < 1:
             return
 
-        affectedx, affectedy = self.get_affected_corners(num)
-        self.handles[affectedx].x = self.handles[num].x
-        self.handles[affectedy].y = self.handles[num].y
+        # affectedx, affectedy = self.get_affected_corners(num)
+        # self.handles[affectedx].x = self.handles[num].x
+        # self.handles[affectedy].y = self.handles[num].y
 
         self.reshape_according_to_resize()
         self.set_QML_data("width", float(self.width), PySI.DataType.FLOAT)
@@ -88,11 +93,18 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         self.emit_linking_action(self._uuid, "__ON_RESIZED__", self.on_resized_emit())
 
     def reshape_according_to_resize(self):
+        # self.shape = PySI.PointVector(self.round_edge([
+        #     [self.handles[0].aabb[0].x + self.handles[0].x, self.handles[0].y + self.handles[0].aabb[0].y],
+        #     [self.handles[1].aabb[0].x + self.handles[0].x, self.handles[1].y + self.handles[1].aabb[1].y],
+        #     [self.handles[2].aabb[3].x + self.handles[3].x, self.handles[2].y + self.handles[2].aabb[1].y],
+        #     [self.handles[3].aabb[3].x + self.handles[3].x, self.handles[3].y + self.handles[3].aabb[0].y]
+        # ]))
+
         self.shape = PySI.PointVector(self.round_edge([
-            [self.handles[0].aabb[0].x + self.handles[0].x, self.handles[0].y + self.handles[0].aabb[0].y],
-            [self.handles[1].aabb[0].x + self.handles[0].x, self.handles[1].y + self.handles[1].aabb[1].y],
-            [self.handles[2].aabb[3].x + self.handles[3].x, self.handles[2].y + self.handles[2].aabb[1].y],
-            [self.handles[3].aabb[3].x + self.handles[3].x, self.handles[3].y + self.handles[3].aabb[0].y]
+            [self.aabb[0].x + self.edge_round_value + self.x, self.aabb[0].y + self.edge_round_value + self.y],
+            [self.aabb[0].x + self.edge_round_value + self.x, self.handles[0].aabb[1].y + self.handles[0].y],
+            [self.handles[0].aabb[3].x + self.handles[0].x, self.handles[0].y + self.handles[0].aabb[1].y],
+            [self.handles[0].aabb[3].x + self.handles[0].x, self.aabb[0].y + self.edge_round_value + self.y]
         ]))
 
         w = self.width / 8
@@ -149,14 +161,16 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         self.height = int(self.aabb[1].y - self.aabb[0].y)
         self.current_height = self.height - h * (len(self.tags) // tags_per_row + 1) - self.tag_offset_y * (len(self.tags) // tags_per_row + 1)
     def get_affected_corners(self, source):
-        if source == 0: #tlc
-            return 1, 3
-        if source == 1: #blc
-            return 0, 2
-        if source == 2: #brc
-            return 3, 1
-        if source == 3: #trc
-            return 2, 0
+        # if source == 0: #tlc
+        #     return 1, 3
+        # if source == 1: #blc
+        #     return 0, 2
+        # if source == 2: #brc
+        #     return 3, 1
+        # if source == 3: #trc
+        #     return 2, 0
+
+        return 0, 0
 
     @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid: str) -> None:
@@ -183,6 +197,7 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
 
     @SIEffect.on_continuous("__PARENT_FRAME__", SIEffect.RECEPTION)
     def on_parent_frame_continuous_recv(self):
+        print("CALL")
         pass
 
     @SIEffect.on_leave("__PARENT_FRAME__", SIEffect.RECEPTION)
@@ -251,6 +266,12 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         for t in self.tags:
             t.flagged_for_deletion = True
             t.delete()
+
+        for l in self.visual_links:
+            l.flagged_for_deletion = True
+            l.clear_links()
+            l.delete()
+
         super().on_deletion_enter_recv()
 
     @SIEffect.on_continuous(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
@@ -262,6 +283,12 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
         for t in self.tags:
             t.flagged_for_deletion = True
             t.delete()
+
+        for l in self.visual_links:
+            l.flagged_for_deletion = True
+            l.clear_links()
+            l.delete()
+
         super().on_deletion_enter_recv()
 
     @SIEffect.on_enter("__ SHAPE_TAG __", SIEffect.RECEPTION)
@@ -342,3 +369,79 @@ class PostIt(Movable, Deletable, Duplicatable, SIEffect):
             self.handle_found(magnet_uuid)
     def handle_found(self, magnet_uuid):
         self.create_link(magnet_uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
+
+    @SIEffect.on_enter(PySI.CollisionCapability.MOVE, SIEffect.RECEPTION)
+    def on_move_enter_recv(self, cursor_id, link_attrib):
+        if cursor_id != "" and link_attrib != "":
+            self.curser_id = cursor_id
+            for h in self.handles:
+                h.create_link(self._uuid, PySI.LinkingCapability.POSITION, h._uuid, PySI.LinkingCapability.POSITION)
+
+            self.create_link(cursor_id, link_attrib, self._uuid, link_attrib)
+            self.is_under_user_control = True
+            self.was_under_user_control = False
+            self.border_color = self.move_border_color
+
+    @SIEffect.on_leave(PySI.CollisionCapability.MOVE, SIEffect.RECEPTION)
+    def on_move_leave_recv(self, cursor_id, link_attrib):
+        if not cursor_id == "" and not link_attrib == "":
+            self.curser_id = ""
+
+            for h in self.handles:
+                h.remove_link(self._uuid, PySI.LinkingCapability.POSITION, h._uuid, PySI.LinkingCapability.POSITION)
+
+            self.remove_link(cursor_id, link_attrib, self._uuid, link_attrib)
+
+            lr = PySI.LinkRelation(cursor_id, link_attrib, self._uuid, link_attrib)
+
+            if lr in self.link_relations:
+                del self.link_relations[self.link_relations.index(lr)]
+
+            self.is_under_user_control = False
+            self.was_under_user_control = True
+            self.border_color = self.default_border_color
+
+    @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION)
+    def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y, kwargs={}):
+        if "moved_by_cursor" in kwargs.keys() and kwargs["moved_by_cursor"]:
+            if "moved_by_target" in kwargs.keys() and kwargs["moved_by_target"]:
+                for h in self.handles:
+                    h.create_link(self._uuid, PySI.LinkingCapability.POSITION, h._uuid, PySI.LinkingCapability.POSITION)
+
+            self.move(self.x + rel_x, self.y + rel_y)
+
+            self.delta_x, self.delta_y = rel_x, rel_y
+            self.transform_x += int(self.delta_x)
+            self.transform_y += int(self.delta_y)
+
+
+            if self.is_under_user_control:
+                self.mouse_x = abs_x
+                self.mouse_y = abs_y
+            else:
+                self.mouse_x = 0
+                self.mouse_y = 0
+        else:
+            if self.curser_id == "" and "moved_by_postit" in kwargs.keys() and kwargs["moved_by_postit"]:
+                if "moved_by_target" in kwargs.keys() and kwargs["moved_by_target"]:
+                    for h in self.handles:
+                        h.create_link(self._uuid, PySI.LinkingCapability.POSITION, h._uuid, PySI.LinkingCapability.POSITION)
+
+                self.move(self.x + rel_x, self.y + rel_y)
+
+                self.delta_x, self.delta_y = rel_x, rel_y
+                self.transform_x += int(self.delta_x)
+                self.transform_y += int(self.delta_y)
+
+
+                if self.is_under_user_control:
+                    self.mouse_x = abs_x
+                    self.mouse_y = abs_y
+                else:
+                    self.mouse_x = 0
+                    self.mouse_y = 0
+
+
+
+
+

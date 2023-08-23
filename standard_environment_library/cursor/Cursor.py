@@ -75,7 +75,7 @@ class Cursor(SIEffect):
         #         if r.regionname == "__SI_SELECTOR_NAME__":
         #             r.delete()
 
-        return self.x - self.last_x, self.y - self.last_y, self.x, self.y
+        return self.x - self.last_x, self.y - self.last_y, self.x, self.y, {"moved_by_cursor": True}
 
     @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION)
     def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y):
@@ -281,15 +281,15 @@ class Cursor(SIEffect):
             self.was_previously_active = False
 
         if self.kwargs["draw"] == "RMB":
-            collisions = [uuid for uuid, name in self.present_collisions()]
-            regions = [r for r in self.current_regions() if r._uuid in collisions and isinstance(r, Movable)]
-
-            if (len(regions) == 0 and is_active) or (is_active and len(regions) == 1 and regions[0].regionname == "__ Painter __" and regions[0] == self.paint_tool):
-                sorts = [s.is_popup_shown for s in self.current_regions() if s.regionname == "__ FolderSort __"]
-                if not any(sorts):
-                    self.show_radial_palette()
-            else:
-                self.remove_radial_palette()
+            # collisions = [uuid for uuid, name in self.present_collisions()]
+            # regions = [r for r in self.current_regions() if r._uuid in collisions and isinstance(r, Movable)]
+            #
+            # if (len(regions) == 0 and is_active) or (is_active and len(regions) == 1 and regions[0].regionname == "__ Painter __" and regions[0] == self.paint_tool):
+            #     sorts = [s.is_popup_shown for s in self.current_regions() if s.regionname == "__ FolderSort __"]
+            #     if not any(sorts):
+            #         self.show_radial_palette()
+            # else:
+            #     self.remove_radial_palette()
                 self.handle_move(is_active)
 
                 # self.handle_ctrl_press()

@@ -10,10 +10,16 @@ class Selector(PositionLinkable, SIEffect):
 
     def __init__(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         super(Selector, self).__init__(shape, uuid, "", Selector.regiontype, Selector.regionname, kwargs)
+        self.create(shape, uuid, kwargs)
 
+    def create(self, shape=PySI.PointVector(), uuid="", kwargs={}):
         self.qml_path = self.set_QML_path("Selector.qml")
 
-        self.color = kwargs["target_color"]
+        if kwargs["target_name"] == "__ Frame __":
+            self.color = PySI.Color(128, 128, 128, 255)
+        else:
+            self.color = kwargs["target_color"]
+
         self.target_name = kwargs["target_name"]
         self.target_display_name = kwargs["target_display_name"]
         self.target_texture_path = kwargs["target_texture"]
@@ -24,14 +30,15 @@ class Selector(PositionLinkable, SIEffect):
         self.highlight_color = PySI.Color(0, 120, 215, 255)
 
         self.parent = kwargs["parent"]
-        self.parent.selectors.append(self)
+        if self.parent is not None:
+            self.parent.selectors.append(self)
 
         self.middle_pt = kwargs["middle"]
         self.perp_vector = kwargs["perp_vector"]
 
         self.img_width = 40
         self.img_height = 40
-        
+
         x, y = self.middle_pt
         pvx, pvy = self.perp_vector
         pt = x + pvx * self.img_width, y + pvy * self.img_height

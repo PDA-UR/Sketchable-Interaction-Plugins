@@ -30,6 +30,9 @@ class VisualLink(Movable, Deletable, SIEffect):
             self.transportation_path = []
             self.start = kwargs["targets"][0]
             self.end = kwargs["targets"][1]
+
+            self.start.visual_links.append(self)
+            self.end.visual_links.append(self)
             self.build_link()
 
     @SIEffect.on_enter("__PARENT_CANVAS__", SIEffect.RECEPTION)
@@ -202,3 +205,28 @@ class VisualLink(Movable, Deletable, SIEffect):
 
     def dot(self, u, v):
         return sum((a * b) for a, b in zip(u, v))
+
+    @SIEffect.on_enter(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
+    def on_deletion_enter_recv(self):
+        if not self.is_under_user_control:
+            if self.is_visually_linked:
+                self.clear_links()
+
+            self.flagged_for_deletion = True
+            self.delete()
+
+    @SIEffect.on_continuous(PySI.CollisionCapability.DELETION, SIEffect.RECEPTION)
+    def on_deletion_continuous_recv(self):
+        if not self.is_under_user_control:
+            if self.is_visually_linked:
+                self.clear_links()
+
+            self.flagged_for_deletion = True
+            self.delete()
+
+    def clear_links(self):
+        self.start.remove_link(self.start._uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
+        self.start.remove_link(self.start._uuid, "__ON_RESIZED__", self._uuid, "__ON_RESIZED__")
+        self.start.remove_link(self.end._uuid, "__ON_RESIZED__", self._uuid, "__ON_RESIZED__")
+        self.start.remove_link(self.start._uuid, PySI.LinkingCapability.POSITION, self.end._uuid, PySI.LinkingCapability.POSITION)
+        self.start.remove_link(self.end._uuid, PySI.LinkingCapability.POSITION, self._uuid, PySI.LinkingCapability.POSITION)
