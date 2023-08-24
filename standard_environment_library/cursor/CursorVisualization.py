@@ -31,6 +31,22 @@ class CursorVisualization(PositionLinkable, SIEffect):
 
         pass
 
+    @SIEffect.on_link(SIEffect.RECEPTION, PySI.LinkingCapability.POSITION, PySI.LinkingCapability.POSITION)
+    def set_position_from_position(self, rel_x, rel_y, abs_x, abs_y, kwargs={}):
+        self.move(abs_x, abs_y)
+
+        self.delta_x, self.delta_y = rel_x, rel_y
+        self.transform_x += int(self.delta_x)
+        self.transform_y += int(self.delta_y)
+
+
+        if self.is_under_user_control:
+            self.mouse_x = abs_x
+            self.mouse_y = abs_y
+        else:
+            self.mouse_x = 0
+            self.mouse_y = 0
+
     def trigger_move(self, toggle):
         if toggle:
             self.shape = PySI.PointVector([[self.aabb[0].x, self.y], [self.aabb[0].x, self.aabb[0].y + self.height], [self.aabb[0].x + self.height, self.aabb[0].y + self.height], [self.aabb[0].x + self.height, self.aabb[0].y]])

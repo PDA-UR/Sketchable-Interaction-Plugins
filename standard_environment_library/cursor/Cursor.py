@@ -1,3 +1,5 @@
+import datetime
+
 from plugins.standard_environment_library.paint_test.Painter import Painter
 from plugins.standard_environment_library.palette.RadialPalette import RadialPalette
 from plugins.standard_environment_library.email.InboxItem import InboxItem
@@ -10,6 +12,7 @@ from libPySI import PySI
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.standard_environment_library._standard_behaviour_mixins.Movable import Movable
 
+from plugins.study.pde.basic.__Logger import Logger
 
 import math
 from plugins.standard_environment_library.filesystem import Folder, FolderIcon, FolderBubble, TextFile, ImageFile, ZIPFile, PDFFile
@@ -29,6 +32,8 @@ class Cursor(SIEffect):
         self.cursor_width_factor = 0.602090
         self.visualization = None
         self.id = kwargs["id"]
+
+        self.counter = 0
 
         self.create_region_via_name(PySI.PointVector([[self.x, self.y], [self.x, self.y + self.cursor_height], [self.x + self.cursor_height * self.cursor_width_factor, self.y + self.cursor_height], [self.x + self.cursor_height * self.cursor_width_factor, self.y]]), "__ Cursor Visualization __", kwargs={"parent": self, "width_factor": self.cursor_width_factor, "id": self.id})
 
@@ -66,11 +71,19 @@ class Cursor(SIEffect):
 
         self.associated_keyboard_key = ""
 
+        for r in self.current_regions():
+            if r.regionname == "__ TrackingIntegration __":
+                self.tracker = r
+                break
+
         self.paint_color = PySI.Color(0, 0, 0, 255)
         self.paint_tool = None
         self.temp = []
         self.ctrl_selected = []
         self.ctrl_pressed = False
+
+        self.dragging_timestamp = datetime.datetime.now().timestamp()
+        self.clicking_timestamp = datetime.datetime.now().timestamp()
 
         self.tooltip = [r for r in self.current_regions() if r.regionname == Tooltip.regionname][0]
         self.tooltip.update("Hold Left Mouse Button to Show Effects", Tooltip.MOUSE_BUTTON_LEFT)
@@ -134,6 +147,8 @@ class Cursor(SIEffect):
             return "", ""
 
         if self.move_target is None:
+            self.dragging_timestamp = datetime.datetime.now().timestamp()
+
             self.move_target = other
 
         if self.move_target is other:
@@ -148,6 +163,8 @@ class Cursor(SIEffect):
         if self.move_target is other:
             self.visualization.trigger_move(False)
             self.move_target = None
+            Logger.log("MOVE", self.dragging_timestamp, datetime.datetime.now().timestamp(), self.id, other.regionname, self.tracker, False)
+
             return self._uuid, PySI.LinkingCapability.POSITION
 
         return "", ""
@@ -284,10 +301,18 @@ class Cursor(SIEffect):
         self.left_mouse_active = is_active
         # self.is_draw_canceled = False
 
+        if is_active:
+            self.counter += 1
+
         if is_active and not self.was_previously_active:
-            self.__click_mouse__(self.absolute_x_pos(), self.absolute_y_pos())
+            self.clicking_timestamp = datetime.datetime.now().timestamp()
             self.was_previously_active = True
         if not is_active:
+            if self.counter < 20 and self.was_previously_active:
+                self.__click_mouse__(self.absolute_x_pos(), self.absolute_y_pos())
+                Logger.log("CLICK", self.clicking_timestamp, datetime.datetime.now().timestamp(), self.id, "", self.tracker, False)
+
+            self.counter = 0
             self.was_previously_active = False
 
         if self.kwargs["draw"] == "RMB":
@@ -322,6 +347,8 @@ class Cursor(SIEffect):
 
             if self.assigned_effect != "":
                 if not self.is_drawing_blocked and PySI.CollisionCapability.SKETCH not in self.cap_emit.keys():
+                    self.dragging_timestamp = datetime.datetime.now().timestamp()
+
                     self.enable_effect(PySI.CollisionCapability.SKETCH, True, self.on_sketch_enter_emit, self.on_sketch_continuous_emit, self.on_sketch_leave_emit)
         else:
             if PySI.CollisionCapability.SKETCH in self.cap_emit.keys():
@@ -329,7 +356,8 @@ class Cursor(SIEffect):
 
                 if self.parent_canvas is not None:
                     self.parent_canvas.on_sketch_leave_recv(*self.on_sketch_leave_emit(self.parent_canvas))
-                self.parent_canvas = None
+                    Logger.log("DRAW", self.dragging_timestamp, datetime.datetime.now().timestamp(), self.id, self.assigned_effect, self.tracker, False)
+                    self.parent_canvas = None
 
             if PySI.CollisionCapability.CLICK in self.cap_emit.keys():
                 self.disable_effect(PySI.CollisionCapability.CLICK, True)

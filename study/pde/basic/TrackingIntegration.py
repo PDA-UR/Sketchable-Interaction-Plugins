@@ -4,6 +4,7 @@ import time
 
 from libPySI import PySI
 
+import datetime
 from plugins.standard_environment_library.SIEffect import SIEffect
 from plugins.study.pde.basic.Tip import Tip
 from plugins.E import E
@@ -28,13 +29,54 @@ class TrackingIntegration(SIEffect):
     TRACKER_STATE_DRAG = 1
     UNIX_SOCK_NAME = "/home/vigitia/Desktop/IRPenTracking/uds_test"
 
+    LOG_FILE_FOLDER_PATH = "/home/juergen/Desktop/"
+    ELAPSED_START = datetime.datetime.now().timestamp()
+    GROUP = 0
+    TASK = 0
+    LOG_FILE_PATH = LOG_FILE_FOLDER_PATH
+
     def __init__(self, shape: PySI.PointVector = PySI.PointVector(), uuid: str = "", kwargs: dict = {}) -> None:
         super(TrackingIntegration, self).__init__(shape, uuid, "", TrackingIntegration.regiontype, TrackingIntegration.regionname, kwargs)
-        self.last_time = time.process_time()
-        self.is_running = True
-        self.num_tips = 3
-        self.tips = {}
-        self.queue = queue.Queue()
+        TrackingIntegration.GROUP = kwargs["group"]
+        TrackingIntegration.TASK = kwargs["task"]
+
+        TrackingIntegration.LOG_FILE_PATH += f"group{TrackingIntegration.GROUP}_task_{TrackingIntegration.TASK}_system_data.csv"
+        self.spawned_selectors = False
+
+        print(TrackingIntegration.LOG_FILE_PATH)
+
+        # if not os.path.exists(TrackingIntegration.LOG_FILE_PATH):
+        with open(TrackingIntegration.LOG_FILE_PATH, 'w') as out:
+            """
+            log to file:
+                group id
+                participant id <=> source of action
+                elapsed: time since start
+                interaction: system
+                active: true or false dependent on whether an action was started or stopped
+                action: move, click, dbl_click, etc.
+                target: the targeted object of the action
+            """
+            out.write("group,pid,elapsed,interaction,active,action,target\n")
+
+        # self.add_selectors()
+
+        TrackingIntegration.ELAPSED_START = datetime.datetime.now()
+        # pyautogui.keyDown("F5")
+        # pyautogui.keyUp("F5")
+        #
+        # pyautogui.keyDown("F5")
+        # pyautogui.keyUp("F5")
+        #
+        # pyautogui.keyDown("F5")
+        # pyautogui.keyUp("F5")
+        #
+        # pyautogui.keyDown("F5")
+        # pyautogui.keyUp("F5")
+        #
+        # pyautogui.keyDown("F5")
+        # pyautogui.keyUp("F5")
+        pass
 
     @SIEffect.on_enter(E.capability.canvas_parent, SIEffect.RECEPTION)
     def on_canvas_enter_recv(self, canvas_uuid):

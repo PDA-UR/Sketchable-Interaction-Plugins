@@ -55,7 +55,8 @@ Item
     }
 
     id: container
-
+    x: 10
+    y: 10
     width: 500
     height: 500
 
