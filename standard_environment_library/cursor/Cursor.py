@@ -84,6 +84,7 @@ class Cursor(SIEffect):
 
         self.dragging_timestamp = datetime.datetime.now().timestamp()
         self.clicking_timestamp = datetime.datetime.now().timestamp()
+        self.typing_timestamp = datetime.datetime.now().timestamp()
 
         self.tooltip = [r for r in self.current_regions() if r.regionname == Tooltip.regionname][0]
         self.tooltip.update("Hold Left Mouse Button to Show Effects", Tooltip.MOUSE_BUTTON_LEFT)
@@ -452,3 +453,9 @@ class Cursor(SIEffect):
     # @SIEffect.on_leave("__ TEXT __ ", SIEffect.EMISSION)
     # def on_text_leave_emit(self, other):
     #     pass
+
+    def start_typing(self, mid, known):
+        self.typing_timestamp = datetime.datetime.now().timestamp()
+
+    def stop_typing(self):
+        Logger.log("TYPE", self.typing_timestamp, datetime.datetime.now().timestamp(), self.id, "", self.tracker, False)

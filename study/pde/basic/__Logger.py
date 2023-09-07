@@ -25,8 +25,8 @@ class Logger:
     def __log__(action, tss, tse, tid, target, tracker, with_print):
         elapsed_start = tss - TrackingIntegration.TrackingIntegration.ELAPSED_START
         elapsed_end = tse - TrackingIntegration.TrackingIntegration.ELAPSED_START
-        start = f"{TrackingIntegration.TrackingIntegration.GROUP},{tid},{elapsed_start},system,{True},{action},{target}"
-        end = f"{TrackingIntegration.TrackingIntegration.GROUP},{tid},{elapsed_end},system,{False},{action},{target}"
+        start = f"{tracker.GROUP},{tid},{elapsed_start},system,{True},{action},{target}"
+        end = f"{tracker.GROUP},{tid},{elapsed_end},system,{False},{action},{target}"
 
         if with_print:
             print(start)

@@ -43,7 +43,7 @@ class TrackingIntegration(SIEffect):
         TrackingIntegration.LOG_FILE_PATH += f"group{TrackingIntegration.GROUP}_task_{TrackingIntegration.TASK}_system_data.csv"
         self.spawned_selectors = False
 
-        print(TrackingIntegration.LOG_FILE_PATH)
+        print(TrackingIntegration.LOG_FILE_PATH, TrackingIntegration.GROUP, TrackingIntegration.TASK)
 
         # if not os.path.exists(TrackingIntegration.LOG_FILE_PATH):
         with open(TrackingIntegration.LOG_FILE_PATH, 'w') as out:
